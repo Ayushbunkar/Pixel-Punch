@@ -5,8 +5,8 @@
 
 import { readFileSync } from "fs";
 import { join }         from "path";
-import type { FormState } from "@/lib/cost-scan/types";
-import type { Rag }       from "@/lib/cost-scan/types";
+import type { FormState } from "@/features/cost-scan/types";
+import type { Rag }       from "@/features/cost-scan/types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

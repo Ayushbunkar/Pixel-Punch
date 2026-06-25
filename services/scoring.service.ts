@@ -10,9 +10,9 @@ import {
   computeTier,
   runScoringEngine,
 } from "@/src/scoring/scoring-engine";
-import type { FormState }       from "@/lib/cost-scan/types";
-import type { ScorecardResult } from "@/lib/cost-scan/types";
-import type { Rag }             from "@/lib/cost-scan/types";
+import type { FormState }       from "@/features/cost-scan/types";
+import type { ScorecardResult } from "@/features/cost-scan/types";
+import type { Rag }             from "@/features/cost-scan/types";
 
 export type { Rag };
 
