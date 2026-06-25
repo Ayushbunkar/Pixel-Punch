@@ -1,0 +1,92 @@
+{
+  "templates": [
+    {
+      "id": "spend_no_unit_econ",
+      "priority": 1,
+      "conditions": [
+        { "type": "score_equals",    "field": "spend",         "value": "red" },
+        { "type": "array_includes",  "field": "unit_economics", "value": "none" }
+      ],
+      "text": "You have meaningful AI spend with low unit economics visibility. Most teams in your position uncover 20–40% avoidable cost by optimizing prompts, model choice, and routing."
+    },
+    {
+      "id": "pain_margin_budget",
+      "priority": 2,
+      "conditions": [
+        { "type": "field_in", "field": "main_pain", "values": ["margin_pressure", "budget_scrutiny"] }
+      ],
+      "text": "You indicated margin pressure or budget scrutiny as a key problem. A full AI Cost Audit will map exactly where costs are accumulating and provide a prioritised savings plan."
+    },
+    {
+      "id": "leak_premium_models",
+      "priority": 3,
+      "conditions": [
+        { "type": "field_equals", "field": "leakage_pattern", "value": "premium_models" }
+      ],
+      "text": "Premium models for simple tasks are a common leakage pattern. Systematic model tiering — routing cheaper models for low-complexity tasks — typically yields 15–30% savings without quality loss."
+    },
+    {
+      "id": "leak_prompts",
+      "priority": 4,
+      "conditions": [
+        { "type": "field_equals", "field": "leakage_pattern", "value": "large_prompts" }
+      ],
+      "text": "Large prompts and context windows often drive significant token waste. Targeted prompt tuning and context pruning is usually the fastest win in a cost audit."
+    },
+    {
+      "id": "leak_weak_routing",
+      "priority": 5,
+      "conditions": [
+        { "type": "field_equals", "field": "leakage_pattern", "value": "weak_routing" }
+      ],
+      "text": "Weak caching and routing strategies mean you are paying for redundant inference. Implementing semantic caching and intelligent routing can reduce API call volume by 20–50%."
+    },
+    {
+      "id": "leak_idle_gpu",
+      "priority": 6,
+      "conditions": [
+        { "type": "field_equals", "field": "leakage_pattern", "value": "idle_gpu" }
+      ],
+      "text": "Idle or overprovisioned GPU infrastructure is a silent budget drain. Right-sizing reserved compute to actual utilisation patterns typically recovers 20–35% of infrastructure spend."
+    },
+    {
+      "id": "leak_unattributed",
+      "priority": 7,
+      "conditions": [
+        { "type": "field_equals", "field": "leakage_pattern", "value": "unattributed" }
+      ],
+      "text": "Unattributed AI spend across teams and features makes it impossible to optimise. Establishing cost tagging and attribution is the essential first step — and it surfaces the biggest surprises."
+    },
+    {
+      "id": "gap_no_optimization",
+      "priority": 8,
+      "conditions": [
+        { "type": "array_exclusive", "field": "optimization_done", "value": "none_adhoc" }
+      ],
+      "text": "You haven't yet run structured optimisation across prompts, models, routing, and infra. Our deep audit is designed to do exactly that — giving you a prioritised, evidence-based savings roadmap."
+    },
+    {
+      "id": "threshold_high",
+      "priority": 9,
+      "conditions": [
+        { "type": "field_in", "field": "savings_threshold", "values": ["gte_25", "gte_40"] }
+      ],
+      "text": "You said ≥25% savings would make a deeper audit an obvious yes. Based on similar stacks — especially those with limited prompt tuning or model tiering — that target is realistic."
+    },
+    {
+      "id": "visibility_only",
+      "priority": 10,
+      "conditions": [
+        { "type": "field_equals", "field": "savings_threshold", "value": "need_visibility_first" },
+        { "type": "score_equals",  "field": "spend",            "value": "red" }
+      ],
+      "text": "You need visibility before committing to a savings target — which is exactly where an audit starts. The first deliverable is a complete cost breakdown by model, team, and feature."
+    }
+  ],
+  "tierDefaults": {
+    "1": "Based on your profile, a full AI Cost Audit is highly likely to surface significant savings. Most teams at your stage of AI dependence and spend recover 20–40% of costs through structured optimisation.",
+    "2": "Your profile indicates solid optimisation potential. A scoped audit focused on your highest-risk areas — prompts, model selection, or routing — would give you a clear, actionable savings roadmap.",
+    "3": "Your AI cost profile is relatively healthy for your current stage. As usage scales, maintaining unit economics visibility and a structured review cadence will keep costs from compounding.",
+    "4": "You're in the early stages of AI adoption — the right time to build cost-aware habits. We'll share content on unit economics, model selection, and cost governance as you move toward production workloads."
+  }
+}

@@ -1,0 +1,287 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pixelpunch.org/schemas/cost-scan-v1.json",
+  "title": "AI Cost Scan — Questionnaire Submission Schema",
+  "description": "Single source of truth for the Pixel Punch AI Cost Scan form. Used by frontend form validation and backend API validation. Does not contain scoring logic, Brevo integration, or frontend code.",
+  "type": "object",
+  "required": [
+    "ai_dependence",
+    "monthly_spend_band",
+    "spend_visibility",
+    "unit_economics",
+    "main_pain",
+    "leakage_pattern",
+    "optimization_done",
+    "savings_threshold",
+    "firstname",
+    "lastname",
+    "email",
+    "company",
+    "job_title"
+  ],
+  "additionalProperties": false,
+  "properties": {
+
+    "ai_dependence": {
+      "type": "string",
+      "description": "Q1 — Which of your products or internal processes depend on AI (LLMs, copilots, RAG, agents, GPU inference) today?",
+      "enum": [
+        "core_revenue",
+        "key_workflows",
+        "limited_pilots",
+        "no_production"
+      ],
+      "x-enumLabels": {
+        "core_revenue":    "Core revenue features",
+        "key_workflows":   "Key internal workflows (support/ops)",
+        "limited_pilots":  "Limited pilots/experiments",
+        "no_production":   "No production AI yet"
+      }
+    },
+
+    "monthly_spend_band": {
+      "type": "string",
+      "description": "Q2a — Approximate monthly AI spend band (USD). Select the band that best represents your total AI infrastructure and API costs per month.",
+      "enum": [
+        "lt_5k",
+        "5k_25k",
+        "25k_100k",
+        "100k_plus"
+      ],
+      "x-enumLabels": {
+        "lt_5k":      "Less than $5k/month",
+        "5k_25k":     "$5k–$25k/month",
+        "25k_100k":   "$25k–$100k/month",
+        "100k_plus":  "$100k+/month"
+      }
+    },
+
+    "spend_visibility": {
+      "type": "string",
+      "description": "Q2b — How clear is your view of AI spending? Indicates the confidence level in the monthly_spend_band figure provided.",
+      "enum": [
+        "very_clear",
+        "somewhat_clear",
+        "rough_guess",
+        "no_view"
+      ],
+      "x-enumLabels": {
+        "very_clear":     "Very clear",
+        "somewhat_clear": "Somewhat clear",
+        "rough_guess":    "Rough guess",
+        "no_view":        "No consolidated view"
+      }
+    },
+
+    "unit_economics": {
+      "type": "array",
+      "description": "Q3 — Which AI cost metrics do you currently track for your main AI workloads? Multi-select. If 'none' is selected it must be the only item in the array.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "cost_per_request",
+          "cost_per_task",
+          "cost_per_customer",
+          "none"
+        ]
+      },
+      "uniqueItems": true,
+      "x-enumLabels": {
+        "cost_per_request":  "Cost per request/inference",
+        "cost_per_task":     "Cost per successful task/ticket/user action",
+        "cost_per_customer": "Cost per customer or per feature",
+        "none":              "We don't measure unit economics"
+      },
+      "x-validationRules": [
+        {
+          "rule": "none_exclusive",
+          "description": "If 'none' is selected, it must be the only selected option. Selecting 'none' alongside any other value is invalid.",
+          "invalidExample": ["none", "cost_per_request"],
+          "validExamples": [["none"], ["cost_per_request", "cost_per_task"]]
+        }
+      ]
+    },
+
+    "main_pain": {
+      "type": "string",
+      "description": "Q4 — What is your biggest AI cost problem today? Identifies the primary business pain driver behind AI cost concerns.",
+      "enum": [
+        "bills_growing",
+        "margin_pressure",
+        "budget_scrutiny",
+        "lack_visibility"
+      ],
+      "x-enumLabels": {
+        "bills_growing":     "Bills growing faster than usage",
+        "margin_pressure":   "Margin pressure on AI features",
+        "budget_scrutiny":   "Budget scrutiny / CFO questions",
+        "lack_visibility":   "Lack of visibility (don't know where it goes)"
+      }
+    },
+
+    "leakage_pattern": {
+      "type": "string",
+      "description": "Q5 — Where do you believe most AI cost leakage is happening? Identifies the suspected root cause of excess AI spend.",
+      "enum": [
+        "large_prompts",
+        "premium_models",
+        "weak_routing",
+        "idle_gpu",
+        "unattributed",
+        "not_sure"
+      ],
+      "x-enumLabels": {
+        "large_prompts":   "Large prompts/context windows",
+        "premium_models":  "Using premium models for simple tasks",
+        "weak_routing":    "Weak routing/caching (too many calls, cache misses)",
+        "idle_gpu":        "Idle / overprovisioned GPU or infra",
+        "unattributed":    "Unattributed usage across teams/features",
+        "not_sure":        "Not sure"
+      }
+    },
+
+    "optimization_done": {
+      "type": "array",
+      "description": "Q6 — Which structured AI cost-optimization steps have you already completed on your AI stack? Multi-select. If 'none_adhoc' is selected it must be the only item in the array.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "formal_audit",
+          "prompt_tuning",
+          "model_tiering",
+          "infra_rightsizing",
+          "none_adhoc"
+        ]
+      },
+      "uniqueItems": true,
+      "x-enumLabels": {
+        "formal_audit":       "Formal AI cost audit (tokens, inference, infra, routing) in the last 12 months",
+        "prompt_tuning":      "Targeted tuning of prompts/context to reduce tokens",
+        "model_tiering":      "Systematic model tiering and routing based on evals and cost/quality trade-offs",
+        "infra_rightsizing":  "GPU/infra right-sizing based on utilization data",
+        "none_adhoc":         "None of the above / only ad-hoc changes"
+      },
+      "x-validationRules": [
+        {
+          "rule": "none_adhoc_exclusive",
+          "description": "If 'none_adhoc' is selected, it must be the only selected option. Selecting 'none_adhoc' alongside any other value is invalid.",
+          "invalidExample": ["none_adhoc", "prompt_tuning"],
+          "validExamples": [["none_adhoc"], ["prompt_tuning", "model_tiering"]]
+        }
+      ]
+    },
+
+    "savings_threshold": {
+      "type": "string",
+      "description": "Q7 — What level of savings makes a deeper technical AI audit an obvious 'yes'? Indicates the prospect's ROI threshold for committing to a full audit engagement.",
+      "enum": [
+        "gte_10",
+        "gte_25",
+        "gte_40",
+        "need_visibility_first"
+      ],
+      "x-enumLabels": {
+        "gte_10":                "≥10% reduction",
+        "gte_25":                "≥25% reduction",
+        "gte_40":                "≥40%+ reduction",
+        "need_visibility_first": "Need visibility first before deciding"
+      }
+    },
+
+    "extra_context": {
+      "type": "string",
+      "description": "Optional — Anything else we should know about your AI stack, constraints (regulatory/security/vendor), or cost concerns? Free-text field, maximum 2000 characters.",
+      "maxLength": 2000
+    },
+
+    "firstname": {
+      "type": "string",
+      "description": "Lead capture — Contact's first name.",
+      "minLength": 1,
+      "maxLength": 100
+    },
+
+    "lastname": {
+      "type": "string",
+      "description": "Lead capture — Contact's last name.",
+      "minLength": 1,
+      "maxLength": 100
+    },
+
+    "email": {
+      "type": "string",
+      "description": "Lead capture — Contact's work email address. Used as the unique identifier for Brevo contact upsert.",
+      "format": "email",
+      "maxLength": 254
+    },
+
+    "company": {
+      "type": "string",
+      "description": "Lead capture — Contact's company or organisation name.",
+      "minLength": 1,
+      "maxLength": 200
+    },
+
+    "job_title": {
+      "type": "string",
+      "description": "Lead capture — Contact's job title or role.",
+      "minLength": 1,
+      "maxLength": 150
+    },
+
+    "ref": {
+      "type": "string",
+      "description": "Ref source — Tracks the entry point that brought the contact to the scan. Persisted from the URL query parameter (?ref=...) through the form as a hidden field.",
+      "enum": [
+        "co-e2-scan",
+        "co-landing",
+        "co-hermes",
+        "co-scan-book"
+      ],
+      "x-enumLabels": {
+        "co-e2-scan":   "Email CTA (E2 nurture email)",
+        "co-landing":   "Organic landing page visit",
+        "co-hermes":    "Hermes conversational agent completion",
+        "co-scan-book": "Scorecard booking CTA click"
+      }
+    }
+  },
+
+  "x-crossFieldValidation": [
+    {
+      "rule": "unit_economics_none_exclusive",
+      "fields": ["unit_economics"],
+      "description": "If unit_economics contains 'none', the array length must be exactly 1."
+    },
+    {
+      "rule": "optimization_done_none_adhoc_exclusive",
+      "fields": ["optimization_done"],
+      "description": "If optimization_done contains 'none_adhoc', the array length must be exactly 1."
+    }
+  ],
+
+  "x-brevoAttributeMap": {
+    "ai_dependence":       "CO_AI_DEPENDENCE",
+    "monthly_spend_band":  "CO_SPEND_BAND",
+    "spend_visibility":    "CO_SPEND_VISIBILITY",
+    "unit_economics":      "CO_UNIT_ECONOMICS",
+    "main_pain":           "CO_MAIN_PAIN",
+    "leakage_pattern":     "CO_LEAKAGE_PATTERN",
+    "optimization_done":   "CO_OPTIMIZATION_DONE",
+    "savings_threshold":   "CO_SAVINGS_THRESHOLD",
+    "extra_context":       "CO_EXTRA_CONTEXT",
+    "ref":                 "CO_REF_SOURCE",
+    "firstname":           "FIRSTNAME",
+    "lastname":            "LASTNAME",
+    "email":               "EMAIL",
+    "company":             "COMPANY",
+    "job_title":           "JOB_TITLE"
+  },
+
+  "x-arrayEncoding": {
+    "unit_economics":    "comma-joined string when writing to Brevo attribute CO_UNIT_ECONOMICS",
+    "optimization_done": "comma-joined string when writing to Brevo attribute CO_OPTIMIZATION_DONE"
+  }
+}

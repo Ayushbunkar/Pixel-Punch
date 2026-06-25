@@ -1,0 +1,138 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import { FormState, ScorecardResult, StoredScanResult, ValidationErrors } from "@/features/cost-scan/types";
+
+interface SubmitResult {
+  success: boolean;
+  data?: ScorecardResult;
+  errors?: ValidationErrors;
+  message?: string;
+}
+
+interface UseSubmitScanReturn {
+  submit:    (state: FormState, validateAll: () => ValidationErrors) => Promise<SubmitResult>;
+  loading:   boolean;
+  error:     string | null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Hook — handles POST /api/cost-scan/submit
+// Stores result in sessionStorage for results page fallback.
+// Frontend never computes tier, scores, or insights.
+// ─────────────────────────────────────────────────────────────────────────────
+export function useSubmitScan(): UseSubmitScanReturn {
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState<string | null>(null);
+
+  const submit = useCallback(
+    async (state: FormState, validateAll: () => ValidationErrors): Promise<SubmitResult> => {
+      // ── Client-side pre-flight validation ──────────────────────────────
+      const validationErrors = validateAll();
+      if (Object.keys(validationErrors).length > 0) {
+        return { success: false, errors: validationErrors };
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        // ── Build request payload ─────────────────────────────────────────
+        // Attach UTM params from URL if present (SSR-safe)
+        const payload: Record<string, unknown> = {
+          ai_dependence:      state.ai_dependence,
+          monthly_spend_band: state.monthly_spend_band,
+          spend_visibility:   state.spend_visibility,
+          unit_economics:     state.unit_economics,
+          main_pain:          state.main_pain,
+          leakage_pattern:    state.leakage_pattern,
+          optimization_done:  state.optimization_done,
+          savings_threshold:  state.savings_threshold,
+          firstname:          state.firstname.trim(),
+          lastname:           state.lastname.trim(),
+          email:              state.email.trim().toLowerCase(),
+          company:            state.company.trim(),
+          job_title:          state.job_title.trim(),
+          ref:                state.ref ?? "co-landing",
+        };
+
+        // Include extra_context only if non-empty
+        if (state.extra_context && state.extra_context.trim().length > 0) {
+          payload.extra_context = state.extra_context.trim();
+        }
+
+        // Attach UTM params from window.location if available
+        if (typeof window !== "undefined") {
+          const sp = new URLSearchParams(window.location.search);
+          ["utm_source", "utm_medium", "utm_campaign", "utm_content"].forEach(
+            (k) => { if (sp.has(k)) payload[k] = sp.get(k); },
+          );
+        }
+
+        // ── POST to backend ───────────────────────────────────────────────
+        const res = await fetch("/api/cost-scan/submit", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify(payload),
+        });
+
+        // ── Handle 4xx validation errors from server ──────────────────────
+        if (res.status === 400) {
+          const body = await res.json();
+          return {
+            success: false,
+            errors:  body.errors ?? {},
+            message: "Please check your answers and try again.",
+          };
+        }
+
+        // ── Handle 429 rate limiting ──────────────────────────────────────
+        if (res.status === 429) {
+          const retryAfter = res.headers.get("retry-after") ?? "60";
+          return {
+            success: false,
+            message: `Too many submissions. Please try again in ${retryAfter} seconds.`,
+          };
+        }
+
+        if (!res.ok) {
+          throw new Error(`Server error: ${res.status}`);
+        }
+
+        // ── Parse scorecard response ──────────────────────────────────────
+        const data: ScorecardResult = await res.json();
+
+        // ── Persist to sessionStorage for results page ─────────────────────
+        // Results page reads this if direct navigation occurs after redirect.
+        const stored: StoredScanResult = {
+          ...data,
+          contact: {
+            firstname: state.firstname.trim(),
+            lastname:  state.lastname.trim(),
+            email:     state.email.trim().toLowerCase(),
+            company:   state.company.trim(),
+          },
+        };
+        try {
+          sessionStorage.setItem("cost_scan_result", JSON.stringify(stored));
+        } catch {
+          // sessionStorage may be unavailable (incognito quota, etc.) — non-fatal
+        }
+
+        return { success: true, data };
+      } catch (err) {
+        const msg =
+          err instanceof Error
+            ? err.message
+            : "Something went wrong. Please try again.";
+        setError(msg);
+        return { success: false, message: msg };
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  return { submit, loading, error };
+}

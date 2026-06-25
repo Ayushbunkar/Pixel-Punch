@@ -1,0 +1,30 @@
+{
+  "name": "pixel-punch",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node node_modules/next/dist/bin/next dev",
+    "build": "node node_modules/next/dist/bin/next build",
+    "start": "node node_modules/next/dist/bin/next start",
+    "test:step2": "node -e \"require('ts-node').register({transpileOnly:true,compilerOptions:{module:'commonjs',moduleResolution:'node'}}); require('./src/scoring/scoring-engine.ts')\"",
+    "test:step4": "node -e \"require('tsconfig-paths').register({baseUrl:'.',paths:{'@/*':['./*']}}); require('ts-node').register({transpileOnly:true,compilerOptions:{module:'commonjs',moduleResolution:'node'}}); require('./src/scoring/step4.test.ts')\""
+  },
+  "dependencies": {
+    "framer-motion": "^12.41.0",
+    "lucide-react": "^1.21.0",
+    "next": "^15.3.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.5.2",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^3.4.19",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5"
+  }
+}

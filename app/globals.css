@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: 'Inter', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #eef4ff;
+  color: #1e293b;
+  font-family: var(--font-inter);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Option cards ─────────────────────────────────────────────────── */
+.option-card {
+  @apply relative flex items-start gap-4 p-4 rounded-xl border cursor-pointer
+         transition-all duration-200 select-none;
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.option-card:hover {
+  border-color: #0d6efd;
+  background: rgba(13, 110, 253, 0.04);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(13, 110, 253, 0.08);
+}
+
+.option-card.selected {
+  border-color: #0d6efd;
+  background: rgba(13, 110, 253, 0.08);
+  box-shadow: 0 0 0 1px #0d6efd, 0 4px 20px rgba(13, 110, 253, 0.12);
+}
+
+.option-card.selected-multi {
+  border-color: #0b5ed7;
+  background: rgba(11, 94, 215, 0.08);
+  box-shadow: 0 0 0 1px #0b5ed7, 0 4px 20px rgba(11, 94, 215, 0.12);
+}
+
+/* ─── Progress bar ─────────────────────────────────────────────────── */
+.progress-bar-track {
+  @apply w-full h-1.5 rounded-full overflow-hidden;
+  background: #dbeafe;
+}
+
+.progress-bar-fill {
+  @apply h-full rounded-full transition-all duration-500 ease-out;
+  background: #0d6efd;
+}
+
+/* ─── Glassmorphism card ───────────────────────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 1rem;
+}
+
+/* ─── Step container animation ─────────────────────────────────────── */
+.step-enter {
+  animation: fadeUp 0.35s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ─── Input fields ─────────────────────────────────────────────────── */
+.pp-input {
+  @apply w-full px-4 py-3 rounded-xl text-slate-900 text-sm outline-none
+         transition-all duration-200 placeholder:text-slate-400;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+
+.pp-input:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+}
+
+/* ─── Primary button ───────────────────────────────────────────────── */
+.pp-btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl
+         font-semibold text-white transition-all duration-200 disabled:opacity-50
+         disabled:cursor-not-allowed;
+  background: #0d6efd;
+}
+
+.pp-btn-primary:not(:disabled):hover {
+  transform: translateY(-1px);
+  background: #0b5ed7;
+  box-shadow: 0 8px 24px rgba(13, 110, 253, 0.3);
+}
+
+.pp-btn-primary:not(:disabled):active {
+  transform: translateY(0);
+}
+
+/* ─── Secondary / ghost button ─────────────────────────────────────── */
+.pp-btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl
+         font-medium text-white transition-all duration-200;
+  background: #000000;
+  border: 1px solid #000000;
+}
+
+.pp-btn-ghost:hover {
+  background: #222222;
+  border-color: #222222;
+}
+
+/* ─── RAG badge ────────────────────────────────────────────────────── */
+.rag-red   { @apply text-rag-red   bg-rag-red-bg   border border-rag-red/30;   }
+.rag-amber { @apply text-rag-amber bg-rag-amber-bg border border-rag-amber/30; }
+.rag-green { @apply text-rag-green bg-rag-green-bg border border-rag-green/30; }
+
+/* ─── Scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #eef4ff; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ─── Print Styles ─────────────────────────────────────────────────── */
+@media print {
+  /* Hide interactive elements when printing to PDF */
+  nav, header, button, .pp-btn-primary, .pp-btn-ghost, footer, #cost-scan-pdf-export-btn {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .glass-card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}

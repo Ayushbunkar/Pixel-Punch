@@ -1,0 +1,17 @@
+{
+  "spend": {
+    "red": "Your AI spend visibility suggests significant optimization opportunities. A detailed review is recommended to prevent compounding waste.",
+    "amber": "You have some visibility, but clearer attribution and unit economics tracking would improve your cost efficiency.",
+    "green": "Your spend visibility is well-managed. Continue monitoring as your AI usage scales."
+  },
+  "architecture": {
+    "red": "Your current architecture and usage patterns show high risk of cost leakage, likely driven by unoptimized models or routing.",
+    "amber": "There are moderate risks in your architecture. Implementing tiering or caching could yield meaningful savings.",
+    "green": "Your architecture appears cost-efficient. Maintain your current optimization practices."
+  },
+  "pain": {
+    "red": "High business urgency. Your cost pain points justify immediate intervention and structured optimization.",
+    "amber": "Moderate urgency. It's a good time to review costs before they become a larger business issue.",
+    "green": "Low immediate urgency, but building cost-aware habits now will prevent future pain."
+  }
+}
