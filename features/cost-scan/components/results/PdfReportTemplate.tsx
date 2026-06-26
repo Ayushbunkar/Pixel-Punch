@@ -221,13 +221,11 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
                 minHeight: "34px",
                 borderRadius: "8px",
                 backgroundColor: tierStyle.badge,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                textAlign: "center",
+                lineHeight: "34px",
                 fontSize: "16px",
                 fontWeight: "900",
                 color: "#ffffff",
-                lineHeight: "1",
               }}>
                 {result.tier}
               </div>
