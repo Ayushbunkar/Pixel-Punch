@@ -63,54 +63,137 @@ function generateFallbackReport(input: AuditInput): AuditOutput {
   const { answers, scores, websiteUrl, aiStack, technicalNotes, files } = input;
   const companyName = answers.company || "Your Company";
 
-  // Build some custom sections based on answers
-  const hasHighSpend = answers.monthly_spend_band === "100k_plus" || answers.monthly_spend_band === "25k_100k";
-  const hasOpenAI = aiStack.providers?.includes("OpenAI");
-  const hasGPUs = aiStack.other?.includes("GPU usage");
-  const hasNoUnitEconomics = answers.unit_economics.includes("none");
-
-  const findings: string[] = [
-    `I analyzed the provided technical information for ${companyName} and identified several optimization vectors.`,
-  ];
-  const recommendations: string[] = [];
-
-  // Tailor findings
-  if (hasHighSpend) {
-    findings.push("Unoptimized premium model calls representing significant waste in non-critical pathways.");
-    recommendations.push("Implement Model Tiering: route simple categorization and retrieval jobs to lighter models (e.g. Gemini 2.5 Flash / GPT-4o-mini).");
-  } else {
-    findings.push("Opportunities to leverage prompt caching to reduce input token billing on recurring system prompts.");
-    recommendations.push("Review caching capabilities for your primary providers to optimize repetitive prompts.");
+  // Extract domain name
+  let domain = "";
+  if (websiteUrl) {
+    try {
+      domain = websiteUrl.replace(/https?:\/\/(www\.)?/, '').split('/')[0];
+    } catch {
+      domain = websiteUrl;
+    }
   }
 
-  if (hasOpenAI) {
-    findings.push("Heavy reliance on closed commercial APIs without semantic caching or middleware controls.");
-    recommendations.push("Deploy a semantic caching layer (e.g., Redis or GPTCache) to intercept identical prompt vectors.");
+  // Analyze files for tech keywords
+  const detectedTech: string[] = [];
+  const fileKeywords = {
+    "Vector Database": ["pinecone", "chroma", "milvus", "qdrant", "weaviate", "pgvector", "faiss"],
+    "AI Orchestrator": ["langchain", "llamaindex", "autogen", "crewai", "semantic kernel"],
+    "Cloud & Infrastructure": ["kubernetes", "docker", "eks", "ecs", "fargate", "sagemaker", "runpod", "baseten", "together", "anyscale", "modal"],
+    "AI Observability": ["langfuse", "langsmith", "openllmetry", "portkey", "helicone", "phoenix"],
+  };
+
+  const parsedFilesInfo: string[] = [];
+
+  files.forEach(f => {
+    const textLower = f.content.toLowerCase();
+
+    for (const [category, words] of Object.entries(fileKeywords)) {
+      words.forEach(word => {
+        if (textLower.includes(word)) {
+          const formatted = category === "AI Observability" || category === "AI Orchestrator"
+            ? `${word.charAt(0).toUpperCase() + word.slice(1)} (${category})`
+            : word.toUpperCase();
+          if (!detectedTech.includes(formatted)) {
+            detectedTech.push(formatted);
+          }
+        }
+      });
+    }
+
+    let snippet = f.content.trim().replace(/\s+/g, ' ');
+    if (snippet.length > 200) {
+      snippet = snippet.substring(0, 197) + "...";
+    }
+    parsedFilesInfo.push(`*   **Analyzed File [${f.name}]**: Decoded and parsed text context. Detected technical summary: _"${snippet || "(Empty text content detected)"}"_`);
+  });
+
+  const providers = aiStack.providers || [];
+  const models = aiStack.models || "";
+  const infrastructure = aiStack.infrastructure || [];
+  const otherStack = aiStack.other || [];
+
+  const hasHighSpend = answers.monthly_spend_band === "100k_plus" || answers.monthly_spend_band === "25k_100k";
+  const hasMediumSpend = answers.monthly_spend_band === "5k_25k";
+  const hasOpenAI = providers.includes("OpenAI");
+  const hasAnthropic = providers.includes("Anthropic");
+  const hasRAG = otherStack.includes("RAG system");
+  const hasVectorDb = otherStack.includes("Vector database");
+  const hasGPUs = otherStack.includes("GPU usage");
+  const hasNoUnitEconomics = answers.unit_economics.includes("none");
+
+  // Dynamic Findings and Recommendations arrays
+  const findings: string[] = [];
+  const recommendations: string[] = [];
+
+  // ── Findings logic ────────────────────────────────────────────────────────
+  findings.push(`I analyzed the provided technical information for ${companyName}${domain ? ` (associated with domain ${domain})` : ""} and identified critical areas of infrastructure cost leakage.`);
+
+  if (hasHighSpend) {
+    findings.push(`Premium LLM calls represent a substantial cost vector, showing potential token redundancies under the current '${answers.leakage_pattern}' leakage pattern.`);
+  } else if (hasMediumSpend) {
+    findings.push("Unmanaged development workflows and loose orchestration thresholds are causing minor cost runaways.");
+  } else {
+    findings.push("Initial pilots and small deployments lack prompt reuse, resulting in higher cold-start input costs per request.");
+  }
+
+  if (hasRAG || hasVectorDb) {
+    findings.push("Vector searches and RAG injection contexts are unpruned, frequently bloating the LLM prompt size with redundant tokens.");
   }
 
   if (hasGPUs) {
-    findings.push("Idle GPU cluster capacity during off-peak hours leading to unrecovered infrastructure spend.");
-    recommendations.push("Right-size GPU allocations and deploy auto-scaling rules to shut down inactive nodes.");
+    findings.push("Low GPU host utilization rates during off-peak windows indicate potential waste in dedicated instance hosting.");
   }
 
   if (hasNoUnitEconomics) {
-    findings.push("Lack of granular cost-per-request tracking obscures feature-level ROI.");
-    recommendations.push("Integrate an AI observability proxy (e.g., LiteLLM, Langfuse, or Portkey) to enable cost-per-user attribution.");
+    findings.push("Complete absence of granular cost tracking (cost-per-request or user attribution) creates pricing risks during production scaling.");
   }
 
-  if (files.length > 0) {
-    findings.push(`Analyzed technical documentation (${files.map(f => f.name).join(", ")}) indicating custom orchestration patterns.`);
-    recommendations.push("Audit custom orchestration pipelines to ensure RAG retrieval sizes do not bloat context windows.");
+  if (detectedTech.length > 0) {
+    findings.push(`Detected signature components in resource files: ${detectedTech.join(", ")}. These present integration-level optimization opportunities.`);
   }
 
-  // Ensure default bullets exist
-  if (findings.length === 1) {
-    findings.push("Potential model leakage due to fallback to premium models on network timeouts.");
+  // Ensure findings length is exactly 3-5
+  while (findings.length < 3) {
+    findings.push("Under-optimized prompt templates retransmitting identical system instructions repeatedly.");
   }
-  if (recommendations.length === 0) {
-    recommendations.push("Implement cost-limit alerts and auto-throttle thresholds in your staging/production environments.");
+  if (findings.length > 5) {
+    findings.splice(5);
   }
 
+  // ── Recommendations logic ──────────────────────────────────────────────────
+  if (hasOpenAI || hasAnthropic) {
+    recommendations.push(`Implement Semantic Caching: Deploy a caching proxy (such as Redis or Portkey) to intercept identical model queries, targeting the primary provider${providers.length > 1 ? 's' : ''} (${providers.join(", ")}).`);
+  }
+  
+  if (models.toLowerCase().includes("gpt-4") || models.toLowerCase().includes("claude-3-5")) {
+    const primaryModel = models.toLowerCase().includes("gpt-4") ? "GPT-4" : "Claude 3.5 Sonnet";
+    const lighterModel = models.toLowerCase().includes("gpt-4") ? "GPT-4o-mini" : "Claude 3.5 Haiku";
+    recommendations.push(`Adopt Model Tiering: Route simple routing, classification, or small JSON formatting queries away from ${primaryModel} and down to ${lighterModel}, which yields up to a 90% cost reduction.`);
+  } else {
+    recommendations.push("Establish a Multi-model Gateway: Enable fallbacks to lighter model weights (e.g. Gemini 2.5 Flash) for low-complexity operational tasks.");
+  }
+
+  if (hasRAG || hasVectorDb) {
+    recommendations.push("Apply RAG Optimization: Shrink chunk sizes, implement hybrid re-ranking, and configure metadata filters to avoid sending irrelevant text contexts inside the LLM prompt window.");
+  }
+
+  if (hasGPUs) {
+    recommendations.push("Migrate to Serverless Inference: Shift cold/idle models from persistent AWS EC2/GCP instances to auto-scaling serverless model containers (e.g., RunPod, Baseten, or Together API).");
+  }
+
+  if (hasNoUnitEconomics) {
+    recommendations.push("Integrate cost observability gateways (such as Langfuse, LiteLLM, or Helicone) to associate every token call with a unique userId or feature flag.");
+  }
+
+  // Ensure recommendations length is exactly 3-5
+  while (recommendations.length < 3) {
+    recommendations.push("Enable native provider Prompt Caching (supported by Anthropic and Gemini) for system prompts exceeding 1,024 tokens.");
+  }
+  if (recommendations.length > 5) {
+    recommendations.splice(5);
+  }
+
+  // Compile final markdown text
   const markdownReport = `
 # AI Cost Audit & Architecture Report
 
@@ -120,37 +203,41 @@ I analyzed the provided technical information for **${companyName}** to assess c
 ---
 
 ### 1. Current AI Architecture Understanding
-*   **Known Information**: 
-    *   Primary AI stack includes: ${aiStack.providers?.join(", ") || "unspecified providers"}
-    *   Models utilized: ${aiStack.models || "unspecified models"}
-    *   Deployment infrastructure: ${aiStack.infrastructure?.join(", ") || "unspecified cloud environment"}
-    *   AI capabilities: ${aiStack.other?.join(", ") || "none specified"}
-    *   Website under audit: ${websiteUrl || "not supplied"}
+*   **Known Information**:
+    *   **Primary Providers**: ${providers.length > 0 ? providers.join(", ") : "Not specified"}
+    *   **Models Utilized**: ${models || "Not specified"}
+    *   **Cloud Infrastructure**: ${infrastructure.length > 0 ? infrastructure.join(", ") : "Not specified"}
+    *   **Capabilities & Setup**: ${otherStack.length > 0 ? otherStack.join(", ") : "None specified"}
+    *   **Audited Domain**: ${domain ? `[${domain}](http://${domain})` : "Not provided"}
+    *   **Diagnostic Answers**: Dependence: _${answers.ai_dependence.replace('_', ' ')}_, Spend Band: _${answers.monthly_spend_band.replace('_', ' ')}_, Leakage pattern: _${answers.leakage_pattern.replace('_', ' ')}_.
+${parsedFilesInfo.length > 0 ? `    *   **Uploaded Resources**:\n${parsedFilesInfo.map(info => `        ${info}`).join("\n")}` : "    *   **Uploaded Resources**: No technical documentation was uploaded."}
+
 *   **Assumptions**:
-    *   The orchestration utilizes standard SDK wrappers without wrapper gateways, which may limit routing flexibility.
-    *   Repetitive agent prompts or RAG context vectors are re-transmitted without caching, driving up token fees.
+    *   Orchestration layers likely interface directly with provider SDKs rather than through a proxy gateway, causing vendor lock-in.
+    *   Recurring system prompts and system instructions are likely sent in full on each transaction without leveraging provider prompt caching headers.
+    *   RAG chunking strategies are likely static and uncompressed, resulting in high context window input overhead.
 
 ---
 
 ### 2. Possible Cost Leakage
-*   **Expensive Model Usage**: Running high-tier models on simple tasks (classification, token routing, small formatting checks).
-*   **Unnecessary Token Usage**: Redundant system instructions and over-bloated retrieval contexts in the RAG pipeline.
-*   **Missing Caching**: Lack of prompt caching or semantic database interceptors, resulting in charging for identical inputs.
-*   **Inefficient Infrastructure**: No auto-scaling configured on dedicated model instances or GPU compute hosts.
+*   **Expensive Model Usage**: Running high-tier models (${models || "premium LLMs"}) for basic operational tasks, data extractions, or routing choices that lighter tiers can resolve.
+*   **Unnecessary Token Usage**: Unstructured, conversational prompt structures and oversized vector database contexts that bloat input tokens.
+*   **Missing Caching**: Absence of query-level semantic cache tables, resulting in redundant processing fees for identical user queries.
+*   **Inefficient Infrastructure**: Persistent dedicated compute VMs running continuously with low average GPU/CPU utilization ratios.
 
 ---
 
 ### 3. Optimization Opportunities & Quick Wins
-*   **Prompt Caching**: Enable caching for prompt templates (saves up to 50% on input tokens).
-*   **Semantic Gateway**: Put a routing proxy in place to handle load-balancing and tiering.
-*   **Open-Source Embeddings**: Move embedding workloads from paid APIs to local or open-source hosting to reduce micro-costs.
+*   **Prompt Caching**: Activate cache headers on all system instructions over 1k tokens (saves up to 50% on input costs).
+*   **Model Routing**: Set up model routing logic to automatically dispatch simple formatting or classification tasks to cheaper tiers like GPT-4o-mini or Gemini 2.5 Flash.
+*   **RAG Context Thinning**: Tune top-k values, deploy re-rankers, and apply semantic deduplication on returned vector database documents.
 
 ---
 
 ### 4. Technical Risks & Long-term Recommendations
-*   **Operational Lock-in**: Hardcoded integrations to single API providers present API downtime risk and pricing volatility risk.
-*   **Trace Observability**: Without unit economics tracking, scaling user adoption will create linear cost growth.
-*   *Recommendation*: Set up Langfuse/OpenLLMetry tracing to map cost-per-user metrics.
+*   **Lack of Cost Observability**: Running production workloads without token tracking creates significant scale risk.
+*   *Recommendation*: Configure a central API wrapper proxy (like LiteLLM or Portkey) to intercept all traffic and log usage tokens.
+*   *Vendor Risk*: Direct dependencies on unique proprietary APIs present downtime risks. Plan for backup fallbacks.
 
 ---
 
