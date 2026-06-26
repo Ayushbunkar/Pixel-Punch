@@ -109,9 +109,14 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
               <p style={{ margin: "0 0 2px 0", fontSize: "11px", color: "#64748b" }}>
                 Report Date: <strong style={{ color: "#1e293b" }}>{today}</strong>
               </p>
-              <p style={{ margin: "0 0 6px 0", fontSize: "11px", color: "#64748b" }}>
+              <p style={{ margin: "0 0 2px 0", fontSize: "11px", color: "#64748b" }}>
                 Ref: <strong style={{ color: "#1e293b" }}>#{result.submissionId.slice(0, 8).toUpperCase()}</strong>
               </p>
+              {result.confidenceScore && (
+                <p style={{ margin: "0 0 6px 0", fontSize: "11px", color: "#64748b" }}>
+                  Confidence: <strong style={{ color: "#4f46e5" }}>{result.confidenceScore}</strong>
+                </p>
+              )}
               <div style={{
                 display: "inline-block",
                 backgroundColor: "#eff6ff", border: "1px solid #bfdbfe",

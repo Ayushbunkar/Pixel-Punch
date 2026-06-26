@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { StoredScanResult } from "@/features/cost-scan/types";
-import { Search, CheckCircle, AlertCircle, CheckCircle2, Cpu } from "lucide-react";
+import { Search, CheckCircle, AlertCircle, CheckCircle2, Cpu, Activity } from "lucide-react";
 import { ContactBar } from "@/components/ui/ContactBar";
 import * as motion from "framer-motion/client";
 import { slideUp, staggerContainer, fadeIn } from "@/components/ui/animations";
@@ -183,6 +183,52 @@ export default function ResultsPageContent() {
           <ScoreCard title="Architecture & Leakage Risk" dimension="architecture" score={result.scorecard.architecture} />
           <ScoreCard title="Business Pain & Urgency" dimension="pain" score={result.scorecard.pain} />
         </motion.section>
+
+        {/* ── AI Confidence & Cost Audit Metrics Grid ───────────────── */}
+        {result.confidenceScore && (
+          <motion.div variants={slideUp} className="mb-8 bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h2 className="text-xs font-bold text-slate-950 uppercase tracking-wider mb-4 flex flex-wrap items-center gap-2">
+              <Activity className="w-4 h-4 text-indigo-600 animate-pulse" />
+              AI Infrastructure Audit Evidence Verification
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Confidence Indicator */}
+              <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-slate-50 border border-slate-200/50">
+                <span className="text-[10px] text-slate-500 font-semibold mb-1 uppercase tracking-wider">Audit Confidence</span>
+                <span className="text-3xl font-black text-indigo-600">{result.confidenceScore}</span>
+                <span className="text-[9px] uppercase font-bold mt-2 px-2 py-0.5 rounded bg-indigo-50 border border-indigo-100 text-indigo-600">
+                  {Number(result.confidenceScore.replace("%", "")) >= 70 
+                    ? "High Data Depth" 
+                    : Number(result.confidenceScore.replace("%", "")) >= 40 
+                      ? "Medium Data Depth" 
+                      : "Low Data Depth"}
+                </span>
+              </div>
+              
+              {/* Cost Evidence summary */}
+              <div className="md:col-span-2 space-y-2 text-xs flex flex-col justify-center">
+                <div className="grid grid-cols-2 gap-2 border-b border-slate-100 pb-2">
+                  <span className="text-slate-500 font-medium">Billed Provider:</span>
+                  <span className="text-slate-900 font-semibold text-right">
+                    {result.costAnalysis?.normalizedData?.provider || "Self-reported Provider"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 border-b border-slate-100 pb-2">
+                  <span className="text-slate-500 font-medium">Audited Spend Run:</span>
+                  <span className="text-indigo-600 font-extrabold text-right">
+                    {result.costAnalysis?.normalizedData?.monthlySpend || "No direct billing data"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 pb-1">
+                  <span className="text-slate-500 font-medium">Identified Waste:</span>
+                  <span className="text-red-600 font-semibold text-right truncate" title={result.costAnalysis?.normalizedData?.unusedResources}>
+                    {result.costAnalysis?.normalizedData?.unusedResources || "Unoptimized staging endpoints"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* ── Insights ─────────────────────────────────────────────── */}
         <motion.div variants={slideUp}>

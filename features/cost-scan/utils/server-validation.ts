@@ -154,34 +154,39 @@ export function validateSubmission(body: unknown): FieldError[] {
 
   // ── Technical audit fields validation (if nested payload) ─────────────────
   if (hasAnswers) {
-    const url = bodyRecord.websiteUrl;
+    const techCtx = (bodyRecord.technicalContext || {}) as Record<string, any>;
+    
+    // Website URL (can be in technicalContext or at root)
+    const url = techCtx.websiteUrl !== undefined ? techCtx.websiteUrl : bodyRecord.websiteUrl;
     if (url !== undefined && url !== null && url !== "") {
       if (typeof url !== "string") {
         errors.push({ field: "websiteUrl", message: "Website URL must be a string." });
       } else {
         const trimmed = url.trim();
-        // Regex supporting http/https and optional trailing slashes/paths
         if (!/^https?:\/\/[^\s$.?#].[^\s]*$/i.test(trimmed)) {
           errors.push({ field: "websiteUrl", message: "Please enter a valid website URL." });
         }
       }
     }
 
-    const aiStack = bodyRecord.aiStack;
+    // AI Stack (can be in technicalContext or at root)
+    const aiStack = techCtx.aiStack !== undefined ? techCtx.aiStack : bodyRecord.aiStack;
     if (aiStack !== undefined && aiStack !== null) {
       if (typeof aiStack !== "object" || Array.isArray(aiStack)) {
         errors.push({ field: "aiStack", message: "AI Stack details must be a JSON object." });
       }
     }
 
-    const notes = bodyRecord.technicalNotes;
+    // Technical Notes (can be in technicalContext or at root)
+    const notes = techCtx.technicalNotes !== undefined ? techCtx.technicalNotes : bodyRecord.technicalNotes;
     if (notes !== undefined && notes !== null && notes !== "") {
       if (typeof notes !== "string") {
         errors.push({ field: "technicalNotes", message: "Technical notes must be a string." });
       }
     }
 
-    const docs = bodyRecord.documents;
+    // Documents (can be in technicalContext or at root)
+    const docs = techCtx.documents !== undefined ? techCtx.documents : bodyRecord.documents;
     if (docs !== undefined && docs !== null) {
       if (!Array.isArray(docs)) {
         errors.push({ field: "documents", message: "Documents must be an array." });
@@ -212,6 +217,80 @@ export function validateSubmission(body: unknown): FieldError[] {
         }
       }
     }
+
+    // Architecture Files
+    const archFiles = bodyRecord.architectureFiles;
+    if (archFiles !== undefined && archFiles !== null) {
+      if (!Array.isArray(archFiles)) {
+        errors.push({ field: "architectureFiles", message: "Architecture files must be an array." });
+      } else {
+        for (let i = 0; i < archFiles.length; i++) {
+          const file = archFiles[i];
+          if (!file || typeof file !== "object" || Array.isArray(file)) {
+            errors.push({ field: `architectureFiles[${i}]`, message: "Each architecture file must be an object." });
+          } else {
+            const name = file.name;
+            const size = file.size;
+            const base64 = file.base64;
+            if (typeof name !== "string" || !name) {
+              errors.push({ field: `architectureFiles[${i}].name`, message: "Architecture file name is required." });
+            }
+            if (typeof base64 !== "string" || !base64) {
+              errors.push({ field: `architectureFiles[${i}].base64`, message: "Architecture file base64 content is required." });
+            }
+            if (typeof size === "number" && size > 10 * 1024 * 1024) {
+              errors.push({ field: `architectureFiles[${i}].size`, message: "Architecture file size must not exceed 10MB." });
+            }
+            const ext = name ? name.split('.').pop()?.toLowerCase() : '';
+            const allowedExts = ["png", "jpg", "jpeg", "pdf", "drawio", "xml", "doc", "docx"];
+            if (ext && !allowedExts.includes(ext)) {
+              errors.push({ field: `architectureFiles[${i}].name`, message: `Unsupported format: .${ext}. Allowed: PNG, JPG, JPEG, PDF, DRAWIO, XML, DOC, DOCX.` });
+            }
+          }
+        }
+      }
+    }
+
+    // Cost Evidence Files
+    const costFiles = bodyRecord.costEvidenceFiles;
+    if (costFiles !== undefined && costFiles !== null) {
+      if (!Array.isArray(costFiles)) {
+        errors.push({ field: "costEvidenceFiles", message: "Cost evidence files must be an array." });
+      } else {
+        for (let i = 0; i < costFiles.length; i++) {
+          const file = costFiles[i];
+          if (!file || typeof file !== "object" || Array.isArray(file)) {
+            errors.push({ field: `costEvidenceFiles[${i}]`, message: "Each cost evidence file must be an object." });
+          } else {
+            const name = file.name;
+            const size = file.size;
+            const base64 = file.base64;
+            if (typeof name !== "string" || !name) {
+              errors.push({ field: `costEvidenceFiles[${i}].name`, message: "Cost evidence file name is required." });
+            }
+            if (typeof base64 !== "string" || !base64) {
+              errors.push({ field: `costEvidenceFiles[${i}].base64`, message: "Cost evidence file base64 content is required." });
+            }
+            if (typeof size === "number" && size > 10 * 1024 * 1024) {
+              errors.push({ field: `costEvidenceFiles[${i}].size`, message: "Cost evidence file size must not exceed 10MB." });
+            }
+            const ext = name ? name.split('.').pop()?.toLowerCase() : '';
+            const allowedExts = ["csv", "xlsx", "xls", "pdf", "png", "jpg", "jpeg"];
+            if (ext && !allowedExts.includes(ext)) {
+              errors.push({ field: `costEvidenceFiles[${i}].name`, message: `Unsupported format: .${ext}. Allowed: CSV, XLSX, XLS, PDF, PNG, JPG, JPEG.` });
+            }
+          }
+        }
+      }
+    }
+
+    // Usage Metrics
+    const metrics = bodyRecord.usageMetrics;
+    if (metrics !== undefined && metrics !== null) {
+      if (typeof metrics !== "object" || Array.isArray(metrics)) {
+        errors.push({ field: "usageMetrics", message: "Usage metrics must be an object." });
+      }
+    }
   }
 
   return errors;
@@ -219,29 +298,49 @@ export function validateSubmission(body: unknown): FieldError[] {
 
 /** Casts a validated body to FormState (call only after validateSubmission returns []). */
 export function castToFormState(data: Record<string, unknown>): FormState {
-  return {
-    ai_dependence:      data.ai_dependence      as FormState["ai_dependence"],
-    monthly_spend_band: data.monthly_spend_band as FormState["monthly_spend_band"],
-    spend_visibility:   data.spend_visibility   as FormState["spend_visibility"],
-    unit_economics:     data.unit_economics      as FormState["unit_economics"],
-    main_pain:          data.main_pain           as FormState["main_pain"],
-    leakage_pattern:    data.leakage_pattern     as FormState["leakage_pattern"],
-    optimization_done:  data.optimization_done  as FormState["optimization_done"],
-    savings_threshold:  data.savings_threshold  as FormState["savings_threshold"],
-    extra_context:      (data.extra_context as string | undefined) ?? "",
-    firstname:          (data.firstname as string).trim(),
-    lastname:           (data.lastname  as string).trim(),
-    email:              (data.email     as string).trim().toLowerCase(),
-    company:            (data.company   as string).trim(),
-    job_title:          (data.job_title as string).trim(),
-    ref:                (data.ref       as string | undefined) ?? "co-landing",
+  const isNested = data.answers && typeof data.answers === "object" && !Array.isArray(data.answers);
+  const answersData = (isNested ? (data.answers as Record<string, unknown>) : data) as any;
 
-    website_url:        (data.website_url as string | undefined) ?? "",
-    ai_providers:       (data.ai_providers as string[] | undefined) ?? [],
-    ai_models:          (data.ai_models as string | undefined) ?? "",
-    ai_infrastructure:  (data.ai_infrastructure as string[] | undefined) ?? [],
-    ai_other:           (data.ai_other as string[] | undefined) ?? [],
-    technical_notes:    (data.technical_notes as string | undefined) ?? "",
-    documents:          (data.documents as FormState["documents"] | undefined) ?? [],
+  const techCtx = ((isNested ? data.technicalContext : null) || {}) as Record<string, any>;
+  const aiStack = (techCtx.aiStack || (isNested ? data.aiStack : null) || {}) as Record<string, any>;
+
+  const metrics: Record<string, any> = (isNested ? (data.usageMetrics as Record<string, any> || {}) : {});
+
+  return {
+    ai_dependence:      answersData.ai_dependence      as FormState["ai_dependence"],
+    monthly_spend_band: answersData.monthly_spend_band as FormState["monthly_spend_band"],
+    spend_visibility:   answersData.spend_visibility   as FormState["spend_visibility"],
+    unit_economics:     answersData.unit_economics      as FormState["unit_economics"],
+    main_pain:          answersData.main_pain           as FormState["main_pain"],
+    leakage_pattern:    answersData.leakage_pattern     as FormState["leakage_pattern"],
+    optimization_done:  answersData.optimization_done  as FormState["optimization_done"],
+    savings_threshold:  answersData.savings_threshold  as FormState["savings_threshold"],
+    extra_context:      (answersData.extra_context as string | undefined) ?? "",
+    firstname:          (answersData.firstname as string).trim(),
+    lastname:           (answersData.lastname  as string).trim(),
+    email:              (answersData.email     as string).trim().toLowerCase(),
+    company:            (answersData.company   as string).trim(),
+    job_title:          (answersData.job_title as string).trim(),
+    ref:                (answersData.ref       as string | undefined) ?? "co-landing",
+
+    website_url:        (techCtx.websiteUrl || (isNested ? data.websiteUrl : null) || answersData.website_url || "") as string,
+    ai_providers:       (aiStack.providers || answersData.ai_providers || []) as string[],
+    ai_models:          (aiStack.models || answersData.ai_models || "") as string,
+    ai_infrastructure:  (aiStack.infrastructure || answersData.ai_infrastructure || []) as string[],
+    ai_other:           (aiStack.other || answersData.ai_other || []) as string[],
+    technical_notes:    (techCtx.technicalNotes || (isNested ? data.technicalNotes : null) || answersData.technical_notes || "") as string,
+    documents:          (techCtx.documents || (isNested ? data.documents : null) || answersData.documents || []) as any[],
+
+    architecture_files: (isNested ? data.architectureFiles : answersData.architecture_files || []) as any[],
+    cost_files:         (isNested ? data.costEvidenceFiles : answersData.cost_files || []) as any[],
+    usage_metrics: {
+      monthly_requests:     String(metrics.monthly_requests ?? answersData.usage_metrics?.monthly_requests ?? ""),
+      input_tokens:         String(metrics.input_tokens ?? answersData.usage_metrics?.input_tokens ?? ""),
+      output_tokens:        String(metrics.output_tokens ?? answersData.usage_metrics?.output_tokens ?? ""),
+      model_distribution:   String(metrics.model_distribution ?? answersData.usage_metrics?.model_distribution ?? ""),
+      gpu_hours:            String(metrics.gpu_hours ?? answersData.usage_metrics?.gpu_hours ?? ""),
+      latency_requirements: String(metrics.latency_requirements ?? answersData.usage_metrics?.latency_requirements ?? ""),
+      user_volume:          String(metrics.user_volume ?? answersData.usage_metrics?.user_volume ?? ""),
+    },
   };
 }

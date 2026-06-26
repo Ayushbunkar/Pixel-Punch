@@ -17,6 +17,10 @@ interface AuditInput {
   };
   technicalNotes?: string;
   files: Array<{ name: string; content: string }>;
+  architectureAnalysis?: { summary: string; findings: string[]; risks: string[] };
+  costAnalysis?: { summary: string; normalizedData: any };
+  usageMetrics?: any;
+  confidenceScore?: string;
 }
 
 interface AuditOutput {
@@ -60,7 +64,7 @@ function extractBulletPoints(text: string, heading: string): string[] {
  * Fallback local report generator when no LLM API key is configured or API fails.
  */
 function generateFallbackReport(input: AuditInput): AuditOutput {
-  const { answers, scores, websiteUrl, aiStack, technicalNotes, files } = input;
+  const { answers, scores, websiteUrl, aiStack, technicalNotes, files, architectureAnalysis, costAnalysis, usageMetrics, confidenceScore } = input;
   const companyName = answers.company || "Your Company";
 
   // Extract domain name
@@ -136,7 +140,10 @@ function generateFallbackReport(input: AuditInput): AuditOutput {
     findings.push("Initial pilots and small deployments lack prompt reuse, resulting in higher cold-start input costs per request.");
   }
 
-  if (hasRAG || hasVectorDb) {
+  // Include architecture findings
+  if (architectureAnalysis?.findings && architectureAnalysis.findings.length > 0) {
+    findings.push(...architectureAnalysis.findings);
+  } else if (hasRAG || hasVectorDb) {
     findings.push("Vector searches and RAG injection contexts are unpruned, frequently bloating the LLM prompt size with redundant tokens.");
   }
 
@@ -185,6 +192,15 @@ function generateFallbackReport(input: AuditInput): AuditOutput {
     recommendations.push("Integrate cost observability gateways (such as Langfuse, LiteLLM, or Helicone) to associate every token call with a unique userId or feature flag.");
   }
 
+  // Add usage metrics optimization recommendations
+  if (usageMetrics?.optimizationAreas) {
+    usageMetrics.optimizationAreas.forEach((area: string) => {
+      if (!recommendations.includes(area)) {
+        recommendations.push(area);
+      }
+    });
+  }
+
   // Ensure recommendations length is exactly 3-5
   while (recommendations.length < 3) {
     recommendations.push("Enable native provider Prompt Caching (supported by Anthropic and Gemini) for system prompts exceeding 1,024 tokens.");
@@ -192,6 +208,8 @@ function generateFallbackReport(input: AuditInput): AuditOutput {
   if (recommendations.length > 5) {
     recommendations.splice(5);
   }
+
+  const costDetails = costAnalysis?.normalizedData || {};
 
   // Compile final markdown text
   const markdownReport = `
@@ -202,7 +220,7 @@ I analyzed the provided technical information for **${companyName}** to assess c
 
 ---
 
-### 1. Current AI Architecture Understanding
+### Current Architecture Analysis
 *   **Known Information**:
     *   **Primary Providers**: ${providers.length > 0 ? providers.join(", ") : "Not specified"}
     *   **Models Utilized**: ${models || "Not specified"}
@@ -212,6 +230,9 @@ I analyzed the provided technical information for **${companyName}** to assess c
     *   **Diagnostic Answers**: Dependence: _${answers.ai_dependence.replace('_', ' ')}_, Spend Band: _${answers.monthly_spend_band.replace('_', ' ')}_, Leakage pattern: _${answers.leakage_pattern.replace('_', ' ')}_.
 ${parsedFilesInfo.length > 0 ? `    *   **Uploaded Resources**:\n${parsedFilesInfo.map(info => `        ${info}`).join("\n")}` : "    *   **Uploaded Resources**: No technical documentation was uploaded."}
 
+*   **Architecture Diagram Analysis**:
+    ${architectureAnalysis?.summary || "No architecture diagrams were provided. Analysis based on user questionnaires and notes."}
+
 *   **Assumptions**:
     *   Orchestration layers likely interface directly with provider SDKs rather than through a proxy gateway, causing vendor lock-in.
     *   Recurring system prompts and system instructions are likely sent in full on each transaction without leveraging provider prompt caching headers.
@@ -219,34 +240,64 @@ ${parsedFilesInfo.length > 0 ? `    *   **Uploaded Resources**:\n${parsedFilesIn
 
 ---
 
-### 2. Possible Cost Leakage
-*   **Expensive Model Usage**: Running high-tier models (${models || "premium LLMs"}) for basic operational tasks, data extractions, or routing choices that lighter tiers can resolve.
-*   **Unnecessary Token Usage**: Unstructured, conversational prompt structures and oversized vector database contexts that bloat input tokens.
-*   **Missing Caching**: Absence of query-level semantic cache tables, resulting in redundant processing fees for identical user queries.
-*   **Inefficient Infrastructure**: Persistent dedicated compute VMs running continuously with low average GPU/CPU utilization ratios.
+### Cost Analysis
+*   **Cost Evidence Summary**:
+    ${costAnalysis?.summary || "No invoice or usage evidence was supplied for billing validation."}
+*   **Normalized Cost Metrics**:
+    *   **Monthly Spend**: ${costDetails.monthlySpend || "No direct billing data"}
+    *   **Primary Billing Provider**: ${costDetails.provider || "Not specified"}
+    *   **Service Category Billed**: ${costDetails.serviceUsage || "Not specified"}
+    *   **Model Allocation**: ${costDetails.modelUsage || "Not specified"}
+    *   **Token Volume Billing**: ${costDetails.tokenConsumption || "Not specified"}
+    *   **GPU Hardware Cost**: ${costDetails.gpuCost || "Not specified"}
+    *   **Identified Idle Resource Waste**: ${costDetails.unusedResources || "Not specified"}
 
 ---
 
-### 3. Optimization Opportunities & Quick Wins
-*   **Prompt Caching**: Activate cache headers on all system instructions over 1k tokens (saves up to 50% on input costs).
-*   **Model Routing**: Set up model routing logic to automatically dispatch simple formatting or classification tasks to cheaper tiers like GPT-4o-mini or Gemini 2.5 Flash.
-*   **RAG Context Thinning**: Tune top-k values, deploy re-rankers, and apply semantic deduplication on returned vector database documents.
+### Detected Risks
+*   **Verified Risks (Based on Uploaded Data)**:
+    ${architectureAnalysis?.risks && architectureAnalysis.risks.length > 0
+      ? architectureAnalysis.risks.map(r => `*   ${r}`).join("\n    ")
+      : "*   High dependency on closed-source model pricing structures."}
+*   **Potential Risks (Based on Operational Patterns)**:
+    *   Single API route dependency without fallback model endpoints risk operational downtime.
+    *   Linear token cost growth matches scaling user volume due to missing semantic caching proxy.
+*   **Assumptions (Missing Data)**:
+    *   Observability platforms (Langfuse, LiteLLM) are assumed missing or non-functional, preventing feature-level ROI metrics.
 
 ---
 
-### 4. Technical Risks & Long-term Recommendations
-*   **Lack of Cost Observability**: Running production workloads without token tracking creates significant scale risk.
-*   *Recommendation*: Configure a central API wrapper proxy (like LiteLLM or Portkey) to intercept all traffic and log usage tokens.
-*   *Vendor Risk*: Direct dependencies on unique proprietary APIs present downtime risks. Plan for backup fallbacks.
+### Optimization Opportunities
+*   **Heuristics Findings**:
+    ${findings.map(f => `*   ${f}`).join("\n    ")}
+*   **Key Action Areas**:
+    *   Prompt Caching: Activate cache headers on all system instructions over 1k tokens (saves up to 50% on input costs).
+    *   Model Routing: Set up model routing logic to automatically dispatch simple formatting or classification tasks to cheaper tiers.
 
 ---
 
-### 5. Summary Insights
+### Quick Wins
+*   Enable native provider Prompt Caching (supported by Anthropic and Gemini) for system prompts exceeding 1,024 tokens.
+*   Adopt Model Tiering: Route simple formatting queries to lighter model weights (e.g. GPT-4o-mini / Claude 3.5 Haiku) which reduces costs by up to 90%.
 
-#### Key Findings
+---
+
+### Long-Term Recommendations
+*   Configure a central API wrapper proxy (like LiteLLM or Portkey) to intercept all traffic and log usage tokens.
+*   Establish semantic database caches (e.g., Redis or GPTCache) to resolve repetitive user query inputs.
+
+---
+
+### Confidence Level
+*   **Audit Confidence**: **${confidenceScore || "20%"}**
+*   *Confidence Attribution*: Questionnaire data (20%), Website data (${websiteUrl ? "15%" : "0%"}), AI stack (${(aiStack.providers?.length ?? 0) > 0 || aiStack.models ? "15%" : "0%"}), Documents (${files.length > 0 ? "20%" : "0%"}), Architecture diagram (${architectureAnalysis?.summary && architectureAnalysis.summary !== "No architecture documentation was supplied for analysis." ? "15%" : "0%"}), Cost Evidence (${costAnalysis?.summary && costAnalysis.summary !== "No invoice or billing documents were uploaded for validation." ? "15%" : "0%"}).
+
+---
+
+### Key Findings
 ${findings.map(f => `- ${f}`).join("\n")}
 
-#### Expert Recommendations
+### Expert Recommendations
 ${recommendations.map(r => `- ${r}`).join("\n")}
 `;
 
@@ -262,19 +313,20 @@ ${recommendations.map(r => `- ${r}`).join("\n")}
  * otherwise falls back to the deterministic local generator.
  */
 export async function generateAuditReport(input: AuditInput): Promise<AuditOutput> {
-  const { answers, scores, websiteUrl, aiStack, technicalNotes, files } = input;
+  const { answers, scores, websiteUrl, aiStack, technicalNotes, files, architectureAnalysis, costAnalysis, usageMetrics, confidenceScore } = input;
 
   const geminiKey = process.env.GEMINI_API_KEY;
   const openaiKey = process.env.OPENAI_API_KEY;
+  const mistralKey = process.env.MISTRAL_API_KEY;
 
-  if (!geminiKey && !openaiKey) {
+  if (!geminiKey && !openaiKey && !mistralKey) {
     console.log("[audit.service] No AI API keys found. Running fallback generator.");
     return generateFallbackReport(input);
   }
 
   // Build the context prompt
-  const prompt = `You are an AI infrastructure cost auditor analyzing a company's actual AI environment.
-
+  const prompt = `You are an AI infrastructure cost auditor. Analyze the company's actual technical environment using provided architecture, usage data, cost evidence, and technical information.
+ 
 Here is the context provided about the company:
 - Company name: ${answers.company || "unspecified"} (Scan submitted by: ${answers.firstname} ${answers.lastname}, Role: ${answers.job_title})
 - Contact email: ${answers.email}
@@ -304,17 +356,42 @@ Here is the context provided about the company:
 - Extracted Technical Resources & Document Texts:
   ${files.length > 0 ? files.map(f => `--- File: ${f.name} ---\n${f.content}`).join("\n\n") : "No documents provided."}
 
+- Architecture Diagram Analysis:
+  ${architectureAnalysis?.summary || "None provided"}
+  * Findings: ${architectureAnalysis?.findings?.join(", ") || "None"}
+  * Risks: ${architectureAnalysis?.risks?.join(", ") || "None"}
+
+- Cost Evidence Analysis:
+  ${costAnalysis?.summary || "None provided"}
+  * Normalized Cost Data: ${JSON.stringify(costAnalysis?.normalizedData || {})}
+
+- AI Usage Metrics Analysis:
+  * Monthly Requests: ${usageMetrics?.monthly_requests || "Unspecified"}
+  * Input Tokens: ${usageMetrics?.input_tokens || "Unspecified"}
+  * Output Tokens: ${usageMetrics?.output_tokens || "Unspecified"}
+  * Model Distribution: ${usageMetrics?.model_distribution || "Unspecified"}
+  * GPU Hours: ${usageMetrics?.gpu_hours || "Unspecified"}
+  * Latency Requirements: ${usageMetrics?.latency_requirements || "Unspecified"}
+  * User Volume: ${usageMetrics?.user_volume || "Unspecified"}
+
+- Audit Confidence Score:
+  * Confidence Level: ${confidenceScore || "20%"}
+
 Please perform a detailed cost audit. You must:
 1. Act as a senior AI cost and infrastructure auditor.
-2. Address the company's specific architecture details and files.
-3. Be realistic: separate known information (from their inputs) from assumptions (what you guess) and recommendations.
+2. Address the company's specific architecture details, files, and cost evidence.
+3. Be realistic: distinguish verified findings (based on uploaded data), potential risks (based on patterns), and assumptions (missing information).
 4. Your response MUST include the exact phrase: "I analyzed the provided technical information..." to introduce your findings.
 5. Provide a premium Markdown report with the following exact heading sections:
    - # AI Cost Audit & Architecture Report
-   - ### 1. Current AI Architecture Understanding
-   - ### 2. Possible Cost Leakage
-   - ### 3. Optimization Opportunities & Quick Wins
-   - ### 4. Technical Risks & Long-term Recommendations
+   - ### Executive Summary
+   - ### Current Architecture Analysis
+   - ### Cost Analysis
+   - ### Detected Risks
+   - ### Optimization Opportunities
+   - ### Quick Wins
+   - ### Long-Term Recommendations
+   - ### Confidence Level
    - ### Key Findings (List exactly 3-5 bullet points starting with "-" here)
    - ### Expert Recommendations (List exactly 3-5 bullet points starting with "-" here)
 `;
@@ -371,6 +448,34 @@ Please perform a detailed cost audit. You must:
       const text = data.choices?.[0]?.message?.content;
       if (!text) {
         throw new Error("Invalid response format from OpenAI API");
+      }
+      reportText = text;
+    } else if (mistralKey) {
+      console.log("[audit.service] Generating report using Mistral...");
+      const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${mistralKey}`,
+        },
+        body: JSON.stringify({
+          model: "mistral-large-latest",
+          messages: [
+            { role: "system", content: "You are an AI infrastructure cost auditor." },
+            { role: "user", content: prompt },
+          ],
+          temperature: 0.2,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Mistral API error: ${res.status} ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content;
+      if (!text) {
+        throw new Error("Invalid response format from Mistral API");
       }
       reportText = text;
     }

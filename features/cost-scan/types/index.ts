@@ -128,6 +128,29 @@ export interface FormState {
     size: number;
     base64: string;
   }>;
+
+  // Medium feature upgrades
+  architecture_files: Array<{
+    name: string;
+    type: string;
+    size: number;
+    base64: string;
+  }>;
+  cost_files: Array<{
+    name: string;
+    type: string;
+    size: number;
+    base64: string;
+  }>;
+  usage_metrics: {
+    monthly_requests: string;
+    input_tokens: string;
+    output_tokens: string;
+    model_distribution: string;
+    gpu_hours: string;
+    latency_requirements: string;
+    user_volume: string;
+  };
 }
 
 export const INITIAL_FORM_STATE: FormState = {
@@ -154,6 +177,18 @@ export const INITIAL_FORM_STATE: FormState = {
   ai_other:           [],
   technical_notes:    "",
   documents:          [],
+
+  architecture_files: [],
+  cost_files:         [],
+  usage_metrics: {
+    monthly_requests: "",
+    input_tokens: "",
+    output_tokens: "",
+    model_distribution: "",
+    gpu_hours: "",
+    latency_requirements: "",
+    user_volume: "",
+  },
 };
 
 // ── API response ───────────────────────────────────────────────────────────
@@ -173,6 +208,26 @@ export interface ScorecardResult {
   auditReport?: string;
   findings?: string[];
   recommendations?: string[];
+  
+  // Medium feature responses
+  confidenceScore: string;
+  architectureAnalysis: {
+    summary: string;
+    findings: string[];
+    risks: string[];
+  };
+  costAnalysis: {
+    summary: string;
+    normalizedData: {
+      monthlySpend?: string;
+      provider?: string;
+      serviceUsage?: string;
+      modelUsage?: string;
+      tokenConsumption?: string;
+      gpuCost?: string;
+      unusedResources?: string;
+    };
+  };
 }
 
 /** Shape stored in sessionStorage for results page fallback */

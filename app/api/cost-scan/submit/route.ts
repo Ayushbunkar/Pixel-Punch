@@ -7,6 +7,7 @@ import { syncToBrevo }                        from "@/services/brevo.service";
 import { extractTextFromDoc }                 from "@/services/extractor.service";
 import { generateAuditReport }                from "@/services/audit.service";
 import { saveSubmission }                     from "@/services/db.service";
+import { calculateConfidenceScore, analyzeArchitecture, analyzeCostEvidence, analyzeUsageMetrics } from "@/services/medium-analysis.service";
 
 // ── In-memory submission cache (Fallback for GET /api/cost-scan/result) ──────
 export const submissionCache = new Map<string, any>();
@@ -103,15 +104,21 @@ export async function POST(req: NextRequest) {
 
   // ── Cast to typed FormState ────────────────────────────────────────────────
   const bodyRecord = body as Record<string, any>;
-  const hasAnswers = bodyRecord.answers && typeof bodyRecord.answers === "object" && !Array.isArray(bodyRecord.answers);
-  const answersData = hasAnswers ? bodyRecord.answers : bodyRecord;
-  const input = castToFormState(answersData as Record<string, unknown>);
+  const input = castToFormState(bodyRecord);
 
   // ── Technical audit parameters ─────────────────────────────────────────────
-  const websiteUrl     = hasAnswers ? (bodyRecord.websiteUrl as string | undefined) : "";
-  const aiStack        = hasAnswers ? (bodyRecord.aiStack as any || {}) : {};
-  const technicalNotes = hasAnswers ? (bodyRecord.technicalNotes as string | undefined) : "";
-  const documents      = hasAnswers ? (bodyRecord.documents as any[] || []) : [];
+  const websiteUrl     = input.website_url;
+  const aiStack        = {
+    providers:      input.ai_providers,
+    models:         input.ai_models,
+    infrastructure: input.ai_infrastructure,
+    other:          input.ai_other,
+  };
+  const technicalNotes = input.technical_notes;
+  const documents      = input.documents;
+  const architectureFiles = input.architecture_files;
+  const costEvidenceFiles = input.cost_files;
+  const usageMetricsInput = bodyRecord.usageMetrics || {};
 
   // ── Extract file texts (parallel, non-blocking errors) ─────────────────────
   let filesContent: Array<{ name: string; content: string }> = [];
@@ -129,6 +136,40 @@ export async function POST(req: NextRequest) {
     );
   } catch (err) {
     console.error("[submit] Failed processing documents:", err);
+  }
+
+  // ── Medium upgrades analysis ───────────────────────────────────────────────
+  let archAnalysis = { summary: "No architecture diagrams were provided.", findings: [] as string[], risks: [] as string[] };
+  let costAnalysis = { summary: "No invoice or usage evidence was supplied.", normalizedData: {} as any };
+  let usageAnalysis: {
+    costPerRequest?: string;
+    costPerUser?: string;
+    modelEfficiency: string;
+    optimizationAreas: string[];
+  } = { modelEfficiency: "Medium", optimizationAreas: [] };
+  let confidenceScore = "20%";
+
+  try {
+    const hasWebsite = !!websiteUrl;
+    const hasAiStack = aiStack.providers.length > 0 || !!aiStack.models;
+    const hasDocuments = documents.length > 0;
+    const hasArchitecture = architectureFiles.length > 0;
+    const hasCostEvidence = costEvidenceFiles.length > 0;
+
+    const conf = calculateConfidenceScore({
+      hasWebsite,
+      hasAiStack,
+      hasDocuments,
+      hasArchitecture,
+      hasCostEvidence,
+    });
+    confidenceScore = `${conf.score}%`;
+
+    archAnalysis = await analyzeArchitecture(architectureFiles, input, websiteUrl, aiStack);
+    costAnalysis = await analyzeCostEvidence(costEvidenceFiles, input);
+    usageAnalysis = analyzeUsageMetrics(usageMetricsInput, costAnalysis.normalizedData);
+  } catch (err) {
+    console.error("[submit] Error running medium upgrades analysis:", err);
   }
 
   // ── Scoring (pure, deterministic, never fails) ────────────────────────────
@@ -158,6 +199,10 @@ export async function POST(req: NextRequest) {
       aiStack,
       technicalNotes: technicalNotes || "",
       files: filesContent,
+      architectureAnalysis: archAnalysis,
+      costAnalysis: costAnalysis,
+      usageMetrics: usageAnalysis,
+      confidenceScore: confidenceScore,
     });
   } catch (err) {
     console.error("[submit] Error generating audit report:", err);
@@ -197,6 +242,9 @@ export async function POST(req: NextRequest) {
     auditReport:     auditResult.auditReport,
     findings:        auditResult.findings,
     recommendations: auditResult.recommendations,
+    confidenceScore,
+    architectureAnalysis: archAnalysis,
+    costAnalysis: costAnalysis,
     contact: {
       firstname: input.firstname,
       lastname:  input.lastname,
@@ -216,6 +264,13 @@ export async function POST(req: NextRequest) {
       extracted_document_text: filesContent.map((f) => f.content).join("\n\n"),
       ai_audit_context:        `Website: ${websiteUrl || "none"}\nAI Stack: ${JSON.stringify(aiStack)}\nNotes: ${technicalNotes || "none"}\nFiles: ${filesContent.map((f) => f.name).join(", ")}`,
       generated_report:        auditResult.auditReport,
+      architecture_files:      architectureFiles.map((f: any) => ({ name: f.name, size: f.size, type: f.type })),
+      architecture_analysis:   archAnalysis,
+      cost_files:              costEvidenceFiles.map((f: any) => ({ name: f.name, size: f.size, type: f.type })),
+      cost_analysis:           costAnalysis,
+      usage_metrics:           usageMetricsInput,
+      confidence_score:        confidenceScore,
+      audit_findings:          auditResult.findings,
     };
     await saveSubmission(submissionId, dbPayload);
     // Cache memory copy

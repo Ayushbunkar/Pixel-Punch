@@ -69,15 +69,28 @@ export function useSubmitScan(): UseSubmitScanReturn {
 
         const payload = {
           answers,
-          websiteUrl:     state.website_url ? state.website_url.trim() : "",
-          aiStack: {
-            providers:      state.ai_providers || [],
-            models:         state.ai_models ? state.ai_models.trim() : "",
-            infrastructure: state.ai_infrastructure || [],
-            other:          state.ai_other || [],
+          technicalContext: {
+            websiteUrl:     state.website_url ? state.website_url.trim() : "",
+            aiStack: {
+              providers:      state.ai_providers || [],
+              models:         state.ai_models ? state.ai_models.trim() : "",
+              infrastructure: state.ai_infrastructure || [],
+              other:          state.ai_other || [],
+            },
+            technicalNotes: state.technical_notes ? state.technical_notes.trim() : "",
+            documents:      state.documents || [],
           },
-          technicalNotes: state.technical_notes ? state.technical_notes.trim() : "",
-          documents:      state.documents || [],
+          architectureFiles: state.architecture_files || [],
+          costEvidenceFiles: state.cost_files || [],
+          usageMetrics: {
+            monthly_requests:     state.usage_metrics.monthly_requests ? Number(state.usage_metrics.monthly_requests) || 0 : undefined,
+            input_tokens:         state.usage_metrics.input_tokens ? Number(state.usage_metrics.input_tokens) || 0 : undefined,
+            output_tokens:        state.usage_metrics.output_tokens ? Number(state.usage_metrics.output_tokens) || 0 : undefined,
+            model_distribution:   state.usage_metrics.model_distribution ? state.usage_metrics.model_distribution.trim() : "",
+            gpu_hours:            state.usage_metrics.gpu_hours ? Number(state.usage_metrics.gpu_hours) || 0 : undefined,
+            latency_requirements: state.usage_metrics.latency_requirements ? state.usage_metrics.latency_requirements.trim() : "",
+            user_volume:          state.usage_metrics.user_volume ? Number(state.usage_metrics.user_volume) || 0 : undefined,
+          },
         };
 
         // ── POST to backend ───────────────────────────────────────────────

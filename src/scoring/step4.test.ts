@@ -30,6 +30,24 @@ const TC1_STRONG_FIT: FormState = {
   company:            "Acme Corp",
   job_title:          "VP Engineering",
   ref:                "co-e2-scan",
+  website_url:        "",
+  ai_providers:       [],
+  ai_models:          "",
+  ai_infrastructure:  [],
+  ai_other:           [],
+  technical_notes:    "",
+  documents:          [],
+  architecture_files: [],
+  cost_files:         [],
+  usage_metrics: {
+    monthly_requests: "",
+    input_tokens: "",
+    output_tokens: "",
+    model_distribution: "",
+    gpu_hours: "",
+    latency_requirements: "",
+    user_volume: "",
+  },
 };
 
 const TC2_GOOD_FIT: FormState = {
@@ -46,6 +64,24 @@ const TC2_GOOD_FIT: FormState = {
   email:              "bob@startup.io",
   company:            "StartupIO",
   job_title:          "CTO",
+  website_url:        "",
+  ai_providers:       [],
+  ai_models:          "",
+  ai_infrastructure:  [],
+  ai_other:           [],
+  technical_notes:    "",
+  documents:          [],
+  architecture_files: [],
+  cost_files:         [],
+  usage_metrics: {
+    monthly_requests: "",
+    input_tokens: "",
+    output_tokens: "",
+    model_distribution: "",
+    gpu_hours: "",
+    latency_requirements: "",
+    user_volume: "",
+  },
 };
 
 const TC3_NURTURE: FormState = {
@@ -62,6 +98,24 @@ const TC3_NURTURE: FormState = {
   email:              "alice@dev.co",
   company:            "Dev Co",
   job_title:          "Engineer",
+  website_url:        "",
+  ai_providers:       [],
+  ai_models:          "",
+  ai_infrastructure:  [],
+  ai_other:           [],
+  technical_notes:    "",
+  documents:          [],
+  architecture_files: [],
+  cost_files:         [],
+  usage_metrics: {
+    monthly_requests: "",
+    input_tokens: "",
+    output_tokens: "",
+    model_distribution: "",
+    gpu_hours: "",
+    latency_requirements: "",
+    user_volume: "",
+  },
 };
 
 const TC4_EXCLUDE: FormState = {
@@ -78,6 +132,24 @@ const TC4_EXCLUDE: FormState = {
   email:              "early@stage.org",
   company:            "Stage Org",
   job_title:          "Founder",
+  website_url:        "",
+  ai_providers:       [],
+  ai_models:          "",
+  ai_infrastructure:  [],
+  ai_other:           [],
+  technical_notes:    "",
+  documents:          [],
+  architecture_files: [],
+  cost_files:         [],
+  usage_metrics: {
+    monthly_requests: "",
+    input_tokens: "",
+    output_tokens: "",
+    model_distribution: "",
+    gpu_hours: "",
+    latency_requirements: "",
+    user_volume: "",
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -109,7 +181,7 @@ test("valid TC1 body passes validation", () => {
 });
 
 test("missing required field returns 400-style errors", () => {
-  const { email: _, ...without } = TC1_STRONG_FIT as Record<string, unknown>;
+  const { email: _, ...without } = TC1_STRONG_FIT as unknown as Record<string, unknown>;
   const errors = validateSubmission(without);
   assert.ok(errors.some((e) => e.field === "email"), "Expected email error");
 });
