@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { StoredScanResult } from "@/features/cost-scan/types";
-import { Search, CheckCircle } from "lucide-react";
+import { Search, CheckCircle, AlertCircle, CheckCircle2, Cpu } from "lucide-react";
 import { ContactBar } from "@/components/ui/ContactBar";
 import * as motion from "framer-motion/client";
 import { slideUp, staggerContainer, fadeIn } from "@/components/ui/animations";
@@ -100,6 +100,46 @@ export default function ResultsPageContent() {
 
   const ctaUrl = result.ctaUrl ?? "https://pixelpunch.org/contact-us?ref=co-scan-book";
 
+  // ── Simple Markdown to React Element Parser ────────────────────────────────
+  const renderMarkdown = (md: string) => {
+    return md.split("\n").map((line, idx) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("# ")) {
+        return (
+          <h2 key={idx} className="text-lg font-bold text-slate-900 mt-6 mb-3 border-b pb-1.5">
+            {trimmed.replace(/^#\s+/, "")}
+          </h2>
+        );
+      }
+      if (trimmed.startsWith("### ")) {
+        return (
+          <h3 key={idx} className="text-sm font-bold text-slate-800 mt-4 mb-2">
+            {trimmed.replace(/^###\s+/, "")}
+          </h3>
+        );
+      }
+      if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+        return (
+          <li key={idx} className="text-xs text-slate-600 ml-4 list-disc mb-1 leading-relaxed">
+            {trimmed.replace(/^[-*]\s+/, "")}
+          </li>
+        );
+      }
+      if (trimmed === "---") {
+        return <hr key={idx} className="my-4 border-slate-200" />;
+      }
+      if (trimmed === "") {
+        return <div key={idx} className="h-2" />;
+      }
+      const parts = trimmed.split(/\*\*([^*]+)\*\*/g);
+      return (
+        <p key={idx} className="text-xs text-slate-600 mb-3 leading-relaxed">
+          {parts.map((part, i) => (i % 2 === 1 ? <strong key={i} className="text-slate-900 font-semibold">{part}</strong> : part))}
+        </p>
+      );
+    });
+  };
+
   return (
     <main className="min-h-screen bg-[#eef4ff] bg-page-gradient">
       {/* ── Top Contact Bar ──────────────────────────────────────────── */}
@@ -148,6 +188,70 @@ export default function ResultsPageContent() {
         <motion.div variants={slideUp}>
           <InsightsList insights={result.insights} />
         </motion.div>
+
+        {/* ── AI Technical Cost Audit ─────────────────────────────── */}
+        {result.auditReport && (
+          <motion.div variants={slideUp} className="mb-8 space-y-6">
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-950 flex items-center gap-2">
+                    <Cpu className="w-5 h-5 text-indigo-600 animate-pulse" />
+                    AI Cost Audit & Technical Report
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    I analyzed the provided technical information to compile these findings.
+                  </p>
+                </div>
+                <span className="text-[10px] font-bold px-2.5 py-1 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-full uppercase tracking-wider">
+                  AI Generated
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Markdown Report Body */}
+                <div className="lg:col-span-2 bg-slate-50/50 rounded-xl border border-slate-200/60 p-6 max-h-[500px] overflow-y-auto scrollbar-thin">
+                  {renderMarkdown(result.auditReport)}
+                </div>
+
+                {/* Sidebar Findings/Recs */}
+                <div className="space-y-4">
+                  {result.findings && result.findings.length > 0 && (
+                    <div className="bg-red-50/30 rounded-xl border border-red-500/10 p-5 shadow-sm">
+                      <h3 className="text-xs font-bold text-red-700 mb-3 flex items-center gap-1.5 uppercase tracking-wider">
+                        <AlertCircle className="w-4 h-4 text-red-500" /> Key Findings
+                      </h3>
+                      <ul className="space-y-2">
+                        {result.findings.map((f, i) => (
+                          <li key={i} className="text-xs text-slate-600 flex items-start gap-1.5 leading-normal">
+                            <span className="text-red-500 font-bold">•</span>
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {result.recommendations && result.recommendations.length > 0 && (
+                    <div className="bg-green-50/30 rounded-xl border border-green-500/10 p-5 shadow-sm">
+                      <h3 className="text-xs font-bold text-green-700 mb-3 flex items-center gap-1.5 uppercase tracking-wider">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" /> Expert Recommendations
+                      </h3>
+                      <ul className="space-y-2">
+                        {result.recommendations.map((r, i) => (
+                          <li key={i} className="text-xs text-slate-600 flex items-start gap-1.5 leading-normal">
+                            <span className="text-green-500 font-bold">•</span>
+                            <span>{r}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* ── Tier recommendation + CTA ─────────────────────────────── */}
         <motion.div variants={slideUp}>

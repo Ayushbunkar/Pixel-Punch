@@ -114,6 +114,20 @@ export interface FormState {
   job_title: string;
   // Tracking
   ref?: string;
+
+  // Q8 Technical Resources (optional step 9)
+  website_url: string;
+  ai_providers: string[];
+  ai_models: string;
+  ai_infrastructure: string[];
+  ai_other: string[];
+  technical_notes: string;
+  documents: Array<{
+    name: string;
+    type: string;
+    size: number;
+    base64: string;
+  }>;
 }
 
 export const INITIAL_FORM_STATE: FormState = {
@@ -132,6 +146,14 @@ export const INITIAL_FORM_STATE: FormState = {
   company:            "",
   job_title:          "",
   ref:                "",
+  
+  website_url:        "",
+  ai_providers:       [],
+  ai_models:          "",
+  ai_infrastructure:  [],
+  ai_other:           [],
+  technical_notes:    "",
+  documents:          [],
 };
 
 // ── API response ───────────────────────────────────────────────────────────
@@ -148,6 +170,9 @@ export interface ScorecardResult {
   tier:     1 | 2 | 3 | 4;
   insights: string[];
   ctaUrl:   string;
+  auditReport?: string;
+  findings?: string[];
+  recommendations?: string[];
 }
 
 /** Shape stored in sessionStorage for results page fallback */

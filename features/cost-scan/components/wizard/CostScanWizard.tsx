@@ -14,6 +14,7 @@ import { LeakageStep }       from "./steps/LeakageStep";
 import { OptimizationStep }  from "./steps/OptimizationStep";
 import { ThresholdStep }     from "./steps/ThresholdStep";
 import { ContactStep }       from "./steps/ContactStep";
+import { TechnicalStep }     from "./steps/TechnicalStep";
 import { AiDependence, SpendBand, SpendVisibility, MainPain,
          LeakagePattern, SavingsThreshold, UnitEconomic, OptimizationDone }
   from "@/features/cost-scan/types";
@@ -29,6 +30,7 @@ const STEP_LABELS = [
   "Optimization",
   "Savings Threshold",
   "Contact",
+  "Technical Audit",
 ];
 
 // ── Progress bar ─────────────────────────────────────────────────────────────
@@ -92,39 +94,52 @@ function NavButtons({ step, total, loading, onBack, onNext, onSubmit }: NavProps
         Back
       </button>
 
-      {isLast ? (
-        <button
-          type="button"
-          id="cost-scan-submit-btn"
-          onClick={onSubmit}
-          disabled={loading}
-          className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors min-w-[180px] flex items-center justify-center gap-2"
-          aria-label="Submit and see your results"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Analysing…
-            </>
-          ) : (
-            <>
-              See my results
-              <ArrowRight className="w-4 h-4" strokeWidth={2} />
-            </>
-          )}
-        </button>
-      ) : (
-        <button
-          type="button"
-          id={`cost-scan-next-step-${step}`}
-          onClick={onNext}
-          className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors min-w-[140px] flex items-center justify-center gap-2"
-          aria-label="Go to next step"
-        >
-          Continue
-          <ChevronRight className="w-4 h-4" strokeWidth={2} />
-        </button>
-      )}
+      <div className="flex items-center gap-3">
+        {step === 9 && (
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={loading}
+            className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors text-sm font-medium"
+          >
+            Skip & See Results
+          </button>
+        )}
+
+        {isLast ? (
+          <button
+            type="button"
+            id="cost-scan-submit-btn"
+            onClick={onSubmit}
+            disabled={loading}
+            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors min-w-[180px] flex items-center justify-center gap-2"
+            aria-label="Submit and see your results"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Analysing…
+              </>
+            ) : (
+              <>
+                See my results
+                <ArrowRight className="w-4 h-4" strokeWidth={2} />
+              </>
+            )}
+          </button>
+        ) : (
+          <button
+            type="button"
+            id={`cost-scan-next-step-${step}`}
+            onClick={onNext}
+            className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors min-w-[140px] flex items-center justify-center gap-2"
+            aria-label="Go to next step"
+          >
+            Continue
+            <ChevronRight className="w-4 h-4" strokeWidth={2} />
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -248,6 +263,22 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
             onChange={setField}
             loading={loading}
             submitError={submitError}
+          />
+        );
+      case 9:
+        return (
+          <TechnicalStep
+            state={state}
+            errors={errors}
+            onChange={setField}
+            onAddDocument={(doc) => {
+              const updatedDocs = [...(state.documents || []), doc];
+              setField("documents", updatedDocs);
+            }}
+            onRemoveDocument={(index) => {
+              const updatedDocs = (state.documents || []).filter((_, i) => i !== index);
+              setField("documents", updatedDocs);
+            }}
           />
         );
       default:

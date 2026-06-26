@@ -37,9 +37,7 @@ export function useSubmitScan(): UseSubmitScanReturn {
       setError(null);
 
       try {
-        // ── Build request payload ─────────────────────────────────────────
-        // Attach UTM params from URL if present (SSR-safe)
-        const payload: Record<string, unknown> = {
+        const answers: Record<string, unknown> = {
           ai_dependence:      state.ai_dependence,
           monthly_spend_band: state.monthly_spend_band,
           spend_visibility:   state.spend_visibility,
@@ -58,16 +56,29 @@ export function useSubmitScan(): UseSubmitScanReturn {
 
         // Include extra_context only if non-empty
         if (state.extra_context && state.extra_context.trim().length > 0) {
-          payload.extra_context = state.extra_context.trim();
+          answers.extra_context = state.extra_context.trim();
         }
 
         // Attach UTM params from window.location if available
         if (typeof window !== "undefined") {
           const sp = new URLSearchParams(window.location.search);
           ["utm_source", "utm_medium", "utm_campaign", "utm_content"].forEach(
-            (k) => { if (sp.has(k)) payload[k] = sp.get(k); },
+            (k) => { if (sp.has(k)) answers[k] = sp.get(k); },
           );
         }
+
+        const payload = {
+          answers,
+          websiteUrl:     state.website_url ? state.website_url.trim() : "",
+          aiStack: {
+            providers:      state.ai_providers || [],
+            models:         state.ai_models ? state.ai_models.trim() : "",
+            infrastructure: state.ai_infrastructure || [],
+            other:          state.ai_other || [],
+          },
+          technicalNotes: state.technical_notes ? state.technical_notes.trim() : "",
+          documents:      state.documents || [],
+        };
 
         // ── POST to backend ───────────────────────────────────────────────
         const res = await fetch("/api/cost-scan/submit", {

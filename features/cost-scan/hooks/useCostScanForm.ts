@@ -18,7 +18,7 @@ import {
   isValidEnum,
 } from "@/features/cost-scan/types";
 
-const TOTAL_STEPS = 8;
+const TOTAL_STEPS = 9;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Per-step validation
@@ -111,6 +111,14 @@ function validateStep(step: number, state: FormState): ValidationErrors {
         state.extra_context.length > 2000
       ) {
         errors.extra_context = "Maximum 2000 characters.";
+      }
+      break;
+
+    case 9:
+      if (state.website_url.trim()) {
+        if (!/^https?:\/\/[^\s$.?#].[^\s]*$/i.test(state.website_url.trim())) {
+          errors.website_url = "Please enter a valid website URL.";
+        }
       }
       break;
   }

@@ -28,7 +28,9 @@ export function validateSubmission(body: unknown): FieldError[] {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     return [{ field: "_root", message: "Request body must be a JSON object." }];
   }
-  const data = body as Record<string, unknown>;
+  const bodyRecord = body as Record<string, unknown>;
+  const hasAnswers = bodyRecord.answers && typeof bodyRecord.answers === "object" && !Array.isArray(bodyRecord.answers);
+  const data = hasAnswers ? (bodyRecord.answers as Record<string, unknown>) : bodyRecord;
 
   // ── Helper functions ──────────────────────────────────────────────────────
   const required = (field: string, label: string) => {
@@ -150,6 +152,68 @@ export function validateSubmission(body: unknown): FieldError[] {
   stringField("company",   "Company",    { maxLength: 200 });
   stringField("job_title", "Job title",  { maxLength: 150 });
 
+  // ── Technical audit fields validation (if nested payload) ─────────────────
+  if (hasAnswers) {
+    const url = bodyRecord.websiteUrl;
+    if (url !== undefined && url !== null && url !== "") {
+      if (typeof url !== "string") {
+        errors.push({ field: "websiteUrl", message: "Website URL must be a string." });
+      } else {
+        const trimmed = url.trim();
+        // Regex supporting http/https and optional trailing slashes/paths
+        if (!/^https?:\/\/[^\s$.?#].[^\s]*$/i.test(trimmed)) {
+          errors.push({ field: "websiteUrl", message: "Please enter a valid website URL." });
+        }
+      }
+    }
+
+    const aiStack = bodyRecord.aiStack;
+    if (aiStack !== undefined && aiStack !== null) {
+      if (typeof aiStack !== "object" || Array.isArray(aiStack)) {
+        errors.push({ field: "aiStack", message: "AI Stack details must be a JSON object." });
+      }
+    }
+
+    const notes = bodyRecord.technicalNotes;
+    if (notes !== undefined && notes !== null && notes !== "") {
+      if (typeof notes !== "string") {
+        errors.push({ field: "technicalNotes", message: "Technical notes must be a string." });
+      }
+    }
+
+    const docs = bodyRecord.documents;
+    if (docs !== undefined && docs !== null) {
+      if (!Array.isArray(docs)) {
+        errors.push({ field: "documents", message: "Documents must be an array." });
+      } else {
+        for (let i = 0; i < docs.length; i++) {
+          const doc = docs[i];
+          if (!doc || typeof doc !== "object" || Array.isArray(doc)) {
+            errors.push({ field: `documents[${i}]`, message: "Each document must be an object." });
+          } else {
+            const name = doc.name;
+            const size = doc.size;
+            const base64 = doc.base64;
+            if (typeof name !== "string" || !name) {
+              errors.push({ field: `documents[${i}].name`, message: "Document name is required." });
+            }
+            if (typeof base64 !== "string" || !base64) {
+              errors.push({ field: `documents[${i}].base64`, message: "Document base64 content is required." });
+            }
+            if (typeof size === "number" && size > 10 * 1024 * 1024) {
+              errors.push({ field: `documents[${i}].size`, message: "Document size must not exceed 10MB." });
+            }
+            const ext = name ? name.split('.').pop()?.toLowerCase() : '';
+            const allowedExts = ["md", "pdf", "txt", "doc", "docx"];
+            if (ext && !allowedExts.includes(ext)) {
+              errors.push({ field: `documents[${i}].name`, message: `Unsupported file format: .${ext}. Only MD, PDF, TXT, DOC, DOCX are supported.` });
+            }
+          }
+        }
+      }
+    }
+  }
+
   return errors;
 }
 
@@ -171,5 +235,13 @@ export function castToFormState(data: Record<string, unknown>): FormState {
     company:            (data.company   as string).trim(),
     job_title:          (data.job_title as string).trim(),
     ref:                (data.ref       as string | undefined) ?? "co-landing",
+
+    website_url:        (data.website_url as string | undefined) ?? "",
+    ai_providers:       (data.ai_providers as string[] | undefined) ?? [],
+    ai_models:          (data.ai_models as string | undefined) ?? "",
+    ai_infrastructure:  (data.ai_infrastructure as string[] | undefined) ?? [],
+    ai_other:           (data.ai_other as string[] | undefined) ?? [],
+    technical_notes:    (data.technical_notes as string | undefined) ?? "",
+    documents:          (data.documents as FormState["documents"] | undefined) ?? [],
   };
 }
