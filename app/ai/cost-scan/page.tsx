@@ -50,9 +50,8 @@ export default async function AiCostScanPage({ searchParams }: PageProps) {
         className="border-b border-slate-200 px-6 py-4 bg-white/50 backdrop-blur-md"
       >
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <Image src="/logo.jpg" alt="Pixel Punch" width={36} height={36} className="rounded-lg object-contain" />
-            <span className="text-lg font-bold text-slate-900 tracking-tight">Pixel Punch</span>
+          <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+            <Image src="/logo.jpg" alt="Pixel Punch" width={120} height={36} className="h-9 w-auto object-contain" />
           </a>
           <a
             href="https://pixelpunch.org/services/"
