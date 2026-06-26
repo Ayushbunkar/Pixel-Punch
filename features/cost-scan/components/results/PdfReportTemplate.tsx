@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { StoredScanResult } from "@/features/cost-scan/types";
 
 interface Props {
@@ -28,26 +27,6 @@ const TIER_COLORS: Record<number, { bg: string; border: string; text: string; ba
   4: { bg: "#f8fafc", border: "#e2e8f0", text: "#334155", badge: "#64748b" },
 };
 
-// Inline SVG of the Sparkles icon (same as lucide-react Sparkles)
-const SparklesSVG = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="22" height="22"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#0d6efd"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
-    <path d="M20 3v4"/>
-    <path d="M22 5h-4"/>
-    <path d="M4 17v2"/>
-    <path d="M5 18H3"/>
-  </svg>
-);
-
 export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
   const spend = RAG_CONFIG[result.scorecard.spend];
   const arch  = RAG_CONFIG[result.scorecard.architecture];
@@ -57,54 +36,81 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
     day: "2-digit", month: "long", year: "numeric",
   });
 
+  const parseInlineMarkdown = (text: string) => {
+    const boldParts = text.split(/\*\*([^*]+)\*\*/g);
+    return boldParts.map((part, i) => {
+      const isBold = i % 2 === 1;
+      const italicParts = part.split(/[_*]([^*_]+)[_*]/g);
+      const content = italicParts.map((subpart, j) => {
+        const isItalic = j % 2 === 1;
+        if (isItalic) {
+          return <span key={j} style={{ fontStyle: "italic", color: "#475569" }}>{subpart}</span>;
+        }
+        return subpart;
+      });
+
+      if (isBold) {
+        return <strong key={i} style={{ color: "#0f172a", fontWeight: "bold" }}>{content}</strong>;
+      }
+      return <span key={i}>{content}</span>;
+    });
+  };
+
+  // Simple Markdown parser specifically sized for PDF printing
+  const renderMarkdown = (md: string) => {
+    return md.split("\n").map((line, idx) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("# ")) {
+        return (
+          <h2 key={idx} style={{ fontSize: "14px", fontWeight: "bold", color: "#0f172a", marginTop: "14px", marginBottom: "6px", borderBottom: "1px solid #e2e8f0", paddingBottom: "3px", pageBreakInside: "avoid" }}>
+            {parseInlineMarkdown(trimmed.replace(/^#\s+/, ""))}
+          </h2>
+        );
+      }
+      if (trimmed.startsWith("### ")) {
+        return (
+          <h3 key={idx} style={{ fontSize: "11.5px", fontWeight: "bold", color: "#1e293b", marginTop: "10px", marginBottom: "4px", pageBreakInside: "avoid" }}>
+            {parseInlineMarkdown(trimmed.replace(/^###\s+/, ""))}
+          </h3>
+        );
+      }
+      if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+        return (
+          <li key={idx} style={{ fontSize: "10px", color: "#475569", marginLeft: "12px", marginBottom: "3px", lineHeight: "1.4", listStyleType: "disc", pageBreakInside: "avoid" }}>
+            {parseInlineMarkdown(trimmed.replace(/^[-*]\s+/, ""))}
+          </li>
+        );
+      }
+      if (trimmed === "---") {
+        return <hr key={idx} style={{ marginTop: "10px", marginBottom: "10px", border: "0", borderTop: "1px solid #e2e8f0" }} />;
+      }
+      if (trimmed === "") {
+        return <div key={idx} style={{ height: "4px" }} />;
+      }
+      return (
+        <p key={idx} style={{ fontSize: "10px", color: "#475569", marginBottom: "5px", lineHeight: "1.4", pageBreakInside: "avoid" }}>
+          {parseInlineMarkdown(trimmed)}
+        </p>
+      );
+    });
+  };
+
   return (
-    // Outer shell — exact A4 dimensions at 96 DPI, white bg
-    <div
-      id="pdf-report-content"
-      style={{
-        width: "794px",
-        height: "1123px",
-        backgroundColor: "#f8fafc",
-        fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-        color: "#0f172a",
-        boxSizing: "border-box",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",   // ← vertically center entire content
-        padding: "0",
-      }}
-    >
-      {/* ── CARD — centred white box ─────────────────────────────── */}
-      <div style={{
-        width: "720px",           // 37px margin each side
-        backgroundColor: "#ffffff",
-        borderRadius: "16px",
-        border: "1px solid #e2e8f0",
-        boxShadow: "0 4px 32px rgba(0,0,0,0.07)",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-      }}>
-
-        {/* ── TOP ACCENT BAR ────────────────────────────────────── */}
-        <div style={{ height: "5px", background: "linear-gradient(90deg, #0d6efd 0%, #6610f2 100%)" }} />
-
-        {/* ── CARD BODY ─────────────────────────────────────────── */}
-        <div style={{ padding: "32px 36px 28px 36px", display: "flex", flexDirection: "column", gap: "22px" }}>
-
-          {/* ── HEADER ROW ──────────────────────────────────────── */}
+    <div id="pdf-report-content" style={{ width: "794px", backgroundColor: "#ffffff", fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", color: "#0f172a", boxSizing: "border-box" }}>
+      
+      {/* ── PAGE 1: DIAGNOSTIC SCORECARD ────────────────────────────────────────── */}
+      <div style={{ width: "794px", minHeight: "1100px", boxSizing: "border-box", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "10px 0", pageBreakAfter: "always" }}>
+        
+        {/* Header Block */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            {/* LOGO — actual logo.jpg */}
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <img src="/logo.jpg" alt="Pixel Punch" style={{ height: "36px", width: "auto", objectFit: "contain" }} />
               <div style={{ height: "24px", width: "1px", backgroundColor: "#e2e8f0", margin: "0 4px" }} />
               <div>
-                <p style={{ margin: 0, fontSize: "11px", fontWeight: "600", color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.5px" }}>AI Cost Architecture Diagnostics</p>
+                <p style={{ margin: 0, fontSize: "11px", fontWeight: "600", color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px" }}>AI Cost Architecture Diagnostics</p>
               </div>
             </div>
-            {/* META */}
             <div style={{ textAlign: "right" }}>
               <p style={{ margin: "0 0 2px 0", fontSize: "11px", color: "#64748b" }}>
                 Report Date: <strong style={{ color: "#1e293b" }}>{today}</strong>
@@ -117,31 +123,26 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
                   Confidence: <strong style={{ color: "#4f46e5" }}>{result.confidenceScore}</strong>
                 </p>
               )}
-              <div style={{
-                display: "inline-block",
-                backgroundColor: "#eff6ff", border: "1px solid #bfdbfe",
-                borderRadius: "999px", padding: "2px 10px",
-                fontSize: "10px", fontWeight: "700", color: "#1d4ed8", textTransform: "uppercase" as const, letterSpacing: "0.5px",
-              }}>Confidential</div>
+              <div style={{ display: "inline-block", backgroundColor: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "999px", padding: "2px 10px", fontSize: "10px", fontWeight: "700", color: "#1d4ed8", textTransform: "uppercase", letterSpacing: "0.5px" }}>Confidential</div>
             </div>
           </div>
-
-          {/* ── DIVIDER ─────────────────────────────────────────── */}
           <div style={{ height: "1px", background: "#e2e8f0" }} />
+        </div>
 
-          {/* ── TITLE ───────────────────────────────────────────── */}
+        {/* Content Body Block (Title, Scorecard, Evidence, Insights, Recommendation) */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "16px" }}>
           <div>
             <h1 style={{ margin: "0 0 6px 0", fontSize: "22px", fontWeight: "800", color: "#0f172a", letterSpacing: "-0.5px" }}>
-              AI Cost Architecture Audit
+              AI Cost Architecture Audit Summary
             </h1>
-            <p style={{ margin: 0, fontSize: "12.5px", color: "#475569", lineHeight: "1.6" }}>
+            <p style={{ margin: 0, fontSize: "13px", color: "#475569", lineHeight: "1.5" }}>
               This report summarises the diagnostic results of your AI infrastructure cost scan — identifying spend risk, architectural inefficiencies, and business urgency to prioritise the right next step.
             </p>
           </div>
 
-          {/* ── SCORECARD ───────────────────────────────────────── */}
+          {/* Diagnostic Scorecard */}
           <div>
-            <p style={{ margin: "0 0 10px 0", fontSize: "10px", fontWeight: "800", textTransform: "uppercase" as const, letterSpacing: "1px", color: "#94a3b8" }}>
+            <p style={{ margin: "0 0 8px 0", fontSize: "10px", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", color: "#94a3b8" }}>
               Diagnostic Scorecard
             </p>
             <div style={{ display: "flex", gap: "12px" }}>
@@ -150,15 +151,8 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
                 { label: "Architecture Risk",     desc: "Infrastructure design & leakage", cfg: arch  },
                 { label: "Business Urgency",      desc: "Operational pain & savings target", cfg: pain  },
               ].map(({ label, desc, cfg }) => (
-                <div key={label} style={{
-                  flex: 1,
-                  minWidth: 0,
-                  border: `1.5px solid ${cfg.border}`,
-                  borderRadius: "10px",
-                  padding: "14px 16px",
-                  backgroundColor: cfg.bg,
-                }}>
-                  <p style={{ margin: "0 0 3px 0", fontSize: "11px", fontWeight: "800", color: "#334155", textTransform: "uppercase" as const, letterSpacing: "0.4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</p>
+                <div key={label} style={{ flex: 1, minWidth: 0, border: `1.5px solid ${cfg.border}`, borderRadius: "10px", padding: "14px 16px", backgroundColor: cfg.bg }}>
+                  <p style={{ margin: "0 0 4px 0", fontSize: "11px", fontWeight: "800", color: "#334155", textTransform: "uppercase", letterSpacing: "0.4px" }}>{label}</p>
                   <p style={{ margin: "0 0 10px 0", fontSize: "10.5px", color: "#64748b", lineHeight: "1.4" }}>{desc}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     <div style={{ flexShrink: 0, width: "8px", height: "8px", borderRadius: "50%", backgroundColor: cfg.dot }} />
@@ -169,105 +163,181 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
             </div>
           </div>
 
-          {/* ── KEY INSIGHTS ────────────────────────────────────── */}
+          {/* Evidence Verification */}
+          {result.confidenceScore && (
+            <div>
+              <p style={{ margin: "0 0 8px 0", fontSize: "10px", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", color: "#94a3b8" }}>
+                AI Infrastructure Audit Evidence Verification
+              </p>
+              <div style={{ display: "flex", gap: "16px", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "14px 18px" }}>
+                <div style={{ flex: "0 0 120px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", borderRight: "1px solid #e2e8f0", paddingRight: "16px" }}>
+                  <span style={{ fontSize: "9px", color: "#64748b", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "2px" }}>Audit Confidence</span>
+                  <span style={{ fontSize: "26px", fontWeight: "900", color: "#4f46e5" }}>{result.confidenceScore}</span>
+                  <span style={{ fontSize: "8.5px", fontWeight: "700", textTransform: "uppercase", color: "#4f46e5", backgroundColor: "#eeebff", padding: "2px 8px", borderRadius: "4px", marginTop: "4px" }}>
+                    {Number(result.confidenceScore.replace("%", "")) >= 70 
+                      ? "High Data Depth" 
+                      : Number(result.confidenceScore.replace("%", "")) >= 40 
+                        ? "Medium Data Depth" 
+                        : "Low Data Depth"}
+                  </span>
+                </div>
+                
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: "8px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", borderBottom: "1px solid #f1f5f9", paddingBottom: "4px" }}>
+                    <span style={{ color: "#64748b", fontWeight: "500" }}>Billed Provider:</span>
+                    <strong style={{ color: "#0f172a" }}>{result.costAnalysis?.normalizedData?.provider || "Self-reported Provider"}</strong>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", borderBottom: "1px solid #f1f5f9", paddingBottom: "4px" }}>
+                    <span style={{ color: "#64748b", fontWeight: "500" }}>Audited Spend Run:</span>
+                    <strong style={{ color: "#4f46e5" }}>{result.costAnalysis?.normalizedData?.monthlySpend || "No direct billing data"}</strong>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px" }}>
+                    <span style={{ color: "#64748b", fontWeight: "500" }}>Identified Waste:</span>
+                    <strong style={{ color: "#dc2626" }}>{result.costAnalysis?.normalizedData?.unusedResources || "Unoptimized staging endpoints"}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Key Diagnostic Insights */}
           <div>
-            <p style={{ margin: "0 0 10px 0", fontSize: "10px", fontWeight: "800", textTransform: "uppercase" as const, letterSpacing: "1px", color: "#94a3b8" }}>
+            <p style={{ margin: "0 0 8px 0", fontSize: "10px", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", color: "#94a3b8" }}>
               Key Diagnostic Insights
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {result.insights.map((insight, idx) => (
-                <div key={idx} style={{
-                  display: "flex",
-                  gap: "12px",
-                  alignItems: "flex-start",
-                  backgroundColor: "#f8fafc",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "8px",
-                  padding: "11px 14px",
-                }}>
-                  {/* Plain number — no background */}
-                  <div style={{
-                    flexShrink: 0,
-                    width: "22px",
-                    minWidth: "22px",
-                    fontSize: "13px",
-                    fontWeight: "800",
-                    color: "#94a3b8",
-                    lineHeight: "1.65",
-                    textAlign: "center",
-                  }}>
+                <div key={idx} style={{ display: "flex", gap: "12px", alignItems: "flex-start", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "12px 14px" }}>
+                  <div style={{ flexShrink: 0, width: "22px", minWidth: "22px", fontSize: "13px", fontWeight: "800", color: "#94a3b8", lineHeight: "1.5", textAlign: "center" }}>
                     {idx + 1}.
                   </div>
-                  <p style={{ margin: 0, fontSize: "12px", lineHeight: "1.65", color: "#334155", flex: 1, minWidth: 0 }}>{insight}</p>
+                  <p style={{ margin: 0, fontSize: "12.5px", lineHeight: "1.5", color: "#334155", flex: 1, minWidth: 0 }}>{insight}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* ── RECOMMENDATION ──────────────────────────────────── */}
+          {/* Our Recommendation */}
           <div>
-            <p style={{ margin: "0 0 10px 0", fontSize: "10px", fontWeight: "800", textTransform: "uppercase" as const, letterSpacing: "1px", color: "#94a3b8" }}>
+            <p style={{ margin: "0 0 8px 0", fontSize: "10px", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", color: "#94a3b8" }}>
               Our Recommendation
             </p>
-            <div style={{
-              backgroundColor: tierStyle.bg,
-              border: `1.5px solid ${tierStyle.border}`,
-              borderRadius: "10px",
-              padding: "18px 20px",
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "14px",
-            }}>
-              <div style={{
-                flexShrink: 0,
-                width: "34px",
-                height: "34px",
-                minWidth: "34px",
-                minHeight: "34px",
-                borderRadius: "8px",
-                backgroundColor: tierStyle.badge,
-                textAlign: "center",
-                lineHeight: "34px",
-                fontSize: "16px",
-                fontWeight: "900",
-                color: "#ffffff",
-              }}>
+            <div style={{ backgroundColor: tierStyle.bg, border: `1.5px solid ${tierStyle.border}`, borderRadius: "10px", padding: "16px 20px", display: "flex", alignItems: "flex-start", gap: "14px" }}>
+              <div style={{ flexShrink: 0, width: "34px", height: "34px", minWidth: "34px", minHeight: "34px", borderRadius: "8px", backgroundColor: tierStyle.badge, textAlign: "center", lineHeight: "34px", fontSize: "16px", fontWeight: "900", color: "#ffffff" }}>
                 {result.tier}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ margin: "0 0 4px 0", fontSize: "10px", fontWeight: "800", color: tierStyle.text, textTransform: "uppercase" as const, letterSpacing: "0.8px" }}>
+                <p style={{ margin: "0 0 4px 0", fontSize: "10px", fontWeight: "800", color: tierStyle.text, textTransform: "uppercase", letterSpacing: "0.8px" }}>
                   Tier {result.tier} — Priority Assessment
                 </p>
-                <p style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: tierStyle.text, lineHeight: "1.5" }}>
+                <p style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: tierStyle.text, lineHeight: "1.4" }}>
                   {TIER_LABELS[result.tier]}
                 </p>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* ── DIVIDER ─────────────────────────────────────────── */}
+        {/* Footer Block */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "24px" }}>
           <div style={{ height: "1px", background: "#e2e8f0" }} />
-
-          {/* ── FOOTER ──────────────────────────────────────────── */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <img src="/logo.jpg" alt="Pixel Punch" style={{ height: "24px", width: "auto", objectFit: "contain" }} />
               <div style={{ height: "16px", width: "1px", backgroundColor: "#e2e8f0", margin: "0 4px" }} />
-              <div>
-                <p style={{ margin: 0, fontSize: "10px", color: "#94a3b8" }}>contact@pixelpunch.org • +1 (657) 200-1336</p>
-              </div>
+              <p style={{ margin: 0, fontSize: "10px", color: "#94a3b8" }}>contact@pixelpunch.org • +1 (657) 200-1336</p>
             </div>
             <div style={{ textAlign: "right" }}>
               <p style={{ margin: "0 0 1px 0", fontSize: "10px", color: "#94a3b8" }}>pixelpunch.org</p>
               <p style={{ margin: 0, fontSize: "10px", color: "#cbd5e1" }}>© {new Date().getFullYear()} Pixel Punch. All rights reserved.</p>
             </div>
           </div>
-
         </div>
 
-        {/* ── BOTTOM ACCENT BAR ─────────────────────────────────── */}
-        <div style={{ height: "4px", background: "linear-gradient(90deg, #0d6efd 0%, #6610f2 100%)" }} />
       </div>
+
+      {/* ── PAGE 2: DETAILED AI INFRASTRUCTURE COST AUDIT REPORT ──────────────── */}
+      {result.auditReport && (
+        <div style={{ width: "794px", minHeight: "1100px", boxSizing: "border-box", display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "10px 0" }}>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {/* Header Block */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <img src="/logo.jpg" alt="Pixel Punch" style={{ height: "28px", width: "auto", objectFit: "contain" }} />
+                <div style={{ height: "18px", width: "1px", backgroundColor: "#e2e8f0", margin: "0 4px" }} />
+                <span style={{ fontSize: "10px", fontWeight: "750", color: "#334155", textTransform: "uppercase", letterSpacing: "0.5px" }}>Cost Audit Report</span>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <span style={{ fontSize: "9px", fontWeight: "800", backgroundColor: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", borderRadius: "999px", textTransform: "uppercase", letterSpacing: "0.5px", padding: "2px 8px" }}>
+                  AI Generated Findings
+                </span>
+              </div>
+            </div>
+
+            <div style={{ height: "1px", background: "#e2e8f0" }} />
+
+            {/* Row 1: Side-by-Side Findings & Recommendations */}
+            <div style={{ display: "flex", gap: "16px", marginBottom: "4px" }}>
+              
+              {result.findings && result.findings.length > 0 && (
+                <div style={{ flex: 1, backgroundColor: "#fff5f5", border: "1px solid #fee2e2", borderRadius: "10px", padding: "14px 16px" }}>
+                  <h3 style={{ fontSize: "11px", fontWeight: "900", color: "#b91c1c", margin: "0 0 8px 0", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    Key Findings
+                  </h3>
+                  <ul style={{ margin: 0, padding: 0, listStyleType: "none" }}>
+                    {result.findings.map((f, i) => (
+                      <li key={i} style={{ fontSize: "10px", color: "#475569", marginBottom: "5px", lineHeight: "1.4", display: "flex", alignItems: "flex-start", gap: "4px" }}>
+                        <strong style={{ color: "#ef4444" }}>•</strong>
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {result.recommendations && result.recommendations.length > 0 && (
+                <div style={{ flex: 1, backgroundColor: "#f0fdf4", border: "1px solid #dcfce7", borderRadius: "10px", padding: "14px 16px" }}>
+                  <h3 style={{ fontSize: "11px", fontWeight: "900", color: "#15803d", margin: "0 0 8px 0", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    Expert Recommendations
+                  </h3>
+                  <ul style={{ margin: 0, padding: 0, listStyleType: "none" }}>
+                    {result.recommendations.map((r, i) => (
+                      <li key={i} style={{ fontSize: "10px", color: "#475569", marginBottom: "5px", lineHeight: "1.4", display: "flex", alignItems: "flex-start", gap: "4px" }}>
+                        <strong style={{ color: "#22c55e" }}>•</strong>
+                        <span>{r}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+            </div>
+
+            {/* Row 2: Full Width Detailed Report */}
+            <div style={{ padding: "8px 0" }}>
+              {renderMarkdown(result.auditReport)}
+            </div>
+          </div>
+
+          {/* Footer Block */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "24px" }}>
+            <div style={{ height: "1px", background: "#e2e8f0" }} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <img src="/logo.jpg" alt="Pixel Punch" style={{ height: "20px", width: "auto", objectFit: "contain" }} />
+                <p style={{ margin: 0, fontSize: "9px", color: "#94a3b8" }}>Ref: #{result.submissionId.slice(0, 8).toUpperCase()} • Detailed AI Cost Audit</p>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <p style={{ margin: 0, fontSize: "9px", color: "#cbd5e1" }}>© {new Date().getFullYear()} Pixel Punch.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      )}
+
     </div>
   );
 };
+

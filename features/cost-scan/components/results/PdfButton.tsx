@@ -22,7 +22,7 @@ export function PdfButton({ submissionId }: PdfButtonProps) {
       if (!element) throw new Error("Could not find PDF template in DOM.");
 
       const opt = {
-        margin:      0,
+        margin:      [15, 15, 15, 15],
         filename:    `Pixel-Punch-Cost-Audit-${submissionId?.slice(0, 8) ?? "report"}.pdf`,
         image:       { type: "jpeg" as const, quality: 0.98 },
         html2canvas: {
@@ -30,7 +30,6 @@ export function PdfButton({ submissionId }: PdfButtonProps) {
           useCORS:     true,
           logging:     false,
           width:       794,
-          height:      1123,
           windowWidth: 794,
         },
         jsPDF: {
@@ -39,6 +38,7 @@ export function PdfButton({ submissionId }: PdfButtonProps) {
           orientation: "portrait" as const,
           compress:    true,
         },
+        pagebreak: { mode: ["css", "legacy"] as const },
       };
 
       await html2pdf().set(opt).from(element).save();

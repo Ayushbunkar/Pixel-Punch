@@ -101,27 +101,47 @@ export default function ResultsPageContent() {
   const ctaUrl = result.ctaUrl ?? "https://pixelpunch.org/contact-us?ref=co-scan-book";
 
   // ── Simple Markdown to React Element Parser ────────────────────────────────
+  const parseInlineMarkdown = (text: string) => {
+    const boldParts = text.split(/\*\*([^*]+)\*\*/g);
+    return boldParts.map((part, i) => {
+      const isBold = i % 2 === 1;
+      const italicParts = part.split(/[_*]([^*_]+)[_*]/g);
+      const content = italicParts.map((subpart, j) => {
+        const isItalic = j % 2 === 1;
+        if (isItalic) {
+          return <span key={j} className="italic text-slate-800">{subpart}</span>;
+        }
+        return subpart;
+      });
+
+      if (isBold) {
+        return <strong key={i} className="text-slate-950 font-bold">{content}</strong>;
+      }
+      return <span key={i}>{content}</span>;
+    });
+  };
+
   const renderMarkdown = (md: string) => {
     return md.split("\n").map((line, idx) => {
       const trimmed = line.trim();
       if (trimmed.startsWith("# ")) {
         return (
           <h2 key={idx} className="text-lg font-bold text-slate-900 mt-6 mb-3 border-b pb-1.5">
-            {trimmed.replace(/^#\s+/, "")}
+            {parseInlineMarkdown(trimmed.replace(/^#\s+/, ""))}
           </h2>
         );
       }
       if (trimmed.startsWith("### ")) {
         return (
           <h3 key={idx} className="text-sm font-bold text-slate-800 mt-4 mb-2">
-            {trimmed.replace(/^###\s+/, "")}
+            {parseInlineMarkdown(trimmed.replace(/^###\s+/, ""))}
           </h3>
         );
       }
       if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
         return (
           <li key={idx} className="text-xs text-slate-600 ml-4 list-disc mb-1 leading-relaxed">
-            {trimmed.replace(/^[-*]\s+/, "")}
+            {parseInlineMarkdown(trimmed.replace(/^[-*]\s+/, ""))}
           </li>
         );
       }
@@ -131,10 +151,9 @@ export default function ResultsPageContent() {
       if (trimmed === "") {
         return <div key={idx} className="h-2" />;
       }
-      const parts = trimmed.split(/\*\*([^*]+)\*\*/g);
       return (
         <p key={idx} className="text-xs text-slate-600 mb-3 leading-relaxed">
-          {parts.map((part, i) => (i % 2 === 1 ? <strong key={i} className="text-slate-900 font-semibold">{part}</strong> : part))}
+          {parseInlineMarkdown(trimmed)}
         </p>
       );
     });
@@ -254,14 +273,9 @@ export default function ResultsPageContent() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Markdown Report Body */}
-                <div className="lg:col-span-2 bg-slate-50/50 rounded-xl border border-slate-200/60 p-6 max-h-[500px] overflow-y-auto scrollbar-thin">
-                  {renderMarkdown(result.auditReport)}
-                </div>
-
-                {/* Sidebar Findings/Recs */}
-                <div className="space-y-4">
+              <div className="flex flex-col gap-6">
+                {/* Top side-by-side Findings & Recommendations */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {result.findings && result.findings.length > 0 && (
                     <div className="bg-red-50/30 rounded-xl border border-red-500/10 p-5 shadow-sm">
                       <h3 className="text-xs font-bold text-red-700 mb-3 flex items-center gap-1.5 uppercase tracking-wider">
@@ -293,6 +307,11 @@ export default function ResultsPageContent() {
                       </ul>
                     </div>
                   )}
+                </div>
+
+                {/* Bottom Full-Width Markdown Report Body */}
+                <div className="bg-slate-50/50 rounded-xl border border-slate-200/60 p-6 overflow-y-auto scrollbar-thin max-h-[550px] min-h-[300px]">
+                  {renderMarkdown(result.auditReport)}
                 </div>
               </div>
             </div>
