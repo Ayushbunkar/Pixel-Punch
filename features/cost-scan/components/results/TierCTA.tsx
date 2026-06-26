@@ -9,17 +9,22 @@ interface TierCTAProps {
 }
 
 export function TierCTA({ url, label, tier }: TierCTAProps) {
-  // Use primary button style for tiers 1 and 2, ghost for others
+  // Always send to contact page — override any passed url for tiers 1 & 2
+  const href = tier <= 2
+    ? "https://pixelpunch.org/contact-us/"
+    : url;
+
   const styleClass = tier <= 2 ? "pp-btn-primary" : "pp-btn-ghost border border-slate-400 hover:border-slate-300 text-slate-100";
 
   return (
     <a
       id="cost-scan-results-cta"
-      href={url}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       className={`${styleClass} inline-flex`}
       onClick={() => {
-        // Mock analytics tracking
-        console.log("Analytics: Tracked audit_booking_click", { tier, url });
+        console.log("Analytics: Tracked audit_booking_click", { tier, url: href });
       }}
     >
       {label}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: { default: "Pixel Punch AI", template: "%s | Pixel Punch AI" },
@@ -17,7 +18,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="bg-[#0a0a0f] text-slate-100 antialiased">{children}</body>
+      <body className="bg-[#0a0a0f] text-slate-100 antialiased">
+        {children}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "#1e293b",
+              color: "#f1f5f9",
+              borderRadius: "12px",
+              border: "1px solid #334155",
+              fontSize: "14px",
+            },
+            success: { iconTheme: { primary: "#22c55e", secondary: "#f0fdf4" } },
+            error:   { iconTheme: { primary: "#ef4444", secondary: "#fef2f2" } },
+          }}
+        />
+      </body>
     </html>
   );
 }

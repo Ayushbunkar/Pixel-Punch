@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { StoredScanResult } from "@/features/cost-scan/types";
 
 interface Props {
@@ -95,9 +96,9 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
 
           {/* ── HEADER ROW ──────────────────────────────────────── */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            {/* LOGO — Sparkles + "Pixel Punch" */}
+            {/* LOGO — actual logo.jpg */}
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <SparklesSVG />
+              <img src="/logo.jpg" alt="Pixel Punch" style={{ width: "40px", height: "40px", borderRadius: "8px", objectFit: "contain" }} />
               <div>
                 <p style={{ margin: 0, fontSize: "19px", fontWeight: "800", color: "#0f172a", letterSpacing: "-0.5px", lineHeight: "1.1" }}>Pixel Punch</p>
                 <p style={{ margin: 0, fontSize: "10.5px", color: "#64748b", marginTop: "2px" }}>AI Cost Architecture Diagnostics</p>
@@ -247,7 +248,7 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
           {/* ── FOOTER ──────────────────────────────────────────── */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <SparklesSVG />
+              <img src="/logo.jpg" alt="Pixel Punch" style={{ width: "28px", height: "28px", borderRadius: "6px", objectFit: "contain" }} />
               <div>
                 <p style={{ margin: "0 0 1px 0", fontSize: "11px", fontWeight: "700", color: "#334155" }}>Pixel Punch</p>
                 <p style={{ margin: 0, fontSize: "10px", color: "#94a3b8" }}>contact@pixelpunch.org • +1 (657) 200-1336</p>

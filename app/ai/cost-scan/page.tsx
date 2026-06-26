@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Image from "next/image";
 import { CostScanWizard } from "@/features/cost-scan/components/wizard/CostScanWizard";
-import { Sparkles, Target, Lightbulb, ClipboardList, Phone, Mail, MessageCircle } from "lucide-react";
+import { Target, Lightbulb, ClipboardList, Phone, Mail, MessageCircle } from "lucide-react";
 import * as motion from "framer-motion/client";
 import { slideUp, staggerContainer, fadeIn } from "@/components/ui/animations";
 
@@ -30,10 +31,16 @@ export default async function AiCostScanPage({ searchParams }: PageProps) {
     <main className="min-h-screen bg-[#eef4ff] bg-page-gradient">
       {/* ── Top Contact Bar ──────────────────────────────────────────── */}
       <div className="bg-[#0d6efd] text-white text-xs py-2 px-6">
-        <div className="max-w-5xl mx-auto flex items-center justify-center gap-6">
-          <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> +1 (657) 200-1336</span>
-          <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> contact@pixelpunch.org</span>
-          <span className="flex items-center gap-1.5"><MessageCircle className="w-3.5 h-3.5" /> +1 (657) 200-1336</span>
+        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+          <a href="tel:+16572001336" className="flex items-center gap-1.5 hover:text-blue-200 transition-colors">
+            <Phone className="w-3.5 h-3.5" /> +1 (657) 200-1336
+          </a>
+          <a href="mailto:contact@pixelpunch.org" className="flex items-center gap-1.5 hover:text-blue-200 transition-colors">
+            <Mail className="w-3.5 h-3.5" /> contact@pixelpunch.org
+          </a>
+          <a href="https://wa.me/16572001336" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-blue-200 transition-colors">
+            <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+          </a>
         </div>
       </div>
 
@@ -43,12 +50,14 @@ export default async function AiCostScanPage({ searchParams }: PageProps) {
         className="border-b border-slate-200 px-6 py-4 bg-white/50 backdrop-blur-md"
       >
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2 text-lg font-bold text-slate-900 tracking-tight hover:text-blue-600 transition-colors">
-            <Sparkles className="w-5 h-5 text-blue-600" />
-            <span>Pixel Punch</span>
+          <a href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Image src="/logo.jpg" alt="Pixel Punch" width={36} height={36} className="rounded-lg object-contain" />
+            <span className="text-lg font-bold text-slate-900 tracking-tight">Pixel Punch</span>
           </a>
           <a
-            href="/ai"
+            href="https://pixelpunch.org/services/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
           >
             ← All AI services
