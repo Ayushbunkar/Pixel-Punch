@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
 import { CostScanWizard } from "@/features/cost-scan/components/wizard/CostScanWizard";
-import { Target, Lightbulb, ClipboardList, Phone, Mail, MessageCircle } from "lucide-react";
+import { ContactBar } from "@/components/ui/ContactBar";
+import { Target, Lightbulb, ClipboardList } from "lucide-react";
 import * as motion from "framer-motion/client";
 import { slideUp, staggerContainer, fadeIn } from "@/components/ui/animations";
 
@@ -30,19 +31,7 @@ export default async function AiCostScanPage({ searchParams }: PageProps) {
   return (
     <main className="min-h-screen bg-[#eef4ff] bg-page-gradient">
       {/* ── Top Contact Bar ──────────────────────────────────────────── */}
-      <div className="bg-[#0d6efd] text-white text-xs py-2 px-6">
-        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-          <a href="tel:+16572001336" className="flex items-center gap-1.5 hover:text-blue-200 transition-colors">
-            <Phone className="w-3.5 h-3.5" /> +1 (657) 200-1336
-          </a>
-          <a href="mailto:contact@pixelpunch.org" className="flex items-center gap-1.5 hover:text-blue-200 transition-colors">
-            <Mail className="w-3.5 h-3.5" /> contact@pixelpunch.org
-          </a>
-          <a href="https://wa.me/16572001336" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-blue-200 transition-colors">
-            <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
-          </a>
-        </div>
-      </div>
+      <ContactBar containerClassName="max-w-5xl" />
 
       {/* ── Nav strip ──────────────────────────────────────────────── */}
       <motion.nav 

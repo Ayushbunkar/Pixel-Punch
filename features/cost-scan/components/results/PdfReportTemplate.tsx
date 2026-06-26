@@ -98,10 +98,10 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             {/* LOGO — actual logo.jpg */}
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <img src="/logo.jpg" alt="Pixel Punch" style={{ width: "40px", height: "40px", borderRadius: "8px", objectFit: "contain" }} />
+              <img src="/logo.jpg" alt="Pixel Punch" style={{ height: "36px", width: "auto", objectFit: "contain" }} />
+              <div style={{ height: "24px", width: "1px", backgroundColor: "#e2e8f0", margin: "0 4px" }} />
               <div>
-                <p style={{ margin: 0, fontSize: "19px", fontWeight: "800", color: "#0f172a", letterSpacing: "-0.5px", lineHeight: "1.1" }}>Pixel Punch</p>
-                <p style={{ margin: 0, fontSize: "10.5px", color: "#64748b", marginTop: "2px" }}>AI Cost Architecture Diagnostics</p>
+                <p style={{ margin: 0, fontSize: "11px", fontWeight: "600", color: "#475569", textTransform: "uppercase" as const, letterSpacing: "0.5px" }}>AI Cost Architecture Diagnostics</p>
               </div>
             </div>
             {/* META */}
@@ -248,9 +248,9 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
           {/* ── FOOTER ──────────────────────────────────────────── */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <img src="/logo.jpg" alt="Pixel Punch" style={{ width: "28px", height: "28px", borderRadius: "6px", objectFit: "contain" }} />
+              <img src="/logo.jpg" alt="Pixel Punch" style={{ height: "24px", width: "auto", objectFit: "contain" }} />
+              <div style={{ height: "16px", width: "1px", backgroundColor: "#e2e8f0", margin: "0 4px" }} />
               <div>
-                <p style={{ margin: "0 0 1px 0", fontSize: "11px", fontWeight: "700", color: "#334155" }}>Pixel Punch</p>
                 <p style={{ margin: 0, fontSize: "10px", color: "#94a3b8" }}>contact@pixelpunch.org • +1 (657) 200-1336</p>
               </div>
             </div>

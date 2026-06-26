@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { StoredScanResult } from "@/features/cost-scan/types";
-import { Search, CheckCircle, Phone, Mail, MessageCircle } from "lucide-react";
+import { Search, CheckCircle } from "lucide-react";
+import { ContactBar } from "@/components/ui/ContactBar";
 import * as motion from "framer-motion/client";
 import { slideUp, staggerContainer, fadeIn } from "@/components/ui/animations";
 
@@ -102,19 +103,7 @@ export default function ResultsPageContent() {
   return (
     <main className="min-h-screen bg-[#eef4ff] bg-page-gradient">
       {/* ── Top Contact Bar ──────────────────────────────────────────── */}
-      <div className="bg-[#0d6efd] text-white text-xs py-2 px-6">
-        <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-          <a href="tel:+16572001336" className="flex items-center gap-1.5 hover:text-blue-200 transition-colors">
-            <Phone className="w-3.5 h-3.5" /> +1 (657) 200-1336
-          </a>
-          <a href="mailto:contact@pixelpunch.org" className="flex items-center gap-1.5 hover:text-blue-200 transition-colors">
-            <Mail className="w-3.5 h-3.5" /> contact@pixelpunch.org
-          </a>
-          <a href="https://wa.me/16572001336" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-blue-200 transition-colors">
-            <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
-          </a>
-        </div>
-      </div>
+      <ContactBar containerClassName="max-w-3xl" />
 
       {/* ── Nav ──────────────────────────────────────────────────── */}
       <motion.nav 

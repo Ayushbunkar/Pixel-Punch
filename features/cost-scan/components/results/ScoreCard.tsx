@@ -43,16 +43,18 @@ export function ScoreCard({ title, dimension, score }: ScoreCardProps) {
   const description = descriptions?.[score] ?? "Analysis complete.";
 
   return (
-    <div className={`rounded-xl border p-5 ${meta.bgClass}`}>
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <p className="text-sm font-semibold text-slate-900">
+    <div className={`rounded-xl border p-5 transition-all duration-200 hover:shadow-md ${meta.bgClass}`}>
+      <div className="flex flex-col gap-2 mb-3">
+        <div>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${meta.badgeClass}`}>
+            {meta.icon} <span>{meta.label}</span>
+          </span>
+        </div>
+        <p className="text-sm font-bold text-slate-900 leading-snug">
           {title}
         </p>
-        <span className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${meta.badgeClass}`}>
-          {meta.icon} {meta.label}
-        </span>
       </div>
-      <p className="text-xs text-slate-600">{description}</p>
+      <p className="text-xs text-slate-600 leading-relaxed">{description}</p>
     </div>
   );
 }

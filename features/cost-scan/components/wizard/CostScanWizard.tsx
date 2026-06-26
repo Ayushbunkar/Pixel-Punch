@@ -5,6 +5,7 @@ import { useCostScanForm }   from "../../hooks/useCostScanForm";
 import { useSubmitScan }     from "../../hooks/useSubmitScan";
 import * as motion from "framer-motion/client";
 import { slideUp } from "@/components/ui/animations";
+import toast from "react-hot-toast";
 import { AiDependenceStep }  from "./steps/AiDependenceStep";
 import { SpendBandStep }     from "./steps/SpendBandStep";
 import { UnitEconomicsStep } from "./steps/UnitEconomicsStep";
@@ -148,6 +149,32 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
     const result = await submit(state, validateAll);
     if (result.success && result.data) {
       router.push(`/ai/cost-scan/results?id=${result.data.submissionId}`);
+    } else if (result.errors && Object.keys(result.errors).length > 0) {
+      const FIELD_LABELS: Record<string, string> = {
+        firstname: "First Name",
+        lastname: "Last Name",
+        email: "Work Email",
+        company: "Company",
+        job_title: "Job Title",
+        ai_dependence: "AI Dependence",
+        monthly_spend_band: "Monthly Spend Band",
+        spend_visibility: "Spend Visibility",
+        unit_economics: "Unit Economics",
+        main_pain: "Cost Pain",
+        leakage_pattern: "Leakage Pattern",
+        optimization_done: "Optimization",
+        savings_threshold: "Savings Threshold",
+      };
+      
+      const missing = Object.keys(result.errors)
+        .map((k) => FIELD_LABELS[k] || k)
+        .join(", ");
+        
+      toast.error(`Please complete the required fields: ${missing}`, {
+        id: "validation-error",
+      });
+    } else if (result.message) {
+      toast.error(result.message);
     }
   };
 

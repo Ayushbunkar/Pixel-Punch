@@ -208,6 +208,7 @@ export function useCostScanForm(initialRef?: string) {
     for (let s = 1; s <= TOTAL_STEPS; s++) {
       all = { ...all, ...validateStep(s, state) };
     }
+    setErrors(all);
     return all;
   }, [state]);
 
