@@ -22,7 +22,7 @@ export function PdfButton({ submissionId }: PdfButtonProps) {
       if (!element) throw new Error("Could not find PDF template in DOM.");
 
       const opt = {
-        margin:      [15, 15, 15, 15],
+        margin:      0,
         filename:    `Pixel-Punch-Cost-Audit-${submissionId?.slice(0, 8) ?? "report"}.pdf`,
         image:       { type: "jpeg" as const, quality: 0.98 },
         html2canvas: {
