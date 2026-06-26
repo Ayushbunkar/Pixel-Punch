@@ -6,10 +6,10 @@
 // =============================================================================
 
 import assert from "node:assert/strict";
-import { validateSubmission }          from "../../lib/cost-scan/server-validation";
+import { validateSubmission }          from "../../features/cost-scan/utils/server-validation";
 import { runScoring, getCTAUrl }       from "../../services/scoring.service";
 import { generateInsights }            from "../../services/insight.service";
-import type { FormState }              from "../../lib/cost-scan/types";
+import type { FormState }              from "../../features/cost-scan/types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Test fixtures (same profiles used in scoring engine unit tests)
