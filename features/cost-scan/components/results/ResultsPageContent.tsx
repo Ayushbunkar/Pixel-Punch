@@ -13,6 +13,7 @@ import { TierRecommendation } from "@/features/cost-scan/components/results/Tier
 import { ShareResults } from "@/features/cost-scan/components/results/ShareResults";
 import { PdfButton } from "@/features/cost-scan/components/results/PdfButton";
 import { ResultsSkeleton } from "@/features/cost-scan/components/results/ResultsSkeleton";
+import { PdfReportTemplate } from "@/features/cost-scan/components/results/PdfReportTemplate";
 
 export default function ResultsPageContent() {
   const router = useRouter();
@@ -169,6 +170,12 @@ export default function ResultsPageContent() {
           Scan ID: {result.submissionId}
         </motion.p>
       </motion.div>
+
+      {/* ── Hidden PDF Template ── */}
+      {/* Positioned completely off-screen so it doesn't affect the visible layout, but remains in the DOM for html2pdf to capture */}
+      <div style={{ position: "absolute", top: "-9999px", left: "-9999px" }}>
+        <PdfReportTemplate result={result} />
+      </div>
     </main>
   );
 }

@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { Loader2, Download } from "lucide-react";
 
 interface PdfButtonProps {
-  submissionId: string;
+  submissionId?: string;
 }
 
 export function PdfButton({ submissionId }: PdfButtonProps) {
@@ -12,10 +12,44 @@ export function PdfButton({ submissionId }: PdfButtonProps) {
   const [error, setError] = useState<string | null>(null);
 
   const exportPdf = useCallback(async () => {
-    // A simple, instant way to "export to PDF" is to trigger the browser's
-    // native print dialog, combined with @media print CSS rules.
-    window.print();
-  }, []);
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Dynamically import html2pdf so it doesn't break Next.js SSR
+      const html2pdf = (await import("html2pdf.js")).default;
+      
+      const element = document.getElementById("pdf-report-content");
+      if (!element) throw new Error("Could not find PDF template in DOM.");
+
+      const opt = {
+        margin:      [0, 0, 0, 0],
+        filename:    `Pixel-Punch-Cost-Audit-${submissionId?.slice(0, 8) ?? "report"}.pdf`,
+        image:       { type: "jpeg" as const, quality: 0.98 },
+        html2canvas: {
+          scale:       2,
+          useCORS:     true,
+          logging:     false,
+          width:       794,   // A4 at 96 DPI
+          height:      1123,  // A4 at 96 DPI
+          windowWidth: 794,
+        },
+        jsPDF: {
+          unit:        "mm" as const,
+          format:      "a4",  // strict A4 — always exactly 1 page
+          orientation: "portrait" as const,
+          compress:    true,
+        },
+      };
+
+      await html2pdf().set(opt).from(element).save();
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "PDF export failed.");
+    } finally {
+      setLoading(false);
+    }
+  }, [submissionId]);
 
   return (
     <div className="flex flex-col items-center">
