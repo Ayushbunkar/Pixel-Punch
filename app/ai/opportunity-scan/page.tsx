@@ -69,7 +69,7 @@ export default async function AiOpportunityScanPage({ searchParams }: PageProps)
             <span className="bg-clip-text text-transparent bg-indigo-gradient bg-gradient-to-r from-indigo-600 to-violet-600">
               business value
             </span>
-            <br className="hidden md:block" /> — in 3 minutes
+            <br className="hidden md:block" /> in 3 minutes
           </motion.h1>
 
           <motion.p variants={slideUp} className="max-w-2xl mx-auto text-lg text-slate-600 mb-8">

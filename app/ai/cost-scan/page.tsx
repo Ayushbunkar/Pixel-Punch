@@ -70,7 +70,7 @@ export default async function AiCostScanPage({ searchParams }: PageProps) {
             <span className="bg-clip-text text-transparent bg-accent-gradient">
               is leaking
             </span>
-            <br className="hidden md:block" /> — in 3 minutes
+            <br className="hidden md:block" />in 3 minutes
           </motion.h1>
 
           <motion.p variants={slideUp} className="max-w-2xl mx-auto text-lg text-slate-600 mb-8">
