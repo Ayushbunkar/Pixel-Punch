@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import ResultsPageContent from "@/features/cost-scan/components/results/ResultsPageContent";
+import ResultsPageContent from "@/modules/cost-audit/results/ResultsPageContent";
 
 export const metadata: Metadata = {
   title: "Your AI Cost Scan Results | Pixel Punch AI",

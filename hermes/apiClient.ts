@@ -1,4 +1,4 @@
-import { FormState } from "@/features/cost-scan/types";
+import { FormState } from "@/modules/cost-audit/types";
 
 export interface ApiSubmissionResult {
   success: boolean;

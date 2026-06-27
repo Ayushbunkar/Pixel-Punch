@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID }                from "crypto";
-import { validateSubmission, castToFormState } from "@/features/cost-scan/utils/server-validation";
-import { runScoring, getCTAUrl }              from "@/services/scoring.service";
-import { generateInsights }                   from "@/services/insight.service";
-import { syncToBrevo }                        from "@/services/brevo.service";
-import { extractTextFromDoc }                 from "@/services/extractor.service";
-import { generateAuditReport }                from "@/services/audit.service";
-import { saveSubmission }                     from "@/services/db.service";
-import { calculateConfidenceScore, analyzeArchitecture, analyzeCostEvidence, analyzeUsageMetrics } from "@/services/medium-analysis.service";
+import { validateSubmission, castToFormState } from "@/modules/cost-audit/utils/server-validation";
+import { runScoring, getCTAUrl }              from "@/modules/cost-audit/scoring/cost-score-service";
+import { generateInsights }                   from "@/modules/cost-audit/utils/insight.service";
+import { syncToBrevo }                        from "@/shared/utils/brevo.service";
+import { extractTextFromDoc }                 from "@/shared/utils/extractor.service";
+import { generateAuditReport }                from "@/shared/utils/audit.service";
+import { saveSubmission }                     from "@/shared/database/db.service";
+import { calculateConfidenceScore, analyzeArchitecture, analyzeCostEvidence, analyzeUsageMetrics } from "@/shared/utils/medium-analysis.service";
 
 // ── In-memory submission cache (Fallback for GET /api/cost-scan/result) ──────
 export const submissionCache = new Map<string, any>();

@@ -1,0 +1,304 @@
+{
+  "categories": {
+    "automation_opportunity": {
+      "name": "Automation Opportunity",
+      "description": "Measures the volume of repetitive tasks and routine communication suitable for AI automation.",
+      "max_score": 100,
+      "thresholds": {
+        "low": [0, 40],
+        "medium": [41, 75],
+        "high": [76, 100]
+      },
+      "rules": [
+        {
+          "field": "manual_processes",
+          "condition": "contains",
+          "value": "data_entry",
+          "weight": 20
+        },
+        {
+          "field": "manual_processes",
+          "condition": "contains",
+          "value": "email_followup",
+          "weight": 20
+        },
+        {
+          "field": "manual_processes",
+          "condition": "contains",
+          "value": "customer_support",
+          "weight": 20
+        },
+        {
+          "field": "manual_processes",
+          "condition": "contains",
+          "value": "reporting",
+          "weight": 15
+        },
+        {
+          "field": "inquiry_handling",
+          "condition": "equals",
+          "value": "humans_mostly",
+          "weight": 25
+        },
+        {
+          "field": "request_types",
+          "condition": "equals",
+          "value": "basic_faqs",
+          "weight": 20
+        }
+      ]
+    },
+    "ai_readiness": {
+      "name": "AI Readiness",
+      "description": "Calculates organizational readiness based on data quality, system integrations, and standardized SOPs.",
+      "max_score": 100,
+      "thresholds": {
+        "low": [0, 35],
+        "medium": [36, 70],
+        "high": [71, 100]
+      },
+      "rules": [
+        {
+          "field": "workflow_standardization",
+          "condition": "equals",
+          "value": "very_standardized",
+          "weight": 30
+        },
+        {
+          "field": "workflow_standardization",
+          "condition": "equals",
+          "value": "somewhat_standardized",
+          "weight": 15
+        },
+        {
+          "field": "data_quality",
+          "condition": "equals",
+          "value": "clean_reliable",
+          "weight": 35
+        },
+        {
+          "field": "data_quality",
+          "condition": "equals",
+          "value": "some_gaps",
+          "weight": 20
+        },
+        {
+          "field": "systems_connection",
+          "condition": "equals",
+          "value": "fully_integrated",
+          "weight": 35
+        },
+        {
+          "field": "systems_connection",
+          "condition": "equals",
+          "value": "partially_integrated",
+          "weight": 20
+        }
+      ]
+    },
+    "data_maturity": {
+      "name": "Data Maturity",
+      "description": "Evaluates data centralization, cleanliness, and the availability of structured tables vs flat files.",
+      "max_score": 100,
+      "thresholds": {
+        "low": [0, 40],
+        "medium": [41, 70],
+        "high": [71, 100]
+      },
+      "rules": [
+        {
+          "field": "data_quality",
+          "condition": "equals",
+          "value": "clean_reliable",
+          "weight": 40
+        },
+        {
+          "field": "data_quality",
+          "condition": "equals",
+          "value": "some_gaps",
+          "weight": 25
+        },
+        {
+          "field": "data_quality",
+          "condition": "equals",
+          "value": "inconsistent",
+          "weight": 10
+        },
+        {
+          "field": "data_systems",
+          "condition": "contains",
+          "value": "crm",
+          "weight": 20
+        },
+        {
+          "field": "data_systems",
+          "condition": "contains",
+          "value": "erp",
+          "weight": 20
+        },
+        {
+          "field": "automation_barriers",
+          "condition": "equals",
+          "value": "data_not_centralized",
+          "weight": -15
+        }
+      ]
+    },
+    "process_maturity": {
+      "name": "Process Maturity",
+      "description": "Measures core operational structure, lead qualification pipelines, and standardization levels.",
+      "max_score": 100,
+      "thresholds": {
+        "low": [0, 45],
+        "medium": [46, 75],
+        "high": [76, 100]
+      },
+      "rules": [
+        {
+          "field": "workflow_standardization",
+          "condition": "equals",
+          "value": "very_standardized",
+          "weight": 45
+        },
+        {
+          "field": "workflow_standardization",
+          "condition": "equals",
+          "value": "somewhat_standardized",
+          "weight": 25
+        },
+        {
+          "field": "lead_qualification",
+          "condition": "equals",
+          "value": "crm_scoring",
+          "weight": 45
+        },
+        {
+          "field": "lead_qualification",
+          "condition": "equals",
+          "value": "automated_rules",
+          "weight": 30
+        },
+        {
+          "field": "automation_barriers",
+          "condition": "equals",
+          "value": "no_clear_design",
+          "weight": -20
+        }
+      ]
+    },
+    "integration_readiness": {
+      "name": "Integration Readiness",
+      "description": "Evaluates API connectivity, system centralization, and compatibility of the data stack for automation.",
+      "max_score": 100,
+      "thresholds": {
+        "low": [0, 40],
+        "medium": [41, 70],
+        "high": [71, 100]
+      },
+      "rules": [
+        {
+          "field": "systems_connection",
+          "condition": "equals",
+          "value": "fully_integrated",
+          "weight": 50
+        },
+        {
+          "field": "systems_connection",
+          "condition": "equals",
+          "value": "partially_integrated",
+          "weight": 30
+        },
+        {
+          "field": "automation_barriers",
+          "condition": "equals",
+          "value": "tools_dont_integrate",
+          "weight": -20
+        },
+        {
+          "field": "data_systems",
+          "condition": "contains",
+          "value": "crm",
+          "weight": 25
+        },
+        {
+          "field": "data_systems",
+          "condition": "contains",
+          "value": "spreadsheets",
+          "weight": -10
+        }
+      ]
+    },
+    "business_impact": {
+      "name": "Business Impact",
+      "description": "Calculates business value potential based on core priority metrics and operational challenges.",
+      "max_score": 100,
+      "thresholds": {
+        "low": [0, 45],
+        "medium": [46, 75],
+        "high": [76, 100]
+      },
+      "rules": [
+        {
+          "field": "main_outcome",
+          "condition": "equals",
+          "value": "lower_manual_work",
+          "weight": 35
+        },
+        {
+          "field": "main_outcome",
+          "condition": "equals",
+          "value": "faster_followup",
+          "weight": 30
+        },
+        {
+          "field": "main_outcome",
+          "condition": "equals",
+          "value": "higher_conversion",
+          "weight": 30
+        },
+        {
+          "field": "main_outcome",
+          "condition": "equals",
+          "value": "more_leads",
+          "weight": 25
+        },
+        {
+          "field": "biggest_challenge",
+          "condition": "equals",
+          "value": "slow_processes",
+          "weight": 35
+        },
+        {
+          "field": "biggest_challenge",
+          "condition": "equals",
+          "value": "too_much_manual",
+          "weight": 35
+        },
+        {
+          "field": "biggest_challenge",
+          "condition": "equals",
+          "value": "sales_gaps",
+          "weight": 30
+        },
+        {
+          "field": "desired_use_case",
+          "condition": "equals",
+          "value": "automating_tasks",
+          "weight": 30
+        },
+        {
+          "field": "desired_use_case",
+          "condition": "equals",
+          "value": "customer_support",
+          "weight": 30
+        },
+        {
+          "field": "desired_use_case",
+          "condition": "equals",
+          "value": "sales_followup",
+          "weight": 30
+        }
+      ]
+    }
+  }
+}

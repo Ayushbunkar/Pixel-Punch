@@ -1,0 +1,364 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pixelpunch.org/schemas/opportunity-scan-v1.json",
+  "title": "AI Opportunity Scan — Questionnaire Submission Schema",
+  "description": "Schema definition for the Pixel Punch AI Opportunity Scan form. Used by frontend form validation and backend API validation.",
+  "type": "object",
+  "required": [
+    "business_type",
+    "main_outcome",
+    "biggest_challenge",
+    "data_systems",
+    "automation_barriers",
+    "workflow_standardization",
+    "manual_processes",
+    "info_retrieval",
+    "systems_connection",
+    "data_quality",
+    "inquiry_handling",
+    "request_types",
+    "lead_qualification",
+    "desired_use_case",
+    "adoption_blocker",
+    "firstname",
+    "lastname",
+    "email",
+    "company",
+    "company_size",
+    "job_title"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "business_type": {
+      "type": "string",
+      "description": "Q1 — What best describes your business?",
+      "enum": [
+        "saas",
+        "agency_services",
+        "retail_ecommerce",
+        "healthcare_finance",
+        "other"
+      ],
+      "x-enumLabels": {
+        "saas": "SaaS",
+        "agency_services": "Agency / professional services",
+        "retail_ecommerce": "Retail / eCommerce",
+        "healthcare_finance": "Healthcare / finance",
+        "other": "Other"
+      }
+    },
+    "main_outcome": {
+      "type": "string",
+      "description": "Q2 — What is the main outcome you want to improve right now?",
+      "enum": [
+        "more_leads",
+        "higher_conversion",
+        "faster_followup",
+        "lower_manual_work",
+        "other"
+      ],
+      "x-enumLabels": {
+        "more_leads": "More leads",
+        "higher_conversion": "Higher conversion",
+        "faster_followup": "Faster follow-up",
+        "lower_manual_work": "Lower manual work",
+        "other": "Other"
+      }
+    },
+    "biggest_challenge": {
+      "type": "string",
+      "description": "Q3 — What is the biggest operational challenge you are facing today?",
+      "enum": [
+        "slow_processes",
+        "too_much_manual",
+        "data_scattered",
+        "sales_gaps",
+        "other"
+      ],
+      "x-enumLabels": {
+        "slow_processes": "Slow processes",
+        "too_much_manual": "Too much manual work",
+        "data_scattered": "Data scattered across tools",
+        "sales_gaps": "Sales follow-up gaps",
+        "other": "Other"
+      }
+    },
+    "data_systems": {
+      "type": "array",
+      "description": "Q4 — What systems currently hold the most important customer or operational data?",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "crm",
+          "erp",
+          "helpdesk",
+          "spreadsheets",
+          "other"
+        ]
+      },
+      "uniqueItems": true,
+      "x-enumLabels": {
+        "crm": "CRM",
+        "erp": "ERP",
+        "helpdesk": "Helpdesk",
+        "spreadsheets": "Spreadsheets",
+        "other": "Other"
+      }
+    },
+    "automation_barriers": {
+      "type": "string",
+      "description": "Q5 — What is currently preventing your workflows from becoming more automated?",
+      "enum": [
+        "data_not_centralized",
+        "tools_dont_integrate",
+        "team_manual_steps",
+        "no_clear_design",
+        "other"
+      ],
+      "x-enumLabels": {
+        "data_not_centralized": "Data not centralized",
+        "tools_dont_integrate": "Tools do not integrate well",
+        "team_manual_steps": "Team relies on manual steps",
+        "no_clear_design": "No clear process design",
+        "other": "Other"
+      }
+    },
+    "workflow_standardization": {
+      "type": "string",
+      "description": "Q6 — How standardized are your core workflows?",
+      "enum": [
+        "very_standardized",
+        "somewhat_standardized",
+        "mostly_adhoc",
+        "not_sure",
+        "other"
+      ],
+      "x-enumLabels": {
+        "very_standardized": "Very standardized",
+        "somewhat_standardized": "Somewhat standardized",
+        "mostly_adhoc": "Mostly ad hoc",
+        "not_sure": "Not sure",
+        "other": "Other"
+      }
+    },
+    "manual_processes": {
+      "type": "array",
+      "description": "Q7 — Which processes still require significant manual effort? Multi-select.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "data_entry",
+          "email_followup",
+          "reporting",
+          "customer_support",
+          "other"
+        ]
+      },
+      "uniqueItems": true,
+      "x-enumLabels": {
+        "data_entry": "Data entry",
+        "email_followup": "Email and follow-up",
+        "reporting": "Reporting",
+        "customer_support": "Customer support",
+        "other": "Other"
+      }
+    },
+    "info_retrieval": {
+      "type": "string",
+      "description": "Q8 — How do employees currently find information they need to do their jobs?",
+      "enum": [
+        "shared_drives",
+        "internal_docs",
+        "slack_teams",
+        "ask_colleague",
+        "other"
+      ],
+      "x-enumLabels": {
+        "shared_drives": "Shared drives",
+        "internal_docs": "Internal docs",
+        "slack_teams": "Slack/Teams",
+        "ask_colleague": "Ask a colleague",
+        "other": "Other"
+      }
+    },
+    "systems_connection": {
+      "type": "string",
+      "description": "Q9 — How connected are your systems today?",
+      "enum": [
+        "fully_integrated",
+        "partially_integrated",
+        "mostly_disconnected",
+        "not_sure",
+        "other"
+      ],
+      "x-enumLabels": {
+        "fully_integrated": "Fully integrated",
+        "partially_integrated": "Partially integrated",
+        "mostly_disconnected": "Mostly disconnected",
+        "not_sure": "Not sure",
+        "other": "Other"
+      }
+    },
+    "data_quality": {
+      "type": "string",
+      "description": "Q10 — How would you describe the quality of your data?",
+      "enum": [
+        "clean_reliable",
+        "some_gaps",
+        "inconsistent",
+        "poor_unclear",
+        "other"
+      ],
+      "x-enumLabels": {
+        "clean_reliable": "Clean and reliable",
+        "some_gaps": "Some gaps or duplicates",
+        "inconsistent": "Inconsistent across systems",
+        "poor_unclear": "Poor or unclear",
+        "other": "Other"
+      }
+    },
+    "inquiry_handling": {
+      "type": "string",
+      "description": "Q11 — How do you currently handle customer inquiries or internal requests?",
+      "enum": [
+        "humans_mostly",
+        "partly_automated",
+        "ticketing_system",
+        "email_based",
+        "other"
+      ],
+      "x-enumLabels": {
+        "humans_mostly": "Humans handle most of it",
+        "partly_automated": "Partly automated",
+        "ticketing_system": "Ticketing system",
+        "email_based": "Email-based",
+        "other": "Other"
+      }
+    },
+    "request_types": {
+      "type": "string",
+      "description": "Q12 — What is the most common type of support or communication request you receive?",
+      "enum": [
+        "basic_faqs",
+        "billing",
+        "technical_issues",
+        "sales_inquiries",
+        "other"
+      ],
+      "x-enumLabels": {
+        "basic_faqs": "Basic FAQs",
+        "billing": "Billing questions",
+        "technical_issues": "Technical issues",
+        "sales_inquiries": "Sales inquiries",
+        "other": "Other"
+      }
+    },
+    "lead_qualification": {
+      "type": "string",
+      "description": "Q13 — How are leads currently qualified?",
+      "enum": [
+        "manually_by_sales",
+        "automated_rules",
+        "crm_scoring",
+        "not_qualified",
+        "other"
+      ],
+      "x-enumLabels": {
+        "manually_by_sales": "Manually by sales team",
+        "automated_rules": "Automated rules",
+        "crm_scoring": "CRM scoring",
+        "not_qualified": "Not formally qualified",
+        "other": "Other"
+      }
+    },
+    "desired_use_case": {
+      "type": "string",
+      "description": "Q14 — Which AI use case would create the most value for you right now?",
+      "enum": [
+        "automating_tasks",
+        "customer_support",
+        "sales_followup",
+        "internal_knowledge",
+        "other"
+      ],
+      "x-enumLabels": {
+        "automating_tasks": "Automating repetitive tasks",
+        "customer_support": "Improving customer support",
+        "sales_followup": "Speeding up sales follow-up",
+        "internal_knowledge": "Creating internal knowledge access",
+        "other": "Other"
+      }
+    },
+    "adoption_blocker": {
+      "type": "string",
+      "description": "Q15 — What has prevented you from adopting AI faster?",
+      "enum": [
+        "lack_of_usecases",
+        "data_quality_issues",
+        "technical_complexity",
+        "budget_concerns",
+        "other"
+      ],
+      "x-enumLabels": {
+        "lack_of_usecases": "Lack of clear use cases",
+        "data_quality_issues": "Data quality issues",
+        "technical_complexity": "Technical complexity",
+        "budget_concerns": "Budget concerns",
+        "other": "Other"
+      }
+    },
+    "extra_context": {
+      "type": "string",
+      "description": "Optional — Any other context about your systems or bottlenecks?",
+      "maxLength": 2000
+    },
+    "firstname": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "lastname": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "maxLength": 254
+    },
+    "company": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "company_size": {
+      "type": "string",
+      "enum": [
+        "1_10",
+        "11_50",
+        "51_200",
+        "201_500",
+        "501_plus"
+      ],
+      "x-enumLabels": {
+        "1_10": "1-10 employees",
+        "11_50": "11-50 employees",
+        "51_200": "51-200 employees",
+        "201_500": "201-500 employees",
+        "501_plus": "501+ employees"
+      }
+    },
+    "job_title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "ref": {
+      "type": "string",
+      "default": "op-landing"
+    }
+  }
+}

@@ -1,39 +1,38 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Image from "next/image";
-import { CostScanWizard } from "@/modules/cost-audit/questions/CostScanWizard";
+import { OpportunityWizard } from "@/modules/opportunity-audit/questions/OpportunityWizard";
 import { ContactBar } from "@/shared/components/ContactBar";
 import { Target, Lightbulb, ClipboardList } from "lucide-react";
 import * as motion from "framer-motion/client";
 import { slideUp, staggerContainer, fadeIn } from "@/shared/components/animations";
 
 export const metadata: Metadata = {
-  title: "AI Cost Scan | Pixel Punch AI",
+  title: "AI Opportunity Scan | Pixel Punch AI",
   description:
-    "Get a personalized AI cost scorecard in 3 minutes. See where your AI spend is leaking — across spend visibility, architecture risk, and business urgency.",
+    "Answer a 3-minute diagnostic and get your personalized AI Opportunity Roadmap. Uncover operational bottlenecks and discover where AI can drive value.",
   openGraph: {
-    title: "AI Cost Scan — See where your AI spend is leaking",
+    title: "AI Opportunity Scan — Find where AI can create value",
     description:
-      "3-minute diagnostic. Personalized RAG scorecard. Clear next-step recommendation.",
+      "3-minute diagnostic. Personalized RAG readiness report. Actionable AI roadmap.",
     type: "website",
   },
 };
 
-// ── Ref extractor (server component reads search params safely) ────────────
 interface PageProps {
   searchParams: Promise<{ ref?: string; utm_source?: string }>;
 }
 
-export default async function AiCostScanPage({ searchParams }: PageProps) {
+export default async function AiOpportunityScanPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const ref    = params.ref ?? "co-landing";
+  const ref    = params.ref ?? "op-landing";
 
   return (
-    <main className="min-h-screen bg-[#eef4ff] bg-page-gradient">
-      {/* ── Top Contact Bar ──────────────────────────────────────────── */}
+    <main className="min-h-screen bg-[#fafbff] bg-page-gradient">
+      {/* Contact Bar */}
       <ContactBar containerClassName="max-w-5xl" />
 
-      {/* ── Nav strip ──────────────────────────────────────────────── */}
+      {/* Nav Strip */}
       <motion.nav 
         variants={fadeIn} initial="hidden" animate="show"
         className="border-b border-slate-200 px-6 py-4 bg-white/50 backdrop-blur-md"
@@ -54,67 +53,65 @@ export default async function AiCostScanPage({ searchParams }: PageProps) {
       </motion.nav>
 
       <div className="max-w-5xl mx-auto px-4 py-12 md:py-20">
-        {/* ── Hero ───────────────────────────────────────────────── */}
+        {/* Hero */}
         <motion.div 
           variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-50px" }}
           className="text-center mb-14"
         >
           {/* Badge */}
-          <motion.div variants={slideUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-600 text-xs font-medium mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+          <motion.div variants={slideUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-600 text-xs font-semibold mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
             Free · 3-minute diagnostic
           </motion.div>
 
           <motion.h1 variants={slideUp} className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-4">
-            See where your AI spend{" "}
-            <span className="bg-clip-text text-transparent bg-accent-gradient">
-              is leaking
+            Find where AI can create{" "}
+            <span className="bg-clip-text text-transparent bg-indigo-gradient bg-gradient-to-r from-indigo-600 to-violet-600">
+              business value
             </span>
             <br className="hidden md:block" /> — in 3 minutes
           </motion.h1>
 
           <motion.p variants={slideUp} className="max-w-2xl mx-auto text-lg text-slate-600 mb-8">
-            Answer 7 questions. Get a personalised scorecard across spend visibility,
-            architecture risk, and business urgency — plus 2–3 targeted insights and
-            a clear recommendation.
+            Assess your data quality, standardize your workflows, and map out a custom AI Roadmap targeting high-impact operational wins.
           </motion.p>
 
-          {/* What you get */}
+          {/* Value props */}
           <motion.div variants={slideUp} className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-600">
             {[
-              { icon: <Target className="w-4 h-4" />, text: "RAG scorecard across 3 dimensions" },
-              { icon: <Lightbulb className="w-4 h-4" />, text: "2–3 tailored insights" },
-              { icon: <ClipboardList className="w-4 h-4" />, text: "Clear next-step recommendation" },
+              { icon: <Target className="w-4 h-4 text-indigo-600" />, text: "AI Readiness score across 3 dimensions" },
+              { icon: <Lightbulb className="w-4 h-4 text-indigo-600" />, text: "Tailored AI use case recommendations" },
+              { icon: <ClipboardList className="w-4 h-4 text-indigo-600" />, text: "Phased AI adoption roadmap" },
             ].map(({ icon, text }) => (
               <span key={text} className="flex items-center gap-2">
-                <span className="text-blue-600 flex items-center justify-center">{icon}</span>
+                <span className="flex items-center justify-center">{icon}</span>
                 {text}
               </span>
             ))}
           </motion.div>
         </motion.div>
 
-        {/* ── Wizard ─────────────────────────────────────────────── */}
+        {/* Wizard */}
         <Suspense
           fallback={
             <div className="flex items-center justify-center py-24">
-              <div className="w-8 h-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+              <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
             </div>
           }
         >
-          <CostScanWizard initialRef={ref} />
+          <OpportunityWizard initialRef={ref} />
         </Suspense>
 
-        {/* ── Social proof strip ──────────────────────────────────── */}
+        {/* Social Proof */}
         <motion.div 
           variants={fadeIn} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-50px" }}
           className="mt-16 pt-12 border-t border-slate-200 text-center"
         >
           <p className="text-xs text-slate-500 uppercase tracking-widest mb-6 font-semibold">
-            Built for AI-native teams at
+            Helping teams leverage automation at
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 opacity-60">
-            {["Series A SaaS", "AI-first Startups", "Growth-stage Platforms", "Enterprise AI Teams"].map((t) => (
+            {["Fast-growing Agencies", "SaaS Platforms", "E-commerce Brands", "Enterprise Ops Teams"].map((t) => (
               <span key={t} className="text-sm text-slate-700 font-bold">{t}</span>
             ))}
           </div>

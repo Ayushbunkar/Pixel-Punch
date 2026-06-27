@@ -1,0 +1,177 @@
+{
+  "submissionId": "7eb41614-5ce5-452a-ba9b-aeb5be4bf990",
+  "createdDate": "2026-06-27T08:34:34.042Z",
+  "auditStatus": "completed",
+  "company": {
+    "name": "das",
+    "industry": "retail_ecommerce",
+    "size": "11_50",
+    "businessType": "retail_ecommerce"
+  },
+  "contact": {
+    "firstname": "ssads",
+    "lastname": "asd",
+    "email": "ayushbunkar100@gmail.com",
+    "job_title": "das"
+  },
+  "questions": {
+    "business_type": "What best describes your business?",
+    "main_outcome": "What is the main outcome you want to improve right now?",
+    "biggest_challenge": "What is the biggest operational challenge you are facing today?",
+    "data_systems": "Where does your core customer or operational data live?",
+    "automation_barriers": "What is currently preventing workflows from becoming more automated?",
+    "workflow_standardization": "How standardized are your core workflows?",
+    "manual_processes": "Which processes still require significant manual effort?",
+    "info_retrieval": "How do employees currently find information they need to do their jobs?",
+    "systems_connection": "How connected are your systems today?",
+    "data_quality": "How would you describe the quality of your data?",
+    "inquiry_handling": "How do you currently handle customer or internal inquiries?",
+    "request_types": "What is the most common support or communication request?",
+    "lead_qualification": "How are leads currently qualified?",
+    "desired_use_case": "Which AI use case would create the most value for you right now?",
+    "adoption_blocker": "What has prevented you from adopting AI faster?"
+  },
+  "answers": {
+    "business_type": "retail_ecommerce",
+    "main_outcome": "higher_conversion",
+    "biggest_challenge": "sales_gaps",
+    "data_systems": [
+      "crm",
+      "erp"
+    ],
+    "automation_barriers": "data_not_centralized",
+    "workflow_standardization": "not_sure",
+    "manual_processes": [
+      "reporting",
+      "data_entry"
+    ],
+    "info_retrieval": "slack_teams",
+    "systems_connection": "fully_integrated",
+    "data_quality": "some_gaps",
+    "inquiry_handling": "humans_mostly",
+    "request_types": "technical_issues",
+    "lead_qualification": "not_qualified",
+    "desired_use_case": "automating_tasks",
+    "adoption_blocker": "budget_concerns",
+    "extra_context": "das",
+    "ref": "op-landing"
+  },
+  "score": {
+    "readiness": "red",
+    "value": "amber",
+    "opportunity": "red",
+    "tier": 2,
+    "categories": {
+      "automation_opportunity": {
+        "name": "Automation Opportunity",
+        "score": 60,
+        "maxScore": 100,
+        "classification": "medium",
+        "description": "Measures the volume of repetitive tasks and routine communication suitable for AI automation."
+      },
+      "ai_readiness": {
+        "name": "AI Readiness",
+        "score": 55,
+        "maxScore": 100,
+        "classification": "medium",
+        "description": "Calculates organizational readiness based on data quality, system integrations, and standardized SOPs."
+      },
+      "data_maturity": {
+        "name": "Data Maturity",
+        "score": 50,
+        "maxScore": 100,
+        "classification": "medium",
+        "description": "Evaluates data centralization, cleanliness, and the availability of structured tables vs flat files."
+      },
+      "process_maturity": {
+        "name": "Process Maturity",
+        "score": 0,
+        "maxScore": 100,
+        "classification": "low",
+        "description": "Measures core operational structure, lead qualification pipelines, and standardization levels."
+      },
+      "integration_readiness": {
+        "name": "Integration Readiness",
+        "score": 75,
+        "maxScore": 100,
+        "classification": "high",
+        "description": "Evaluates API connectivity, system centralization, and compatibility of the data stack for automation."
+      },
+      "business_impact": {
+        "name": "Business Impact",
+        "score": 90,
+        "maxScore": 100,
+        "classification": "high",
+        "description": "Calculates business value potential based on core priority metrics and operational challenges."
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "opportunity": "AI Customer Support Agent",
+      "problem": "Customer inquiries are handled manually, leading to high support workload.",
+      "impact": "Automate responses for up to 60% of common queries and resolve tickets instantly.",
+      "complexity": "Medium",
+      "priority": "Medium"
+    },
+    {
+      "opportunity": "AI Sales Development Agent (SDR)",
+      "problem": "Sales lead qualification is manual and follow-up gaps occur.",
+      "impact": "Increase sales follow-up speed by automating qualification and calendar bookings.",
+      "complexity": "Medium",
+      "priority": "High"
+    },
+    {
+      "opportunity": "Document Intelligence Parser",
+      "problem": "Team performs manual data entry and copying across systems.",
+      "impact": "Eliminate manual transcriptions and sync operational data directly to CRM/ERP.",
+      "complexity": "Medium",
+      "priority": "High"
+    }
+  ],
+  "roadmap": {
+    "phase1": [
+      "Set up automated lead routing rules and simple AI-assisted follow-up email drafts."
+    ],
+    "phase2": [
+      "Integrate Document AI parser to automate invoice and client onboarding data entry.",
+      "Connect autonomous Sales Qualification agents to CRM for automatic pipeline updates."
+    ],
+    "phase3": [
+      "Evaluate agentic workflows where multi-agent systems negotiate and complete complex multi-step jobs (e.g. fully autonomous reporting)."
+    ]
+  },
+  "auditReport": "# AI Opportunity Audit & Roadmap Report\n\n### Executive Summary\nI analyzed the provided business information for **das** and generated a customized AI Opportunity Roadmap. Based on their operating profile, there is a clear opportunity to apply intelligent automation to streamline workflows, reduce manual dependencies, and speed up business outcomes.\n\nGiven that the primary objective is to improve **higher conversion**, we have aligned this roadmap with their target operational goals and systems context.\n\n### Current Operations & Inefficiencies\nThe client currently experiences operational bottlenecks under **sales gaps**, with core processes like **reporting, data_entry** requiring significant manual, repetitive effort. \n\nThe primary barrier preventing automation is **data not_centralized**. Because key customer and operational data is stored in **crm, erp**, data synchronization and system connectivity represent critical areas of focus.\n\n### AI Readiness & Scorecard Analysis\nThe 6 category dimensions calculated for das show:\n- **Automation Opportunity**: 60/100 (MEDIUM)\n- **AI Readiness**: 55/100 (MEDIUM)\n- **Data Maturity**: 50/100 (MEDIUM)\n- **Process Maturity**: 0/100 (LOW)\n- **Integration Readiness**: 75/100 (HIGH)\n- **Business Impact**: 90/100 (HIGH)\n\nA lower Data and Integration readiness indicates that before deploying advanced agentic AI, the client should focus on centralizing data pipelines and mapping workflow steps.\n\n### Top AI Opportunities\nBased on the diagnostic scan, we recommend prioritizing these initiatives:\n- **Opportunity 1: AI Customer Support Agent**\n  * *Problem solved:* Customer inquiries are handled manually, leading to high support workload.\n  * *Business Impact:* Automate responses for up to 60% of common queries and resolve tickets instantly.\n  * *Complexity & Priority:* Medium Complexity | Medium Priority\n\n- **Opportunity 2: AI Sales Development Agent (SDR)**\n  * *Problem solved:* Sales lead qualification is manual and follow-up gaps occur.\n  * *Business Impact:* Increase sales follow-up speed by automating qualification and calendar bookings.\n  * *Complexity & Priority:* Medium Complexity | High Priority\n\n- **Opportunity 3: Document Intelligence Parser**\n  * *Problem solved:* Team performs manual data entry and copying across systems.\n  * *Business Impact:* Eliminate manual transcriptions and sync operational data directly to CRM/ERP.\n  * *Complexity & Priority:* Medium Complexity | High Priority\n\n### Phased Implementation Roadmap\n- **Phase 1: Quick Wins (0-3 Months)**: Focus on low-complexity automations such as standardizing customer data fields and setting up basic automated alerts.\n- **Phase 2: Core Enhancements (3-6 Months)**: Deploy dedicated RAG search systems or support copilots to help team members find documents instantly.\n- **Phase 3: Strategic Scaling (6-12+ Months)**: Deploy multi-agent workflow systems to orchestrate reporting and data entry tasks.\n\n### Recommended Next Steps\n1. Map and document the exact step-by-step logic of your highest-frequency manual process.\n2. Establish API connections between your CRM and spreadsheets to eliminate copy-paste silos.\n3. Schedule an AI Architecture Review with the PixelPunch team to outline integration requirements.\n\n### Key Findings\n- Repetitive tasks like reporting, data_entry create operational drag.\n- Systems are partially isolated, requiring manual synchronization steps.\n- Clean data pipelines represent a prerequisite for applying advanced LLM systems.\n\n### Expert Recommendations\n- Standardize core workflows into clear SOPs before applying AI agents.\n- Centralize customer records into a single system of truth.\n- Schedule a technical scoping session to outline quick-win AI projects.\n",
+  "findings": [
+    "Repetitive manual tasks (like reporting, data_entry) restrict operational scale.",
+    "Systems are disconnected, creating copy-paste silos.",
+    "Workflow standardization represents the biggest step to AI readiness."
+  ],
+  "nextSteps": [
+    "Map step-by-step logic of manual tasks.",
+    "Centralize operational records in CRM/ERP.",
+    "Schedule a scoping review with PixelPunch."
+  ],
+  "leadQualification": {
+    "submissionId": "7eb41614-5ce5-452a-ba9b-aeb5be4bf990",
+    "leadScore": 50,
+    "qualificationTier": "Tier 2: Good Fit",
+    "leadStatus": "MQL",
+    "routingDestination": "sales_standard_inbox",
+    "crmTags": [
+      "SIZE_11_50",
+      "TYPE_RETAIL_ECOMMERCE",
+      "BUDGET_RISK",
+      "LEAD_MQL"
+    ],
+    "salesContextNotes": "Qualified MQL. Good process fit but has minor constraints (e.g. Blocker: budget concerns). Recommended for direct sales reachout.",
+    "mappedFields": {
+      "companyName": "das",
+      "contactEmail": "ayushbunkar100@gmail.com",
+      "contactName": "ssads asd",
+      "companySize": "11_50",
+      "businessType": "retail_ecommerce",
+      "jobTitle": "das"
+    }
+  }
+}

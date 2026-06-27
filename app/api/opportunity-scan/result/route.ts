@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { submissionCache }           from "../submit/route";
-import { getSubmission }             from "@/shared/database/db.service";
+import { submissionCache } from "../submit/route";
+import { getSubmission } from "@/shared/database/db.service";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

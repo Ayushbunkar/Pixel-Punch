@@ -1,4 +1,4 @@
-import { FormState } from "@/features/cost-scan/types";
+import { FormState } from "@/modules/cost-audit/types";
 import { questionnaire, Question, QuestionId } from "./questionnaire";
 import { submitHermesScan, ApiSubmissionResult } from "./apiClient";
 import { handleHermesResponse, HermesResponse } from "./responseHandler";
