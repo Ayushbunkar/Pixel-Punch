@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useOpportunityForm } from "./hooks/useOpportunityForm";
 import { useSubmitOpportunity } from "./hooks/useSubmitOpportunity";
@@ -131,6 +132,10 @@ export function OpportunityWizard({ initialRef }: OpportunityWizardProps) {
     state, step, errors, totalSteps, isLoaded,
     setField, toggleArrayValue, goNext, goBack, validateAll, resetForm
   } = useOpportunityForm(initialRef);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
 
   const { submit, loading } = useSubmitOpportunity();
 

@@ -577,48 +577,77 @@ export default function OpportunityResultsContent() {
               Custom systems generated specifically to address your workflow answers.
             </p>
 
-            <div className="grid grid-cols-1 gap-3">
-              {aiRecs.map((rec, idx) => (
-                <motion.div 
-                  key={idx} 
-                  whileHover={{ 
-                    y: -2, 
-                    borderColor: "#6366f1", 
-                    boxShadow: "0 8px 12px -3px rgba(99, 102, 241, 0.03)"
-                  }}
-                  className="border border-slate-200 rounded-lg p-3 bg-slate-50/30 flex flex-col justify-between gap-3 transition-all duration-300 shadow-sm"
-                >
-                  <div className="flex flex-wrap justify-between items-start gap-2 border-b border-slate-100 pb-2">
-                    <div>
-                      <h3 className="font-bold text-slate-900 text-xs flex items-center gap-2">
-                        <span className="w-5 h-5 rounded bg-indigo-100 text-indigo-700 font-extrabold text-[9px] flex items-center justify-center">
-                          {idx + 1}
+            <div className="relative">
+              <div className={`grid grid-cols-1 gap-3 transition-all duration-500 ${!isUnlocked ? "blur-md select-none pointer-events-none opacity-30" : ""}`}>
+                {aiRecs.map((rec, idx) => (
+                  <motion.div 
+                    key={idx} 
+                    whileHover={{ 
+                      y: -2, 
+                      borderColor: "#6366f1", 
+                      boxShadow: "0 8px 12px -3px rgba(99, 102, 241, 0.03)"
+                    }}
+                    className="border border-slate-200 rounded-lg p-3 bg-slate-50/30 flex flex-col justify-between gap-3 transition-all duration-300 shadow-sm"
+                  >
+                    <div className="flex flex-wrap justify-between items-start gap-2 border-b border-slate-100 pb-2">
+                      <div>
+                        <h3 className="font-bold text-slate-900 text-xs flex items-center gap-2">
+                          <span className="w-5 h-5 rounded bg-indigo-100 text-indigo-700 font-extrabold text-[9px] flex items-center justify-center">
+                            {idx + 1}
+                          </span>
+                          {rec.opportunity}
+                        </h3>
+                      </div>
+                      <div className="flex gap-1.5">
+                        <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border rounded-full ${BADGE_STYLES[rec.priority]}`}>
+                          Priority: {rec.priority}
                         </span>
-                        {rec.opportunity}
-                      </h3>
+                        <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border rounded-full ${BADGE_STYLES[rec.complexity]}`}>
+                          Complexity: {rec.complexity}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex gap-1.5">
-                      <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border rounded-full ${BADGE_STYLES[rec.priority]}`}>
-                        Priority: {rec.priority}
-                      </span>
-                      <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 border rounded-full ${BADGE_STYLES[rec.complexity]}`}>
-                        Complexity: {rec.complexity}
-                      </span>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[10px]">
+                      <div>
+                        <p className="font-bold text-slate-700 mb-0.5 uppercase tracking-wider text-[9px]">Challenge Solved</p>
+                        <p className="text-slate-600 leading-relaxed">{rec.problem}</p>
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-700 mb-0.5 uppercase tracking-wider text-[9px]">Business Value & Impact</p>
+                        <p className="text-slate-600 leading-relaxed">{rec.impact}</p>
+                      </div>
                     </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Lock Overlay */}
+              {!isUnlocked && (
+                <div 
+                  onClick={() => setShowUnlockModal(true)}
+                  className="absolute inset-0 bg-white/85 backdrop-blur-[2.5px] rounded-xl flex items-center justify-center z-10 cursor-pointer hover:bg-white/90 border border-slate-200/50 shadow-sm transition-all duration-300 min-h-[160px]"
+                >
+                  <div className="text-center p-4">
+                    <Lock className="w-5 h-5 text-indigo-600 mx-auto mb-1.5" />
+                    <h3 className="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-0.5">
+                      Premium AI Opportunities Locked
+                    </h3>
+                    <p className="text-[9px] text-slate-500 mb-2.5">
+                      Unlock to reveal custom systems generated to address your workflow requirements.
+                    </p>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowUnlockModal(true);
+                      }}
+                      className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
+                    >
+                      Unlock Opportunities
+                    </button>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[10px]">
-                    <div>
-                      <p className="font-bold text-slate-700 mb-0.5 uppercase tracking-wider text-[9px]">Challenge Solved</p>
-                      <p className="text-slate-600 leading-relaxed">{rec.problem}</p>
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-700 mb-0.5 uppercase tracking-wider text-[9px]">Business Value & Impact</p>
-                      <p className="text-slate-600 leading-relaxed">{rec.impact}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -646,51 +675,53 @@ export default function OpportunityResultsContent() {
               PixelPunch recommends executing these foundational steps to prepare your operational systems for AI integration.
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="flex flex-col gap-3">
               {data.nextSteps.slice(0, 2).map((stepItem, idx) => {
                 const details = getStepDetails(stepItem, idx);
                 return (
                   <motion.div 
                     key={idx} 
                     whileHover={{ 
-                      y: -2, 
+                      y: -1, 
                       borderColor: "#6366f1", 
-                      boxShadow: "0 8px 12px -3px rgba(99, 102, 241, 0.03)"
+                      boxShadow: "0 4px 6px -1px rgba(99, 102, 241, 0.03)"
                     }}
-                    className="border border-slate-200 rounded-lg p-3 bg-slate-50/20 flex flex-col justify-between gap-3 transition-all duration-300 cursor-default relative overflow-hidden shadow-sm"
+                    className="border border-slate-200 rounded-xl p-4 bg-slate-50/20 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-300 cursor-default relative overflow-hidden shadow-sm"
                   >
-                    <div className="space-y-2 relative z-10">
+                    <div className="flex items-start gap-3 flex-1">
                       {/* Icon Circle */}
-                      <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-sm">
+                      <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-sm flex-shrink-0 mt-0.5">
                         {details.icon}
                       </div>
 
-                      {/* Header Badge & Timeline */}
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
-                          {details.categoryBadge}
-                        </span>
-                        <span className="text-[9px] font-semibold text-slate-500 flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-slate-400" />
-                          {details.timeFrame}
-                        </span>
+                      <div className="space-y-1 flex-1">
+                        {/* Header Badge & Timeline */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                            {details.categoryBadge}
+                          </span>
+                          <span className="text-[9px] font-semibold text-slate-500 flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-slate-400" />
+                            {details.timeFrame}
+                          </span>
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="font-bold text-slate-900 text-xs leading-snug">
+                          {stepItem}
+                        </h3>
+
+                        {/* Description */}
+                        <p className="text-slate-500 text-[10px] leading-relaxed max-w-xl">
+                          {details.description}
+                        </p>
                       </div>
-
-                      {/* Title */}
-                      <h3 className="font-bold text-slate-900 text-xs leading-snug">
-                        {stepItem}
-                      </h3>
-
-                      {/* Description */}
-                      <p className="text-slate-500 text-[10px] leading-relaxed">
-                        {details.description}
-                      </p>
                     </div>
 
-                    {/* Bottom Status/Impact Badge */}
-                    <div className="border-t border-slate-100 pt-2 mt-1 flex justify-between items-center text-[9px] font-bold uppercase tracking-wider text-slate-600 relative z-10">
-                      <span>Milestone {idx + 1}</span>
-                      <span className="text-indigo-600 bg-indigo-50/50 px-1.5 py-0.5 rounded">
+                    {/* Right Side Status/Milestone Badge */}
+                    <div className="flex items-center justify-between md:flex-col md:items-end gap-2 border-t md:border-t-0 border-slate-100 pt-3 md:pt-0 mt-1 md:mt-0 md:pl-4 md:border-l border-slate-100 flex-shrink-0 min-w-[120px]">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Milestone {idx + 1}</span>
+                      <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50/50 px-2 py-0.5 rounded border border-indigo-100/30">
                         {details.impactBadge}
                       </span>
                     </div>
@@ -701,15 +732,15 @@ export default function OpportunityResultsContent() {
               {/* Gated Steps - Blurred */}
               {data.nextSteps.length > 2 && (
                 <div className="relative group">
-                  <div className="absolute inset-0 bg-slate-200/60 backdrop-blur-[2px] rounded-lg flex items-center justify-center z-10 cursor-pointer hover:bg-slate-200/50 transition-colors"
+                  <div className="absolute inset-0 bg-white/85 backdrop-blur-[2.5px] rounded-xl flex items-center justify-center z-10 cursor-pointer hover:bg-white/90 border border-slate-200/50 shadow-sm transition-all duration-300"
                     onClick={() => setShowUnlockModal(true)}
                   >
                     <div className="text-center p-3">
-                      <Lock className="w-5 h-5 text-slate-400 mx-auto mb-1" />
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                      <Lock className="w-5 h-5 text-indigo-600 mx-auto mb-1" />
+                      <p className="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-0.5">
                         Premium Steps Locked
                       </p>
-                      <p className="text-[9px] text-slate-600 mb-2">
+                      <p className="text-[9px] text-slate-500 mb-2">
                         Unlock to see all {data.nextSteps.length} steps
                       </p>
                       <button
@@ -717,52 +748,55 @@ export default function OpportunityResultsContent() {
                           e.stopPropagation();
                           setShowUnlockModal(true);
                         }}
-                        className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-colors"
+                        className="px-3.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
                       >
                         Unlock Now
                       </button>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 opacity-40 blur-[1px]">
+                  
+                  <div className="opacity-30 blur-[2px] select-none pointer-events-none flex flex-col gap-3">
                     {data.nextSteps.slice(2).map((stepItem, idx) => {
                       const details = getStepDetails(stepItem, idx + 2);
                       const actualIdx = idx + 2;
                       return (
-                        <motion.div 
+                        <div 
                           key={actualIdx} 
-                          className="border border-slate-200 rounded-lg p-3 bg-slate-50/20 flex flex-col justify-between gap-3 transition-all duration-300 cursor-default relative overflow-hidden shadow-sm"
+                          className="border border-slate-200 rounded-xl p-4 bg-slate-50/20 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all duration-300"
                         >
-                          <div className="space-y-2 relative z-10">
-                            <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-sm opacity-50">
+                          <div className="flex items-start gap-3 flex-1">
+                            <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-sm flex-shrink-0 mt-0.5">
                               {details.icon}
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-1.5">
-                              <span className="text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded-full uppercase tracking-wider opacity-50">
-                                {details.categoryBadge}
-                              </span>
-                              <span className="text-[9px] font-semibold text-slate-500 flex items-center gap-1 opacity-50">
-                                <Clock className="w-3 h-3 text-slate-400" />
-                                {details.timeFrame}
-                              </span>
+                            <div className="space-y-1 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                                  {details.categoryBadge}
+                                </span>
+                                <span className="text-[9px] font-semibold text-slate-500 flex items-center gap-1">
+                                  <Clock className="w-3 h-3 text-slate-400" />
+                                  {details.timeFrame}
+                                </span>
+                              </div>
+
+                              <h3 className="font-bold text-slate-900 text-xs leading-snug">
+                                {stepItem}
+                              </h3>
+
+                              <p className="text-slate-500 text-[10px] leading-relaxed max-w-xl">
+                                {details.description}
+                              </p>
                             </div>
-
-                            <h3 className="font-bold text-slate-900 text-xs leading-snug opacity-50">
-                              {stepItem}
-                            </h3>
-
-                            <p className="text-slate-500 text-[10px] leading-relaxed opacity-50">
-                              {details.description}
-                            </p>
                           </div>
 
-                          <div className="border-t border-slate-100 pt-2 mt-1 flex justify-between items-center text-[9px] font-bold uppercase tracking-wider text-slate-600 relative z-10 opacity-50">
-                            <span>Milestone {actualIdx + 1}</span>
-                            <span className="text-indigo-600 bg-indigo-50/50 px-1.5 py-0.5 rounded opacity-50">
+                          <div className="flex items-center justify-between md:flex-col md:items-end gap-2 border-t md:border-t-0 border-slate-100 pt-3 md:pt-0 mt-1 md:mt-0 md:pl-4 md:border-l border-slate-100 flex-shrink-0 min-w-[120px]">
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Milestone {actualIdx + 1}</span>
+                            <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50/50 px-2 py-0.5 rounded border border-indigo-100/30">
                               {details.impactBadge}
                             </span>
                           </div>
-                        </motion.div>
+                        </div>
                       );
                     })}
                   </div>
@@ -815,83 +849,62 @@ export default function OpportunityResultsContent() {
               </ul>
             </motion.div>
 
-            {/* Phase 2 - Gated */}
-            <div className="relative transition-all duration-250 group">
+            {/* Phase 2 & 3 - Gated together */}
+            <div className="relative group space-y-4">
               {!isUnlocked && (
-                <div className="absolute inset-0 bg-slate-200/60 backdrop-blur-[2px] rounded-lg flex items-center justify-center z-10 cursor-pointer hover:bg-slate-200/50 transition-colors"
+                <div 
                   onClick={() => setShowUnlockModal(true)}
+                  className="absolute inset-0 bg-white/85 backdrop-blur-[2.5px] rounded-xl flex items-center justify-center z-10 cursor-pointer hover:bg-white/90 border border-slate-200/50 shadow-sm transition-all duration-300 min-h-[160px]"
                 >
-                  <div className="text-center p-3">
-                    <Lock className="w-5 h-5 text-slate-400 mx-auto mb-1" />
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  <div className="text-center p-4">
+                    <Lock className="w-5 h-5 text-indigo-600 mx-auto mb-1.5" />
+                    <h3 className="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-0.5">
                       Premium Roadmap Locked
-                    </p>
-                    <p className="text-[9px] text-slate-600 mb-2">
-                      Unlock to see all phases
+                    </h3>
+                    <p className="text-[9px] text-slate-500 mb-2.5">
+                      Unlock to reveal the full multi-phase AI transformation roadmap.
                     </p>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setShowUnlockModal(true);
                       }}
-                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-colors"
+                      className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
                     >
-                      Unlock Now
+                      Unlock Roadmap
                     </button>
                   </div>
                 </div>
               )}
-              <div className={`relative z-0 transition-all duration-300 ${!isUnlocked ? "opacity-40 blur-[1px]" : "opacity-100 blur-0"}`}>
-                <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-[9px] font-bold text-indigo-600">
-                  2
-                </span>
-                <h3 className="text-xs font-bold text-slate-900 mb-1.5 flex items-center gap-2">
-                  Phase 2: Core Enhancements (3-6 Months)
-                  <span className="text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-100 px-1.5 py-0.5 rounded">Core Transformation</span>
-                </h3>
-                <ul className="list-disc pl-4 space-y-1 text-[10px] text-slate-600">
-                  {data.roadmap.phase2.map((item, i) => <li key={i}>{item}</li>)}
-                </ul>
-              </div>
-            </div>
+              
+              <div className={`space-y-4 transition-all duration-500 ${!isUnlocked ? "blur-md select-none pointer-events-none opacity-30" : ""}`}>
+                {/* Phase 2 */}
+                <div className="relative z-0">
+                  <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-[9px] font-bold text-indigo-600">
+                    2
+                  </span>
+                  <h3 className="text-xs font-bold text-slate-900 mb-1.5 flex items-center gap-2">
+                    Phase 2: Core Enhancements (3-6 Months)
+                    <span className="text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-100 px-1.5 py-0.5 rounded">Core Transformation</span>
+                  </h3>
+                  <ul className="list-disc pl-4 space-y-1 text-[10px] text-slate-600">
+                    {data.roadmap.phase2.map((item, i) => <li key={i}>{item}</li>)}
+                  </ul>
+                </div>
 
-            {/* Phase 3 - Gated */}
-            <div className="relative transition-all duration-250 group">
-              {!isUnlocked && (
-                <div className="absolute inset-0 bg-slate-200/60 backdrop-blur-[2px] rounded-lg flex items-center justify-center z-10 cursor-pointer hover:bg-slate-200/50 transition-colors"
-                  onClick={() => setShowUnlockModal(true)}
-                >
-                  <div className="text-center p-3">
-                    <Lock className="w-5 h-5 text-slate-400 mx-auto mb-1" />
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                      Premium Roadmap Locked
-                    </p>
-                    <p className="text-[9px] text-slate-600 mb-2">
-                      Unlock to see all phases
-                    </p>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowUnlockModal(true);
-                      }}
-                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-colors"
-                    >
-                      Unlock Now
-                    </button>
-                  </div>
+                {/* Phase 3 */}
+                <div className="relative z-0">
+                  <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-[9px] font-bold text-indigo-600">
+                    3
+                  </span>
+                  <h3 className="text-xs font-bold text-slate-900 mb-1.5 flex items-center gap-2">
+                    Phase 3: Strategic Scaling (6-12+ Months)
+                    <span className="text-[9px] font-bold bg-violet-50 text-violet-700 border border-violet-100 px-1.5 py-0.5 rounded">Agentic Automation</span>
+                  </h3>
+                  <ul className="list-disc pl-4 space-y-1 text-[10px] text-slate-600">
+                    {data.roadmap.phase3.map((item, i) => <li key={i}>{item}</li>)}
+                  </ul>
                 </div>
-              )}
-              <div className={`relative z-0 transition-all duration-300 ${!isUnlocked ? "opacity-40 blur-[1px]" : "opacity-100 blur-0"}`}>
-                <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-[9px] font-bold text-indigo-600">
-                  3
-                </span>
-                <h3 className="text-xs font-bold text-slate-900 mb-1.5 flex items-center gap-2">
-                  Phase 3: Strategic Scaling (6-12+ Months)
-                  <span className="text-[9px] font-bold bg-violet-50 text-violet-700 border border-violet-100 px-1.5 py-0.5 rounded">Agentic Automation</span>
-                </h3>
-                <ul className="list-disc pl-4 space-y-1 text-[10px] text-slate-600">
-                  {data.roadmap.phase3.map((item, i) => <li key={i}>{item}</li>)}
-                </ul>
               </div>
             </div>
           </div>

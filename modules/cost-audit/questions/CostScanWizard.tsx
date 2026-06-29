@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCostScanForm }   from "./hooks/useCostScanForm";
 import { useSubmitScan }     from "./hooks/useSubmitScan";
@@ -156,6 +157,10 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
     setField, toggleUnitEconomic, toggleOptimization,
     goNext, goBack, validateAll,
   } = useCostScanForm(initialRef);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
 
   const { submit, loading, error: submitError } = useSubmitScan();
 
