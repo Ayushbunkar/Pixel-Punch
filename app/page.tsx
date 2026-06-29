@@ -7,11 +7,7 @@ import { slideUp, staggerContainer, fadeIn } from "@/shared/components/animation
 import { ContactBar } from "@/shared/components/ContactBar";
 import { useState } from "react";
 
-export const metadata: Metadata = {
-  title: "AI Assessment Platform | Pixel Punch AI",
-  description:
-    "Choose your diagnostic scan. Uncover AI spending leakages with the AI Cost Audit, or map out automation roadmaps with the AI Opportunity Audit.",
-};
+
 
 // ── FAQ Accordion Item ───────────────────────────────────────────────────────
 interface FAQItem {
