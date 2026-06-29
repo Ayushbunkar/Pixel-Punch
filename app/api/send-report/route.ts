@@ -147,6 +147,9 @@ export async function POST(req: NextRequest) {
       </html>
     `;
 
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || "consulting@pixelpunch.org";
+    const senderName = process.env.BREVO_SENDER_NAME || "Pixel Punch Consulting";
+
     // 3. Post to Brevo API
     const response = await fetch(BREVO_API_URL, {
       method: "POST",
@@ -156,8 +159,8 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         sender: {
-          name: "Pixel Punch Consulting",
-          email: "consulting@pixelpunch.org"
+          name: senderName,
+          email: senderEmail
         },
         to: [
           {
