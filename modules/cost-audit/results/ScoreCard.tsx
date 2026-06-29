@@ -60,23 +60,23 @@ export function ScoreCard({ title, dimension, score }: ScoreCardProps) {
   return (
     <motion.div 
       whileHover={{ 
-        y: -6, 
-        boxShadow: "0 12px 20px -8px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08)",
+        y: -2, 
+        boxShadow: "0 8px 12px -4px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.06)",
         borderColor: "#cbd5e1"
       }}
-      className={`rounded-xl border p-5 transition-all duration-300 ${meta.bgClass}`}
+      className={`rounded-lg border p-3 transition-all duration-300 ${meta.bgClass}`}
     >
-      <div className="flex flex-col gap-2 mb-3">
+      <div className="flex flex-col gap-1.5 mb-2">
         <div>
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${meta.badgeClass}`}>
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${meta.badgeClass}`}>
             {meta.icon} <span>{meta.label}</span>
           </span>
         </div>
-        <p className="text-sm font-bold text-slate-900 leading-snug">
+        <p className="text-xs font-bold text-slate-900 leading-tight">
           {title}
         </p>
       </div>
-      <p className="text-xs text-slate-600 leading-relaxed">{description}</p>
+      <p className="text-[10px] text-slate-600 leading-relaxed">{description}</p>
     </motion.div>
   );
 }

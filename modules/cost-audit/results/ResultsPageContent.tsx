@@ -13,7 +13,6 @@ import { ScoreCard } from "./ScoreCard";
 import { InsightsList } from "./InsightsList";
 import { TierRecommendation } from "./TierRecommendation";
 import { ShareResults } from "./ShareResults";
-import { PdfButton } from "./PdfButton";
 import { ResultsSkeleton } from "./ResultsSkeleton";
 import { EmailModal } from "@/shared/components/EmailModal";
 
@@ -224,28 +223,54 @@ export default function ResultsPageContent() {
   );
 
   return (
-    <main className="min-h-screen bg-[#eef4ff] bg-page-gradient">
-      {/* ── Top Contact Bar ──────────────────────────────────────────── */}
-      <ContactBar containerClassName="max-w-3xl" />
+    <div className="min-h-screen bg-[#eef4ff] bg-page-gradient relative">
+      {/* ── Blurred Background Content ─────────────────────────────────── */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none blur-sm opacity-50">
+        <ContactBar containerClassName="max-w-3xl" />
+        <motion.nav 
+          variants={fadeIn} initial="hidden" animate="show"
+          className="border-b border-slate-200 px-4 py-3 bg-white/50 backdrop-blur-md absolute top-0 left-0 right-0"
+        >
+          <div className="max-w-3xl mx-auto flex items-center justify-between">
+            <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+              <Image src="/logo.jpg" alt="Pixel Punch" width={100} height={30} className="h-7 w-auto object-contain" />
+            </a>
+            <a href="/ai/cost-scan" className="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors">
+              ← Retake scan
+            </a>
+          </div>
+        </motion.nav>
+        <motion.div 
+          variants={staggerContainer} initial="hidden" animate="show"
+          className="max-w-3xl mx-auto px-4 py-8 md:py-12"
+        >
+          <motion.div variants={slideUp} className="text-center mb-6">
+            <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-600 text-[10px] font-semibold mb-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90 shadow-[0_0_10px_#10b981]"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+              </span>
+              Scan Status: Live & Complete
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+              Your AI Cost Scan Results
+            </h1>
+            <p className="text-slate-600 text-sm">
+              Here is where your AI cost profile currently stands.
+            </p>
+          </motion.div>
+          <motion.section variants={slideUp} aria-label="Scorecard dimensions" className="mb-6 grid gap-2 md:grid-cols-3">
+            <ScoreCard title="Spend & Visibility" dimension="spend" score={result.scorecard.spend} />
+            <ScoreCard title="Architecture & Leakage Risk" dimension="architecture" score={result.scorecard.architecture} />
+            <ScoreCard title="Business Pain & Urgency" dimension="pain" score={result.scorecard.pain} />
+          </motion.section>
+        </motion.div>
+      </div>
 
-      {/* ── Nav ──────────────────────────────────────────────────── */}
-      <motion.nav 
-        variants={fadeIn} initial="hidden" animate="show"
-        className="border-b border-slate-200 px-4 py-3 bg-white/50 backdrop-blur-md"
-      >
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <Image src="/logo.jpg" alt="Pixel Punch" width={100} height={30} className="h-7 w-auto object-contain" />
-          </a>
-          <a href="/ai/cost-scan" className="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors">
-            ← Retake scan
-          </a>
-        </div>
-      </motion.nav>
-
+      {/* ── Main Content (Unblurred) ─────────────────────────────────── */}
       <motion.div 
         variants={staggerContainer} initial="hidden" animate="show"
-        className="max-w-3xl mx-auto px-4 py-8 md:py-12"
+        className="max-w-3xl mx-auto px-4 py-32 md:py-24 relative z-10"
       >
         {/* ── Header ───────────────────────────────────────────────── */}
         <motion.div variants={slideUp} className="text-center mb-6">
@@ -265,7 +290,7 @@ export default function ResultsPageContent() {
         </motion.div>
 
         {/* ── RAG scorecard ────────────────────────────────────────── */}
-        <motion.section variants={slideUp} aria-label="Scorecard dimensions" className="mb-6 grid gap-3 md:grid-cols-3">
+        <motion.section variants={slideUp} aria-label="Scorecard dimensions" className="mb-6 grid gap-2 md:grid-cols-3">
           <ScoreCard title="Spend & Visibility" dimension="spend" score={result.scorecard.spend} />
           <ScoreCard title="Architecture & Leakage Risk" dimension="architecture" score={result.scorecard.architecture} />
           <ScoreCard title="Business Pain & Urgency" dimension="pain" score={result.scorecard.pain} />
@@ -276,17 +301,17 @@ export default function ResultsPageContent() {
           <motion.div 
             variants={slideUp} 
             whileHover={{ y: -2, borderColor: "#6366f1", boxShadow: "0 8px 15px -5px rgba(99, 102, 241, 0.04)" }}
-            className="mb-6 bg-white/80 backdrop-blur-md rounded-xl border border-slate-200 p-4 shadow-sm transition-all duration-300"
+            className="mb-6 bg-white/80 backdrop-blur-md rounded-xl border border-slate-200 p-3 shadow-sm transition-all duration-300"
           >
-            <h2 className="text-[10px] font-bold text-slate-950 uppercase tracking-wider mb-3 flex flex-wrap items-center gap-2">
+            <h2 className="text-[10px] font-bold text-slate-950 uppercase tracking-wider mb-2 flex flex-wrap items-center gap-2">
               <Activity className="w-3 h-3 text-indigo-600 animate-pulse" />
               AI Infrastructure Audit Evidence Verification
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {/* Confidence Indicator */}
-              <div className="flex flex-col items-center justify-center p-3 rounded-lg bg-slate-50 border border-slate-200/50">
+              <div className="flex flex-col items-center justify-center p-2 rounded-lg bg-slate-50 border border-slate-200/50">
                 <span className="text-[9px] text-slate-500 font-semibold mb-0.5 uppercase tracking-wider">Audit Confidence</span>
-                <span className="text-xl font-black text-indigo-600">{result.confidenceScore}</span>
+                <span className="text-lg font-black text-indigo-600">{result.confidenceScore}</span>
                 <span className="text-[8px] uppercase font-bold mt-1 px-1.5 py-0.5 rounded bg-indigo-50 border border-indigo-100 text-indigo-600">
                   {Number(result.confidenceScore.replace("%", "")) >= 70 
                     ? "High Data Depth" 
@@ -297,20 +322,20 @@ export default function ResultsPageContent() {
               </div>
               
               {/* Cost Evidence summary */}
-              <div className="md:col-span-2 space-y-1.5 text-[10px] flex flex-col justify-center">
-                <div className="grid grid-cols-2 gap-1.5 border-b border-slate-100 pb-1.5">
+              <div className="md:col-span-2 space-y-1 text-[10px] flex flex-col justify-center">
+                <div className="grid grid-cols-2 gap-1 border-b border-slate-100 pb-1">
                   <span className="text-slate-500 font-medium">Billed Provider:</span>
                   <span className="text-slate-900 font-semibold text-right truncate">
                     {result.costAnalysis?.normalizedData?.provider || "Self-reported Provider"}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-1.5 border-b border-slate-100 pb-1.5">
+                <div className="grid grid-cols-2 gap-1 border-b border-slate-100 pb-1">
                   <span className="text-slate-500 font-medium">Audited Spend Run:</span>
                   <span className="text-indigo-600 font-extrabold text-right truncate">
                     {result.costAnalysis?.normalizedData?.monthlySpend || "No direct billing data"}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-1.5 pb-1">
+                <div className="grid grid-cols-2 gap-1">
                   <span className="text-slate-500 font-medium">Identified Waste:</span>
                   <span className="text-red-600 font-semibold text-right truncate" title={result.costAnalysis?.normalizedData?.unusedResources}>
                     {result.costAnalysis?.normalizedData?.unusedResources || "Unoptimized staging endpoints"}
@@ -332,8 +357,8 @@ export default function ResultsPageContent() {
         {/* ── AI Technical Cost Audit ─────────────────────────────── */}
         {result.auditReport && (
           <motion.div variants={slideUp} className="mb-6 space-y-4">
-            <div className="bg-white/80 backdrop-blur-md rounded-xl border border-slate-200 p-5 shadow-sm">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3 mb-4">
+            <div className="bg-white/80 backdrop-blur-md rounded-xl border border-slate-200 p-3 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2 mb-3">
                 <div>
                   <h2 className="text-base font-bold text-slate-950 flex items-center gap-2">
                     <Cpu className="w-4 h-4 text-indigo-600 animate-pulse" />
@@ -348,18 +373,18 @@ export default function ResultsPageContent() {
                 </span>
               </div>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 {/* Top side-by-side Findings & Recommendations */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {result.findings && result.findings.length > 0 && (
                     <motion.div 
                       whileHover={{ y: -2, borderColor: "rgba(239, 68, 68, 0.2)", boxShadow: "0 8px 12px -3px rgba(239, 68, 68, 0.03)" }}
-                      className="bg-red-50/30 rounded-lg border border-red-500/10 p-4 shadow-sm transition-all duration-300"
+                      className="bg-red-50/30 rounded-lg border border-red-500/10 p-3 shadow-sm transition-all duration-300"
                     >
-                      <h3 className="text-[10px] font-bold text-red-700 mb-2 flex items-center gap-1.5 uppercase tracking-wider">
+                      <h3 className="text-[10px] font-bold text-red-700 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
                         <AlertCircle className="w-3 h-3 text-red-500" /> Key Findings
                       </h3>
-                      <ul className="space-y-1.5">
+                      <ul className="space-y-1">
                         {result.findings.map((f, i) => (
                           <motion.li 
                             key={i} 
@@ -377,12 +402,12 @@ export default function ResultsPageContent() {
                   {result.recommendations && result.recommendations.length > 0 && (
                     <motion.div 
                       whileHover={{ y: -2, borderColor: "rgba(34, 197, 94, 0.2)", boxShadow: "0 8px 12px -3px rgba(34, 197, 94, 0.03)" }}
-                      className="bg-green-50/30 rounded-lg border border-green-500/10 p-4 shadow-sm transition-all duration-300"
+                      className="bg-green-50/30 rounded-lg border border-green-500/10 p-3 shadow-sm transition-all duration-300"
                     >
-                      <h3 className="text-[10px] font-bold text-green-700 mb-2 flex items-center gap-1.5 uppercase tracking-wider">
+                      <h3 className="text-[10px] font-bold text-green-700 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
                         <CheckCircle2 className="w-3 h-3 text-green-500" /> Expert Recommendations
                       </h3>
-                      <ul className="space-y-1.5">
+                      <ul className="space-y-1">
                         {result.recommendations.map((r, i) => (
                           <motion.li 
                             key={i} 
@@ -399,7 +424,7 @@ export default function ResultsPageContent() {
                 </div>
 
                 {/* Bottom Full-Width Markdown Report Body */}
-                <div className="bg-slate-50/50 rounded-lg border border-slate-200/60 p-4 overflow-y-auto scrollbar-thin max-h-[400px] min-h-[200px]">
+                <div className="bg-slate-50/50 rounded-lg border border-slate-200/60 p-3 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[150px]">
                   {renderMarkdown(result.auditReport)}
                 </div>
               </div>
@@ -431,7 +456,7 @@ export default function ResultsPageContent() {
       </motion.div>
 
       {/* Unlock Modal */}
-      {showUnlockModal && <UnlockModal onClose={() => setShowUnlockModal(false)} onEmail={() => { setShowUnlockModal(false); setEmailModalOpen(true); }} />}
+      {showUnlockModal && <UnlockModal onClose={() => { setShowUnlockModal(false); localStorage.setItem("cost_scan_unlock_shown", "true"); }} onEmail={() => { setShowUnlockModal(false); setEmailModalOpen(true); }} />}
 
       {/* Email Modal */}
       {result && (
@@ -442,6 +467,6 @@ export default function ResultsPageContent() {
           scanType="cost"
         />
       )}
-    </main>
+    </div>
   );
 }
