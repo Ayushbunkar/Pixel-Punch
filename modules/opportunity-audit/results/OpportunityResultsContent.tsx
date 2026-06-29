@@ -92,7 +92,7 @@ const RAG_STYLES: Record<Rag, { bg: string; text: string; border: string; dot: s
   },
 };
 
-const BADGE_STYLES = {
+const BADGE_STYLES: Record<string, string> = {
   Low: "bg-slate-100 text-slate-700 border-slate-200",
   Medium: "bg-amber-50 text-amber-700 border-amber-200",
   High: "bg-rose-50 text-rose-700 border-rose-200",
