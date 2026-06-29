@@ -588,12 +588,12 @@ export default function OpportunityResultsContent() {
         <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
           <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Implementation Roadmap (${nextStepsCount} Steps)</h2>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-            ${data.nextSteps.slice(0, 8).map((step: string, i: number) => `
+            ${data.nextSteps && data.nextSteps.length > 0 ? data.nextSteps.slice(0, 8).map((step: string, i: number) => `
               <div style="background: #f8fafc; border-radius: 8px; border-left: 3px solid #16a34a; padding: 12px 16px;">
                 <div style="font-size: 9px; font-weight: 800; color: #16a34a; margin-bottom: 8px;">Step ${i + 1}</div>
                 <div style="font-size: 11px; color: #334155; line-height: 1.5;">${step}</div>
               </div>
-            `).join("")}
+            `).join("") : ""}
           </div>
         </div>
       ` : "";

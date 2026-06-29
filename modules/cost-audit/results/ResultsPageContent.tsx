@@ -229,7 +229,7 @@ export default function ResultsPageContent() {
                   <div style="background: #dc2626; height: 100%; border-radius: 4px; width: ${(findingsCount / Math.max(findingsCount, recommendationsCount, 1)) * 100}%"></div>
                 </div>
               </div>
-              ${r.findings.map((f: string) => `<div style="font-size: 10px; color: #475569; padding: 6px 0; border-bottom: 1px solid #fee2e2; display: flex; gap: 8px;"><span style="color:#dc2626;font-weight:700;">•</span><span>${f}</span></div>`).join("")}
+              ${r.findings && r.findings.length > 0 ? r.findings.map((f: string) => `<div style="font-size: 10px; color: #475569; padding: 6px 0; border-bottom: 1px solid #fee2e2; display: flex; gap: 8px;"><span style="color:#dc2626;font-weight:700;">•</span><span>${f}</span></div>`).join("") : ""}
             </div>
             ` : ""}
             ${recommendationsCount > 0 ? `
@@ -240,7 +240,7 @@ export default function ResultsPageContent() {
                   <div style="background: #16a34a; height: 100%; border-radius: 4px; width: ${(recommendationsCount / Math.max(findingsCount, recommendationsCount, 1)) * 100}%"></div>
                 </div>
               </div>
-              ${r.recommendations.map((rec: string) => `<div style="font-size: 10px; color: #475569; padding: 6px 0; border-bottom: 1px solid #dcfce7; display: flex; gap: 8px;"><span style="color:#16a34a;font-weight:700;">•</span><span>${rec}</span></div>`).join("")}
+              ${r.recommendations && r.recommendations.length > 0 ? r.recommendations.map((rec: string) => `<div style="font-size: 10px; color: #475569; padding: 6px 0; border-bottom: 1px solid #dcfce7; display: flex; gap: 8px;"><span style="color:#16a34a;font-weight:700;">•</span><span>${rec}</span></div>`).join("") : ""}
             </div>
             ` : ""}
           </div>
