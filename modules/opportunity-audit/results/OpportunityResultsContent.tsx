@@ -462,6 +462,200 @@ export default function OpportunityResultsContent() {
 
       if (!element) return;
 
+      // Get data from the hidden element
+      const hiddenDiv = element as HTMLElement;
+      const dataAttr = hiddenDiv.getAttribute("data-json-data");
+      const data: ResultsData = dataAttr ? JSON.parse(dataAttr) : null;
+
+      if (!data) {
+        console.error("No data found in hidden element");
+        return;
+      }
+
+      const ragColor = (v: string) => v === "red" ? "#dc2626" : v === "amber" ? "#d97706" : "#16a34a";
+      const ragLabel = (v: string) => v === "red" ? "⚠ HIGH RISK" : v === "amber" ? "◑ NEEDS ATTENTION" : "✓ GOOD";
+      const ragBg = (v: string) => v === "red" ? "#fee2e2" : v === "amber" ? "#fef3c7" : "#dcfce7";
+
+      // Generate SVG Pie Chart for RAG Scorecard
+      const generatePieChart = (data: { label: string; value: string; color: string }[]) => {
+        const size = 160;
+        const center = size / 2;
+        const radius = 60;
+        let currentAngle = 0;
+        
+        const slices = data.map((item, i) => {
+          const valueMap: Record<string, number> = { red: 3, amber: 2, green: 1 };
+          const value = valueMap[item.value] || 1;
+          const angle = (value / 6) * 360;
+          const startAngle = currentAngle;
+          currentAngle += angle;
+          
+          const x1 = center + radius * Math.cos((startAngle * Math.PI) / 180);
+          const y1 = center + radius * Math.sin((startAngle * Math.PI) / 180);
+          const x2 = center + radius * Math.cos((currentAngle * Math.PI) / 180);
+          const y2 = center + radius * Math.sin((currentAngle * Math.PI) / 180);
+          
+          const largeArcFlag = angle > 180 ? 1 : 0;
+          
+          const pathData = `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+          
+          return `<path d="${pathData}" fill="${item.color}" stroke="#fff" stroke-width="2"/>`;
+        }).join("");
+        
+        return `
+        <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="margin: 0 auto;">
+          <circle cx="${center}" cy="${center}" r="${radius}" fill="#f1f5f9"/>
+          ${slices}
+          <circle cx="${center}" cy="${center}" r="30" fill="#fff"/>
+          <text x="${center}" y="${center - 5}" text-anchor="middle" font-size="10" font-weight="bold" fill="#334155">RAG</text>
+          <text x="${center}" y="${center + 10}" text-anchor="middle" font-size="8" fill="#64748b">Scorecard</text>
+        </svg>
+        `;
+      };
+
+      // Calculate counts
+      const recommendationsCount = data.recommendations ? data.recommendations.length : 0;
+      const nextStepsCount = data.nextSteps ? data.nextSteps.length : 0;
+
+      // Generate scorecard HTML with visual enhancements
+      const scorecardHtml = `
+        <div style="padding: 32px 40px; background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); border-bottom: 1px solid #e2e8f0;">
+          <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 20px 0;">RAG Scorecard Overview</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <!-- Pie Chart -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;">
+              ${generatePieChart([
+                { label: "Readiness", value: data.scorecard.readiness, color: ragColor(data.scorecard.readiness) },
+                { label: "Value", value: data.scorecard.value, color: ragColor(data.scorecard.value) },
+                { label: "Opportunity", value: data.scorecard.opportunity, color: ragColor(data.scorecard.opportunity) }
+              ])}
+              <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; justify-content: center;">
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #64748b;">
+                  <span style="width: 10px; height: 10px; background: ${ragColor(data.scorecard.readiness)}; border-radius: 2px;"></span>
+                  <span>Readiness</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #64748b;">
+                  <span style="width: 10px; height: 10px; background: ${ragColor(data.scorecard.value)}; border-radius: 2px;"></span>
+                  <span>Value</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #64748b;">
+                  <span style="width: 10px; height: 10px; background: ${ragColor(data.scorecard.opportunity)}; border-radius: 2px;"></span>
+                  <span>Opportunity</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Scorecard Details -->
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              ${[
+                ["AI Readiness", data.scorecard.readiness],
+                ["Business Value", data.scorecard.value],
+                ["Automation Opportunity", data.scorecard.opportunity]
+              ].map(([label, val]) => `
+                <div style="background: #fff; border-radius: 8px; border: 1.5px solid ${ragColor(val as string)}40; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
+                  <div>
+                    <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">${label}</div>
+                    <div style="font-size: 16px; font-weight: 900; color: ${ragColor(val as string)};">${(val as string).toUpperCase()}</div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 9px; color: ${ragColor(val as string)}; font-weight: 600;">${ragLabel(val as string)}</div>
+                    <div style="font-size: 8px; color: #94a3b8; margin-top: 2px;">${ragBg(val as string)}</div>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Generate recommendations section with visual enhancements
+      const recommendationsHtml = recommendationsCount > 0 ? `
+        <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
+          <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Expert Recommendations (${recommendationsCount})</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            ${data.recommendations.slice(0, 8).map((rec: string, i: number) => `
+              <div style="background: #f8fafc; border-radius: 8px; border-left: 3px solid #4f46e5; padding: 12px 16px;">
+                <div style="font-size: 9px; font-weight: 800; color: #4f46e5; margin-bottom: 8px;">Recommendation ${i + 1}</div>
+                <div style="font-size: 11px; color: #334155; line-height: 1.5;">${rec}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      ` : "";
+
+      // Generate next steps section with visual enhancements
+      const nextStepsHtml = nextStepsCount > 0 ? `
+        <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
+          <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Implementation Roadmap (${nextStepsCount} Steps)</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            ${data.nextSteps.slice(0, 8).map((step: string, i: number) => `
+              <div style="background: #f8fafc; border-radius: 8px; border-left: 3px solid #16a34a; padding: 12px 16px;">
+                <div style="font-size: 9px; font-weight: 800; color: #16a34a; margin-bottom: 8px;">Step ${i + 1}</div>
+                <div style="font-size: 11px; color: #334155; line-height: 1.5;">${step}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      ` : "";
+
+      // Generate audit report section
+      const auditReportHtml = data.auditReport ? `
+        <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
+          <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Full Technical Audit</h2>
+          <div style="font-size: 11px; color: #475569; line-height: 1.7; white-space: pre-wrap; background: #f8fafc; border-radius: 8px; padding: 16px; border: 1px solid #e2e8f0;">${data.auditReport}</div>
+        </div>
+      ` : "";
+
+      // Generate comparison overview
+      const comparisonHtml = recommendationsCount > 0 && nextStepsCount > 0 ? `
+        <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
+          <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Summary Overview</h2>
+          <div style="background: #f8fafc; border-radius: 10px; padding: 20px; text-align: center;">
+            <div style="display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;">
+              <div style="text-align: center;">
+                <div style="font-size: 28px; font-weight: 900; color: #4f46e5;">${recommendationsCount}</div>
+                <div style="font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Recommendations</div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 28px; font-weight: 900; color: #16a34a;">${nextStepsCount}</div>
+                <div style="font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Next Steps</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ` : "";
+
+      const htmlContent = `
+        <div style="font-family: 'Segoe UI', system-ui, sans-serif; color: #0f172a; background: #fff; padding: 0; margin: 0;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #0f172a 0%, #312e81 50%, #4338ca 100%); padding: 36px 40px; margin-bottom: 0;">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+              <div style="background: rgba(255,255,255,0.15); border-radius: 12px; padding: 10px 16px;">
+                <span style="color: #fff; font-size: 18px; font-weight: 900; letter-spacing: -0.5px;">Pixel Punch</span>
+              </div>
+              <div style="color: rgba(255,255,255,0.6); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;">AI Opportunity Audit</div>
+            </div>
+            <h1 style="color: #fff; font-size: 26px; font-weight: 800; margin: 0 0 6px 0; line-height: 1.2;">AI Opportunity Audit Report</h1>
+            <p style="color: rgba(255,255,255,0.65); font-size: 12px; margin: 0;">Scan ID: ${data.submissionId} &nbsp;·&nbsp; Generated by Pixel Punch AI</p>
+          </div>
+
+          ${scorecardHtml}
+
+          ${recommendationsHtml}
+
+          ${nextStepsHtml}
+
+          ${auditReportHtml}
+
+          ${comparisonHtml}
+
+          <!-- Footer -->
+          <div style="padding: 20px 40px; background: #0f172a; text-align: center;">
+            <p style="color: rgba(255,255,255,0.5); font-size: 10px; margin: 0;">Generated by Pixel Punch AI &nbsp;·&nbsp; pixelpunch.org &nbsp;·&nbsp; © 2026 Pixel Punch. Confidential.</p>
+          </div>
+        </div>
+      `;
+
       const opt = {
 
         margin: 0,
@@ -478,7 +672,7 @@ export default function OpportunityResultsContent() {
 
       };
 
-      await html2pdf().set(opt).from(element).save();
+      await html2pdf().set(opt).from(htmlContent).save();
 
     } catch (e) {
 

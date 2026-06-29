@@ -65,6 +65,231 @@ export default function ResultsPageContent() {
 
       const ragColor = (v: string) => v === "red" ? "#dc2626" : v === "amber" ? "#d97706" : "#16a34a";
       const ragLabel = (v: string) => v === "red" ? "⚠ HIGH RISK" : v === "amber" ? "◑ NEEDS ATTENTION" : "✓ GOOD";
+      const ragBg = (v: string) => v === "red" ? "#fee2e2" : v === "amber" ? "#fef3c7" : "#dcfce7";
+      const ragText = (v: string) => v === "red" ? "#991b1b" : v === "amber" ? "#b45309" : "#166534";
+
+      // Generate SVG Pie Chart for RAG Scorecard
+      const generatePieChart = (data: { label: string; value: string; color: string }[]) => {
+        const size = 160;
+        const center = size / 2;
+        const radius = 60;
+        let currentAngle = 0;
+        
+        const slices = data.map((item, i) => {
+          const valueMap: Record<string, number> = { red: 3, amber: 2, green: 1 };
+          const value = valueMap[item.value] || 1;
+          const angle = (value / 6) * 360; // 3 red + 2 amber + 1 green = 6 parts
+          const startAngle = currentAngle;
+          currentAngle += angle;
+          
+          const x1 = center + radius * Math.cos((startAngle * Math.PI) / 180);
+          const y1 = center + radius * Math.sin((startAngle * Math.PI) / 180);
+          const x2 = center + radius * Math.cos((currentAngle * Math.PI) / 180);
+          const y2 = center + radius * Math.sin((currentAngle * Math.PI) / 180);
+          
+          const largeArcFlag = angle > 180 ? 1 : 0;
+          
+          const pathData = `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+          
+          return `<path d="${pathData}" fill="${item.color}" stroke="#fff" stroke-width="2"/>`;
+        }).join("");
+        
+        return `
+        <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="margin: 0 auto;">
+          <circle cx="${center}" cy="${center}" r="${radius}" fill="#f1f5f9"/>
+          ${slices}
+          <circle cx="${center}" cy="${center}" r="30" fill="#fff"/>
+          <text x="${center}" y="${center - 5}" text-anchor="middle" font-size="10" font-weight="bold" fill="#334155">RAG</text>
+          <text x="${center}" y="${center + 10}" text-anchor="middle" font-size="8" fill="#64748b">Scorecard</text>
+        </svg>
+        `;
+      };
+
+      // Generate SVG Bar Chart for Insights Count
+      const generateBarChart = (insightsCount: number, findingsCount: number, recommendationsCount: number) => {
+        const width = 280;
+        const height = 100;
+        const maxCount = Math.max(insightsCount, findingsCount, recommendationsCount, 1);
+        const barWidth = 60;
+        const gap = 40;
+        const chartHeight = 70;
+        const startX = 30;
+        
+        const getBarHeight = (count: number) => (count / maxCount) * chartHeight;
+        
+        return `
+        <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" style="margin: 0 auto;">
+          <!-- Y-axis -->
+          <line x1="${startX}" y1="10" x2="${startX}" y2="${height - 20}" stroke="#cbd5e1" stroke-width="1"/>
+          <!-- X-axis -->
+          <line x1="${startX}" y1="${height - 20}" x2="${width - 10}" y2="${height - 20}" stroke="#cbd5e1" stroke-width="1"/>
+          
+          <!-- Bars -->
+          ${[
+            { label: "Insights", count: insightsCount, color: "#4f46e5" },
+            { label: "Findings", count: findingsCount, color: "#dc2626" },
+            { label: "Recs", count: recommendationsCount, color: "#16a34a" }
+          ].map((bar, i) => {
+            const x = startX + i * (barWidth + gap);
+            const barHeight = getBarHeight(bar.count);
+            const y = (height - 20) - barHeight;
+            return `
+            <g>
+              <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="${bar.color}" rx="4"/>
+              <text x="${x + barWidth/2}" y="${height - 5}" text-anchor="middle" font-size="9" fill="#64748b" font-weight="600">${bar.label}</text>
+              <text x="${x + barWidth/2}" y="${y - 5}" text-anchor="middle" font-size="10" fill="#334155" font-weight="bold">${bar.count}</text>
+            </g>
+            `;
+          }).join("")}
+        </svg>
+        `;
+      };
+
+      // Calculate counts for charts
+      const insightsCount = r.insights ? r.insights.length : 0;
+      const findingsCount = r.findings ? r.findings.length : 0;
+      const recommendationsCount = r.recommendations ? r.recommendations.length : 0;
+
+      // Generate scorecard HTML with visual enhancements
+      const scorecardHtml = `
+        <div style="padding: 32px 40px; background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); border-bottom: 1px solid #e2e8f0;">
+          <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 20px 0;">RAG Scorecard Overview</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <!-- Pie Chart -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;">
+              ${generatePieChart([
+                { label: "Spend", value: r.scorecard.spend, color: ragColor(r.scorecard.spend) },
+                { label: "Architecture", value: r.scorecard.architecture, color: ragColor(r.scorecard.architecture) },
+                { label: "Pain", value: r.scorecard.pain, color: ragColor(r.scorecard.pain) }
+              ])}
+              <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; justify-content: center;">
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #64748b;">
+                  <span style="width: 10px; height: 10px; background: ${ragColor(r.scorecard.spend)}; border-radius: 2px;"></span>
+                  <span>Spend</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #64748b;">
+                  <span style="width: 10px; height: 10px; background: ${ragColor(r.scorecard.architecture)}; border-radius: 2px;"></span>
+                  <span>Architecture</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #64748b;">
+                  <span style="width: 10px; height: 10px; background: ${ragColor(r.scorecard.pain)}; border-radius: 2px;"></span>
+                  <span>Pain</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Scorecard Details -->
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              ${[
+                ["Spend & Visibility", r.scorecard.spend],
+                ["Architecture Risk", r.scorecard.architecture],
+                ["Business Pain & Urgency", r.scorecard.pain]
+              ].map(([label, val]) => `
+                <div style="background: #fff; border-radius: 8px; border: 1.5px solid ${ragColor(val as string)}40; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
+                  <div>
+                    <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">${label}</div>
+                    <div style="font-size: 16px; font-weight: 900; color: ${ragColor(val as string)};">${(val as string).toUpperCase()}</div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 9px; color: ${ragColor(val as string)}; font-weight: 600;">${ragLabel(val as string)}</div>
+                    <div style="font-size: 8px; color: #94a3b8; margin-top: 2px;">${ragBg(val as string)}</div>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Generate insights section with visual enhancements
+      const insightsHtml = insightsCount > 0 ? `
+        <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
+          <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Key Insights</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            ${r.insights.slice(0, 8).map((ins: any, i: number) => `
+              <div style="background: #f8fafc; border-radius: 8px; border-left: 3px solid #4f46e5; padding: 12px 16px;">
+                <div style="font-size: 9px; font-weight: 800; color: #4f46e5; margin-bottom: 8px;">Insight ${i + 1}</div>
+                <div style="font-size: 11px; color: #334155; line-height: 1.5;">${typeof ins === "string" ? ins : ins.text || ins.title || ""}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      ` : "";
+
+      // Generate findings & recommendations section with visual enhancements
+      const findingsRecsHtml = (findingsCount > 0 || recommendationsCount > 0) ? `
+        <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
+          <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Analysis Summary</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px;">
+            ${findingsCount > 0 ? `
+            <div style="background: #fff; border-radius: 10px; border: 1px solid #fee2e2; padding: 16px;">
+              <h3 style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #dc2626; margin: 0 0 12px 0;">⚠ Key Findings (${findingsCount})</h3>
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <div style="flex: 1; background: #fee2e2; border-radius: 4px; height: 8px;">
+                  <div style="background: #dc2626; height: 100%; border-radius: 4px; width: ${(findingsCount / Math.max(findingsCount, recommendationsCount, 1)) * 100}%"></div>
+                </div>
+              </div>
+              ${r.findings.map((f: string) => `<div style="font-size: 10px; color: #475569; padding: 6px 0; border-bottom: 1px solid #fee2e2; display: flex; gap: 8px;"><span style="color:#dc2626;font-weight:700;">•</span><span>${f}</span></div>`).join("")}
+            </div>
+            ` : ""}
+            ${recommendationsCount > 0 ? `
+            <div style="background: #fff; border-radius: 10px; border: 1px solid #dcfce7; padding: 16px;">
+              <h3 style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #16a34a; margin: 0 0 12px 0;">✓ Recommendations (${recommendationsCount})</h3>
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <div style="flex: 1; background: #dcfce7; border-radius: 4px; height: 8px;">
+                  <div style="background: #16a34a; height: 100%; border-radius: 4px; width: ${(recommendationsCount / Math.max(findingsCount, recommendationsCount, 1)) * 100}%"></div>
+                </div>
+              </div>
+              ${r.recommendations.map((rec: string) => `<div style="font-size: 10px; color: #475569; padding: 6px 0; border-bottom: 1px solid #dcfce7; display: flex; gap: 8px;"><span style="color:#16a34a;font-weight:700;">•</span><span>${rec}</span></div>`).join("")}
+            </div>
+            ` : ""}
+          </div>
+          ${findingsCount > 0 && recommendationsCount > 0 ? `
+          <div style="background: #f8fafc; border-radius: 10px; padding: 16px; text-align: center;">
+            <h3 style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin: 0 0 12px 0;">Comparison Overview</h3>
+            <div style="display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;">
+              <div style="text-align: center;">
+                <div style="font-size: 24px; font-weight: 900; color: #dc2626;">${findingsCount}</div>
+                <div style="font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Findings</div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 24px; font-weight: 900; color: #16a34a;">${recommendationsCount}</div>
+                <div style="font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Recommendations</div>
+              </div>
+            </div>
+          </div>
+          ` : ""}
+        </div>
+      ` : "";
+
+      // Generate audit report section
+      const auditReportHtml = r.auditReport ? `
+        <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
+          <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Full Technical Audit</h2>
+          <div style="font-size: 11px; color: #475569; line-height: 1.7; white-space: pre-wrap; background: #f8fafc; border-radius: 8px; padding: 16px; border: 1px solid #e2e8f0;">${r.auditReport}</div>
+        </div>
+      ` : "";
+
+      // Generate confidence score section if available
+      const confidenceHtml = r.confidenceScore ? `
+        <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
+          <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Audit Confidence Level</h2>
+          <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px; background: #f8fafc; border-radius: 10px; padding: 20px; text-align: center; border: 1px solid #e2e8f0;">
+              <div style="font-size: 32px; font-weight: 900; color: ${Number(r.confidenceScore.replace("%", "")) >= 70 ? "#16a34a" : Number(r.confidenceScore.replace("%", "")) >= 40 ? "#d97706" : "#dc2626"};">${r.confidenceScore}</div>
+              <div style="font-size: 10px; color: #64748b; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px;">Confidence Score</div>
+            </div>
+            <div style="flex: 1; min-width: 200px; background: #f8fafc; border-radius: 10px; padding: 20px; border: 1px solid #e2e8f0;">
+              <div style="font-size: 11px; color: #334155; line-height: 1.6;">
+                <div style="margin-bottom: 8px; font-weight: 600;">Data Sources:</div>
+                <div style="font-size: 10px; color: #64748b;">Questionnaire: ${r.confidenceScore.replace("%", "")}%</div>
+                <div style="font-size: 10px; color: #64748b;">Website Data: 0%</div>
+                <div style="font-size: 10px; color: #64748b;">Documents: 0%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ` : "";
 
       const htmlContent = `
         <div style="font-family: 'Segoe UI', system-ui, sans-serif; color: #0f172a; background: #fff; padding: 0; margin: 0;">
@@ -80,64 +305,15 @@ export default function ResultsPageContent() {
             <p style="color: rgba(255,255,255,0.65); font-size: 12px; margin: 0;">Scan ID: ${r.submissionId} &nbsp;·&nbsp; Generated by Pixel Punch AI</p>
           </div>
 
-          <!-- Scorecard -->
-          <div style="padding: 32px 40px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
-            <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">RAG Scorecard</h2>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-              ${[
-                ["Spend & Visibility", r.scorecard.spend],
-                ["Architecture Risk", r.scorecard.architecture],
-                ["Business Pain & Urgency", r.scorecard.pain]
-              ].map(([label, val]) => `
-                <div style="background: #fff; border-radius: 10px; border: 1.5px solid ${ragColor(val as string)}40; padding: 16px; text-align: center;">
-                  <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">${label}</div>
-                  <div style="font-size: 20px; font-weight: 900; color: ${ragColor(val as string)};">${(val as string).toUpperCase()}</div>
-                  <div style="font-size: 9px; color: ${ragColor(val as string)}; margin-top: 4px; font-weight: 600;">${ragLabel(val as string)}</div>
-                </div>
-              `).join("")}
-            </div>
-          </div>
+          ${scorecardHtml}
 
-          <!-- Insights -->
-          ${r.insights && r.insights.length > 0 ? `
-          <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
-            <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Key Insights</h2>
-            ${r.insights.slice(0, 8).map((ins: any, i: number) => `
-              <div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #4f46e5; margin-bottom: 8px;">
-                <span style="color: #4f46e5; font-weight: 800; font-size: 13px; flex-shrink: 0;">${i + 1}.</span>
-                <span style="font-size: 12px; color: #334155; line-height: 1.5;">${typeof ins === "string" ? ins : ins.text || ins.title || ""}</span>
-              </div>
-            `).join("")}
-          </div>
-          ` : ""}
+          ${insightsHtml}
 
-          <!-- Findings & Recommendations -->
-          ${(r.findings && r.findings.length > 0) || (r.recommendations && r.recommendations.length > 0) ? `
-          <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-              ${r.findings && r.findings.length > 0 ? `
-              <div>
-                <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #dc2626; margin: 0 0 12px 0;">⚠ Key Findings</h2>
-                ${r.findings.map((f: string) => `<div style="font-size: 11px; color: #475569; padding: 6px 0; border-bottom: 1px solid #fee2e2; display: flex; gap: 8px;"><span style="color:#dc2626;font-weight:700;">•</span><span>${f}</span></div>`).join("")}
-              </div>
-              ` : ""}
-              ${r.recommendations && r.recommendations.length > 0 ? `
-              <div>
-                <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #16a34a; margin: 0 0 12px 0;">✓ Recommendations</h2>
-                ${r.recommendations.map((rec: string) => `<div style="font-size: 11px; color: #475569; padding: 6px 0; border-bottom: 1px solid #dcfce7; display: flex; gap: 8px;"><span style="color:#16a34a;font-weight:700;">•</span><span>${rec}</span></div>`).join("")}
-              </div>
-              ` : ""}
-            </div>
-          </div>
-          ` : ""}
+          ${findingsRecsHtml}
 
-          <!-- Audit Report -->
-          ${r.auditReport ? `
-          <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
-            <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Full Technical Audit</h2>
-            <div style="font-size: 11px; color: #475569; line-height: 1.7; white-space: pre-wrap; background: #f8fafc; border-radius: 8px; padding: 16px; border: 1px solid #e2e8f0;">${r.auditReport}</div>
-          </div>
-          ` : ""}
+          ${auditReportHtml}
+
+          ${confidenceHtml}
 
           <!-- Footer -->
           <div style="padding: 20px 40px; background: #1e1b4b; text-align: center;">
