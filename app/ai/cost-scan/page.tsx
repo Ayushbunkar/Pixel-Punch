@@ -61,7 +61,10 @@ export default async function AiCostScanPage({ searchParams }: PageProps) {
         >
           {/* Badge */}
           <motion.div variants={slideUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-600 text-xs font-medium mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-90 shadow-[0_0_10px_#3b82f6]"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600 shadow-[0_0_8px_#3b82f6]"></span>
+            </span>
             Free · 3-minute diagnostic
           </motion.div>
 
