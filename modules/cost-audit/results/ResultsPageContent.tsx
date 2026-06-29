@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { StoredScanResult } from "@/modules/cost-audit/types";
@@ -31,6 +31,27 @@ export default function ResultsPageContent() {
     const unlocked = sessionStorage.getItem("cost_report_unlocked") === "true";
     if (unlocked) {
       setIsUnlocked(true);
+    }
+  }, []);
+
+  // Auto-trigger PDF download when ?download=pdf is in URL
+  const autoDownload = searchParams.get("download") === "pdf";
+  const triggerPdfDownload = useCallback(async (submId?: string) => {
+    try {
+      const { default: html2pdf } = await import("html2pdf.js");
+      const element = document.getElementById("pdf-report-content");
+      if (!element) return;
+      const opt = {
+        margin: 0,
+        filename: `Pixel-Punch-Cost-Audit-${submId?.slice(0, 8) ?? "report"}.pdf`,
+        image: { type: "jpeg" as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false, width: 794, windowWidth: 794 },
+        jsPDF: { unit: "mm" as const, format: "a4", orientation: "portrait" as const, compress: true },
+        pagebreak: { mode: ["css", "legacy"] as const },
+      };
+      await html2pdf().set(opt).from(element).save();
+    } catch (e) {
+      console.error("Auto PDF download failed:", e);
     }
   }, []);
 
@@ -75,6 +96,16 @@ export default function ResultsPageContent() {
 
     loadResult();
   }, [submissionId, router]);
+
+  // Trigger PDF download once data is loaded and download param present
+  useEffect(() => {
+    if (!loading && result && autoDownload) {
+      const timer = setTimeout(() => {
+        triggerPdfDownload(result.submissionId);
+      }, 1500); // wait for DOM to render
+      return () => clearTimeout(timer);
+    }
+  }, [loading, result, autoDownload, triggerPdfDownload]);
 
   if (loading) {
     return <ResultsSkeleton />;

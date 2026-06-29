@@ -142,9 +142,12 @@ export async function POST(req: NextRequest) {
           <tr>
             <td style="padding: 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center; font-size: 12px; color: #64748b;">
               <p style="margin: 0 0 12px 0; font-weight: bold; color: #334155;">Ready to review your custom roadmap with an AI Architect?</p>
-              <div style="margin-bottom: 16px;">
-                <a href="${resultsPageUrl}" target="_blank" style="display: inline-block; padding: 10px 20px; background: #0f172a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; margin-right: 8px;">
-                  Download PDF & View Roadmap
+              <div style="margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                <a href="${resultsPageUrl}?download=pdf" target="_blank" style="display: inline-block; padding: 10px 20px; background: #0f172a; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px;">
+                  ⬇ Download PDF Report
+                </a>
+                <a href="${resultsPageUrl}" target="_blank" style="display: inline-block; padding: 10px 20px; background: #1e293b; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px; border: 1px solid #334155;">
+                  View Full Report
                 </a>
                 <a href="https://pixelpunch.org/services/consulting" target="_blank" style="display: inline-block; padding: 10px 20px; background: #4f46e5; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px;">
                   Schedule Free Scoping Call

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { ContactBar } from "@/shared/components/ContactBar";
 import { 
@@ -245,6 +245,27 @@ export default function OpportunityResultsContent() {
     }
   }, []);
 
+  // Auto-trigger PDF download when ?download=pdf is in URL
+  const autoDownload = searchParams.get("download") === "pdf";
+  const triggerPdfDownload = useCallback(async (submId?: string) => {
+    try {
+      const { default: html2pdf } = await import("html2pdf.js");
+      const element = document.getElementById("opportunity-pdf-report-content") || document.getElementById("pdf-report-content");
+      if (!element) return;
+      const opt = {
+        margin: 0,
+        filename: `Pixel-Punch-Opportunity-Audit-${submId?.slice(0, 8) ?? "report"}.pdf`,
+        image: { type: "jpeg" as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false, width: 794, windowWidth: 794 },
+        jsPDF: { unit: "mm" as const, format: "a4", orientation: "portrait" as const, compress: true },
+        pagebreak: { mode: ["css", "legacy"] as const },
+      };
+      await html2pdf().set(opt).from(element).save();
+    } catch (e) {
+      console.error("Auto PDF download failed:", e);
+    }
+  }, []);
+
   const handleUnlock = () => {
     sessionStorage.setItem("report_unlocked", "true");
     setIsUnlocked(true);
@@ -275,6 +296,16 @@ export default function OpportunityResultsContent() {
 
     fetchResults();
   }, [id, router]);
+
+  // Trigger PDF download once data is loaded and download param present
+  useEffect(() => {
+    if (!loading && data && autoDownload) {
+      const timer = setTimeout(() => {
+        triggerPdfDownload(data.submissionId);
+      }, 1500); // wait for DOM to render
+      return () => clearTimeout(timer);
+    }
+  }, [loading, data, autoDownload, triggerPdfDownload]);
 
   if (loading) {
     return (
@@ -850,11 +881,11 @@ export default function OpportunityResultsContent() {
             </motion.div>
 
             {/* Phase 2 & 3 - Gated together */}
-            <div className="relative group space-y-4">
+            <div className="relative group space-y-4 overflow-hidden rounded-lg">
               {!isUnlocked && (
                 <div 
                   onClick={() => setShowUnlockModal(true)}
-                  className="absolute inset-0 bg-white/85 backdrop-blur-[2.5px] rounded-xl flex items-center justify-center z-10 cursor-pointer hover:bg-white/90 border border-slate-200/50 shadow-sm transition-all duration-300 min-h-[160px]"
+                  className="absolute inset-0 bg-white/85 backdrop-blur-[2.5px] rounded-lg flex items-center justify-center z-10 cursor-pointer hover:bg-white/90 border border-slate-200/50 shadow-sm transition-all duration-300"
                 >
                   <div className="text-center p-4">
                     <Lock className="w-5 h-5 text-indigo-600 mx-auto mb-1.5" />
@@ -877,7 +908,7 @@ export default function OpportunityResultsContent() {
                 </div>
               )}
               
-              <div className={`space-y-4 transition-all duration-500 ${!isUnlocked ? "blur-md select-none pointer-events-none opacity-30" : ""}`}>
+              <div className={`space-y-4 transition-all duration-500 min-h-[160px] ${!isUnlocked ? "blur-md select-none pointer-events-none opacity-30" : ""}`}>
                 {/* Phase 2 */}
                 <div className="relative z-0">
                   <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-[9px] font-bold text-indigo-600">
