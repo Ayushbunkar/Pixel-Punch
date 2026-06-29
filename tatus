@@ -1,0 +1,17 @@
+[33m51b931c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m fix the problem
+[33m2bd10e8[m changes
+[33md32e6d6[m update ui change
+[33mf0938a6[m changes in the report file ui
+[33m54eff0e[m update the animation and blur is put
+[33mb01969b[m download button fix in the email;
+[33m1200c88[m email fix
+[33m58341a0[m update the email thingsand the report generatioon
+[33me176fc4[m fix the brevo
+[33m1463043[m fix
+[33mbbbe49a[m update animatoins an email
+[33m629a031[m hiphen solved
+[33me8ff1de[m update files for vercel
+[33m36ac395[m update\
+[33m446975f[m changes updatethe pdf generation
+[33md32434a[m change : make audit more optimize
+[33m088cec9[m feat: upgrade fallback generator to compile realistic dynamic reports in absence of API keys
