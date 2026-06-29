@@ -128,7 +128,7 @@ export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2.5 rounded-lg font-bold text-sm text-slate-650 hover:bg-slate-100 transition-colors border border-slate-150"
+                  className="px-4 py-2.5 rounded-lg font-bold text-sm text-slate-600 hover:bg-slate-100 transition-colors border border-slate-200"
                 >
                   Cancel
                 </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useOpportunityForm } from "./hooks/useOpportunityForm";
 import { useSubmitOpportunity } from "./hooks/useSubmitOpportunity";
@@ -133,8 +133,15 @@ export function OpportunityWizard({ initialRef }: OpportunityWizardProps) {
     setField, toggleArrayValue, goNext, goBack, validateAll, resetForm
   } = useOpportunityForm(initialRef);
 
+  const formRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (formRef.current) {
+      const yOffset = -80; // Offset from top of viewport
+      const element = formRef.current;
+      const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
   }, [step]);
 
   const { submit, loading } = useSubmitOpportunity();
@@ -226,6 +233,7 @@ export function OpportunityWizard({ initialRef }: OpportunityWizardProps) {
 
   return (
     <motion.div 
+      ref={formRef}
       variants={slideUp} initial="hidden" animate="show"
       className="w-full max-w-3xl mx-auto"
     >

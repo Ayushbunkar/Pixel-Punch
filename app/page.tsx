@@ -657,23 +657,11 @@ function Header() {
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2">
+          <a href="/" className="flex items-center">
             <img src="/logo.jpg" alt="Pixel Punch" className="h-8 w-auto object-contain" />
-            <span className="font-bold text-slate-900 text-lg hidden sm:block">PixelPunch</span>
           </a>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
-            {["Features", "Pricing", "Resources", "About"].map((link) => (
-              <a 
-                key={link} 
-                href={`#${link.toLowerCase()}`}
-                className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors"
-              >
-                {link}
-              </a>
-            ))}
-          </nav>
+
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center gap-4">
@@ -703,16 +691,6 @@ function Header() {
             className="md:hidden py-4 border-t border-slate-200"
           >
             <nav className="flex flex-col gap-4">
-              {["Features", "Pricing", "Resources", "About"].map((link) => (
-                <a 
-                  key={link} 
-                  href={`#${link.toLowerCase()}`}
-                  className="text-sm font-medium text-slate-600 hover:text-indigo-600"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {link}
-                </a>
-              ))}
               <a
                 href="/ai/cost-scan"
                 className="px-5 py-3 bg-indigo-600 text-white text-center rounded-lg font-bold"

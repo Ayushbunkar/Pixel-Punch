@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useCostScanForm }   from "./hooks/useCostScanForm";
 import { useSubmitScan }     from "./hooks/useSubmitScan";
@@ -158,8 +158,15 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
     goNext, goBack, validateAll,
   } = useCostScanForm(initialRef);
 
+  const formRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (formRef.current) {
+      const yOffset = -80; // Offset from top of viewport
+      const element = formRef.current;
+      const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
   }, [step]);
 
   const { submit, loading, error: submitError } = useSubmitScan();
@@ -293,6 +300,7 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
 
   return (
     <motion.div 
+      ref={formRef}
       variants={slideUp} initial="hidden" animate="show"
       className="w-full max-w-2xl mx-auto"
     >
