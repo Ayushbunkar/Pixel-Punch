@@ -6,13 +6,14 @@ import * as motion from "framer-motion/client";
 interface InsightsListProps {
   insights: string[];
   onUnlock?: () => void;
+  isUnlocked?: boolean;
 }
 
-export function InsightsList({ insights, onUnlock }: InsightsListProps) {
+export function InsightsList({ insights, onUnlock, isUnlocked }: InsightsListProps) {
   if (!insights || insights.length === 0) return null;
 
-  const visibleInsights = insights.slice(0, 2);
-  const gatedInsights = insights.slice(2);
+  const visibleInsights = isUnlocked ? insights : insights.slice(0, 2);
+  const gatedInsights = isUnlocked ? [] : insights.slice(2);
 
   return (
     <section className="mb-6" aria-label="Insights">

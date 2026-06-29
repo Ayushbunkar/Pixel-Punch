@@ -25,6 +25,19 @@ export default function ResultsPageContent() {
   const [loading, setLoading] = useState(true);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+
+  useEffect(() => {
+    const unlocked = sessionStorage.getItem("cost_report_unlocked") === "true";
+    if (unlocked) {
+      setIsUnlocked(true);
+    }
+  }, []);
+
+  const handleUnlock = () => {
+    sessionStorage.setItem("cost_report_unlocked", "true");
+    setIsUnlocked(true);
+  };
 
   useEffect(() => {
     async function loadResult() {
@@ -223,54 +236,37 @@ export default function ResultsPageContent() {
   );
 
   return (
-    <div className="min-h-screen bg-[#eef4ff] bg-page-gradient relative">
-      {/* ── Blurred Background Content ─────────────────────────────────── */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none blur-sm opacity-50">
-        <ContactBar containerClassName="max-w-3xl" />
-        <motion.nav 
-          variants={fadeIn} initial="hidden" animate="show"
-          className="border-b border-slate-200 px-4 py-3 bg-white/50 backdrop-blur-md absolute top-0 left-0 right-0"
-        >
-          <div className="max-w-3xl mx-auto flex items-center justify-between">
-            <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-              <Image src="/logo.jpg" alt="Pixel Punch" width={100} height={30} className="h-7 w-auto object-contain" />
-            </a>
-            <a href="/ai/cost-scan" className="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors">
-              ← Retake scan
-            </a>
-          </div>
-        </motion.nav>
-        <motion.div 
-          variants={staggerContainer} initial="hidden" animate="show"
-          className="max-w-3xl mx-auto px-4 py-8 md:py-12"
-        >
-          <motion.div variants={slideUp} className="text-center mb-6">
-            <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-600 text-[10px] font-semibold mb-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90 shadow-[0_0_10px_#10b981]"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
-              </span>
-              Scan Status: Live & Complete
-            </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
-              Your AI Cost Scan Results
-            </h1>
-            <p className="text-slate-600 text-sm">
-              Here is where your AI cost profile currently stands.
-            </p>
-          </motion.div>
-          <motion.section variants={slideUp} aria-label="Scorecard dimensions" className="mb-6 grid gap-2 md:grid-cols-3">
-            <ScoreCard title="Spend & Visibility" dimension="spend" score={result.scorecard.spend} />
-            <ScoreCard title="Architecture & Leakage Risk" dimension="architecture" score={result.scorecard.architecture} />
-            <ScoreCard title="Business Pain & Urgency" dimension="pain" score={result.scorecard.pain} />
-          </motion.section>
-        </motion.div>
-      </div>
+    <div className="min-h-screen bg-[#fafbff] pb-12 overflow-x-hidden">
+      {/* Contact Bar */}
+      <ContactBar containerClassName="max-w-3xl" />
 
-      {/* ── Main Content (Unblurred) ─────────────────────────────────── */}
+      {/* Nav Strip */}
+      <motion.nav 
+        variants={fadeIn} 
+        initial="hidden" 
+        animate="show"
+        className="border-b border-slate-200 px-4 py-3 bg-white/50 backdrop-blur-md"
+      >
+        <div className="max-w-3xl mx-auto flex items-center justify-between">
+          <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+            <Image src="/logo.jpg" alt="Pixel Punch" width={100} height={30} className="h-7 w-auto object-contain" />
+          </a>
+          <button
+            onClick={() => router.push("/ai/cost-scan")}
+            className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            New Scan
+          </button>
+        </div>
+      </motion.nav>
+
+      {/* Main Content (Unblurred) */}
       <motion.div 
         variants={staggerContainer} initial="hidden" animate="show"
-        className="max-w-3xl mx-auto px-4 py-32 md:py-24 relative z-10"
+        className="max-w-3xl mx-auto px-4 py-8 md:py-10 space-y-6"
       >
         {/* ── Header ───────────────────────────────────────────────── */}
         <motion.div variants={slideUp} className="text-center mb-6">
@@ -351,6 +347,7 @@ export default function ResultsPageContent() {
           <InsightsList 
             insights={result.insights} 
             onUnlock={() => setShowUnlockModal(true)} 
+            isUnlocked={isUnlocked}
           />
         </motion.div>
 
@@ -373,60 +370,86 @@ export default function ResultsPageContent() {
                 </span>
               </div>
 
-              <div className="flex flex-col gap-3">
-                {/* Top side-by-side Findings & Recommendations */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {result.findings && result.findings.length > 0 && (
-                    <motion.div 
-                      whileHover={{ y: -2, borderColor: "rgba(239, 68, 68, 0.2)", boxShadow: "0 8px 12px -3px rgba(239, 68, 68, 0.03)" }}
-                      className="bg-red-50/30 rounded-lg border border-red-500/10 p-3 shadow-sm transition-all duration-300"
-                    >
-                      <h3 className="text-[10px] font-bold text-red-700 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
-                        <AlertCircle className="w-3 h-3 text-red-500" /> Key Findings
-                      </h3>
-                      <ul className="space-y-1">
-                        {result.findings.map((f, i) => (
-                          <motion.li 
-                            key={i} 
-                            whileHover={{ x: 3 }}
-                            className="text-xs text-slate-650 flex items-start gap-1.5 leading-normal transition-all duration-200 cursor-default"
-                          >
-                            <span className="text-red-500 font-bold">•</span>
-                            <span>{f}</span>
-                          </motion.li>
-                        ))}
-                      </ul>
-                    </motion.div>
-                  )}
+              <div className="relative">
+                <div className={`flex flex-col gap-3 transition-all duration-500 ${!isUnlocked ? "blur-md select-none pointer-events-none opacity-40" : ""}`}>
+                  {/* Top side-by-side Findings & Recommendations */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {result.findings && result.findings.length > 0 && (
+                      <motion.div 
+                        whileHover={{ y: -2, borderColor: "rgba(239, 68, 68, 0.2)", boxShadow: "0 8px 12px -3px rgba(239, 68, 68, 0.03)" }}
+                        className="bg-red-50/30 rounded-lg border border-red-500/10 p-3 shadow-sm transition-all duration-300"
+                      >
+                        <h3 className="text-[10px] font-bold text-red-700 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
+                          <AlertCircle className="w-3.5 h-3.5 text-red-500" /> Key Findings
+                        </h3>
+                        <ul className="space-y-1">
+                          {result.findings.map((f, i) => (
+                            <motion.li 
+                              key={i} 
+                              whileHover={{ x: 3 }}
+                              className="text-xs text-slate-600 flex items-start gap-1.5 leading-normal transition-all duration-200 cursor-default"
+                            >
+                              <span className="text-red-500 font-bold">•</span>
+                              <span>{f}</span>
+                            </motion.li>
+                          ))}
+                        </ul>
+                      </motion.div>
+                    )}
 
-                  {result.recommendations && result.recommendations.length > 0 && (
-                    <motion.div 
-                      whileHover={{ y: -2, borderColor: "rgba(34, 197, 94, 0.2)", boxShadow: "0 8px 12px -3px rgba(34, 197, 94, 0.03)" }}
-                      className="bg-green-50/30 rounded-lg border border-green-500/10 p-3 shadow-sm transition-all duration-300"
-                    >
-                      <h3 className="text-[10px] font-bold text-green-700 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
-                        <CheckCircle2 className="w-3 h-3 text-green-500" /> Expert Recommendations
-                      </h3>
-                      <ul className="space-y-1">
-                        {result.recommendations.map((r, i) => (
-                          <motion.li 
-                            key={i} 
-                            whileHover={{ x: 3 }}
-                            className="text-xs text-slate-650 flex items-start gap-1.5 leading-normal transition-all duration-200 cursor-default"
-                          >
-                            <span className="text-green-500 font-bold">•</span>
-                            <span>{r}</span>
-                          </motion.li>
-                        ))}
-                      </ul>
-                    </motion.div>
-                  )}
+                    {result.recommendations && result.recommendations.length > 0 && (
+                      <motion.div 
+                        whileHover={{ y: -2, borderColor: "rgba(34, 197, 94, 0.2)", boxShadow: "0 8px 12px -3px rgba(34, 197, 94, 0.03)" }}
+                        className="bg-green-50/30 rounded-lg border border-green-500/10 p-3 shadow-sm transition-all duration-300"
+                      >
+                        <h3 className="text-[10px] font-bold text-green-700 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Expert Recommendations
+                        </h3>
+                        <ul className="space-y-1">
+                          {result.recommendations.map((r, i) => (
+                            <motion.li 
+                              key={i} 
+                              whileHover={{ x: 3 }}
+                              className="text-xs text-slate-600 flex items-start gap-1.5 leading-normal transition-all duration-200 cursor-default"
+                            >
+                              <span className="text-green-500 font-bold">•</span>
+                              <span>{r}</span>
+                            </motion.li>
+                          ))}
+                        </ul>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Bottom Full-Width Markdown Report Body */}
+                  <div className="bg-slate-50/50 rounded-lg border border-slate-200/60 p-3 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[150px]">
+                    {renderMarkdown(result.auditReport)}
+                  </div>
                 </div>
 
-                {/* Bottom Full-Width Markdown Report Body */}
-                <div className="bg-slate-50/50 rounded-lg border border-slate-200/60 p-3 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[150px]">
-                  {renderMarkdown(result.auditReport)}
-                </div>
+                {/* Lock Overlay */}
+                {!isUnlocked && (
+                  <div className="absolute inset-0 bg-slate-50/10 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center rounded-lg border border-slate-200/50 shadow-inner">
+                    <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
+                      <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100 text-indigo-600">
+                        <Lock className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900">Unlock Full Technical Audit Report</h3>
+                        <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                          Enter your email to receive key findings, expert cost recommendations, and the complete audit report.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setEmailModalOpen(true)}
+                        className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
+                      >
+                        <Unlock className="w-3.5 h-3.5" />
+                        Unlock Report
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
@@ -442,7 +465,7 @@ export default function ResultsPageContent() {
           <ShareResults />
           <button
             onClick={() => setEmailModalOpen(true)}
-            className="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2"
+            className="inline-flex items-center justify-center px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
           >
             <Cpu className="w-3.5 h-3.5" />
             Email Audit Report
@@ -465,6 +488,7 @@ export default function ResultsPageContent() {
           onClose={() => setEmailModalOpen(false)}
           submissionId={result.submissionId}
           scanType="cost"
+          onSuccess={handleUnlock}
         />
       )}
     </div>
