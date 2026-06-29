@@ -236,6 +236,19 @@ export default function OpportunityResultsContent() {
   const [showReport, setShowReport] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+
+  useEffect(() => {
+    const unlocked = sessionStorage.getItem("report_unlocked") === "true";
+    if (unlocked) {
+      setIsUnlocked(true);
+    }
+  }, []);
+
+  const handleUnlock = () => {
+    sessionStorage.setItem("report_unlocked", "true");
+    setIsUnlocked(true);
+  };
 
   useEffect(() => {
     if (!id) {
@@ -467,34 +480,85 @@ export default function OpportunityResultsContent() {
             <p className="text-[10px] text-slate-500 mb-3">
               Evaluation scores normalized to 100 based on questionnaire rulesets.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {Object.entries(categories).map(([key, cat]) => (
-                <motion.div 
-                  key={key} 
-                  whileHover={{ scale: 1.01, y: -1 }}
-                  className="space-y-1.5 border border-slate-100 bg-slate-50/50 p-3 rounded-lg transition-all duration-300 shadow-sm"
-                >
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-semibold text-slate-800">{cat.name}</span>
-                    <span className="text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded-full">
-                      {cat.score} / {cat.maxScore}
-                    </span>
+
+            <div className="space-y-3">
+              {/* 1st Dimension (Always Visible) */}
+              {(() => {
+                const [key, cat] = Object.entries(categories)[0];
+                return (
+                  <div className="space-y-1.5 border border-slate-100 bg-slate-50/50 p-3 rounded-lg shadow-sm">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-semibold text-slate-800">{cat.name}</span>
+                      <span className="text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded-full">
+                        {cat.score} / {cat.maxScore}
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-indigo-600 rounded-full" 
+                        style={{ width: `${(cat.score / cat.maxScore) * 100}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between items-center text-[9px] text-slate-500">
+                      <span>{cat.description}</span>
+                      <span className="uppercase font-bold tracking-wider">{cat.classification}</span>
+                    </div>
                   </div>
-                  <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                    <motion.div 
-                      className="h-full bg-indigo-600 rounded-full" 
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${(cat.score / cat.maxScore) * 100}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.2, ease: "easeOut", delay: 0.15 }}
-                    />
+                );
+              })()}
+
+              {/* Remaining 5 Dimensions (Gated) */}
+              <div className="relative">
+                <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 transition-all duration-500 ${!isUnlocked ? "blur-md select-none pointer-events-none opacity-40" : ""}`}>
+                  {Object.entries(categories).slice(1).map(([key, cat]) => (
+                    <div 
+                      key={key} 
+                      className="space-y-1.5 border border-slate-100 bg-slate-50/50 p-3 rounded-lg shadow-sm"
+                    >
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-semibold text-slate-800">{cat.name}</span>
+                        <span className="text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded-full">
+                          {cat.score} / {cat.maxScore}
+                        </span>
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-indigo-600 rounded-full" 
+                          style={{ width: `${(cat.score / cat.maxScore) * 100}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between items-center text-[9px] text-slate-500">
+                        <span>{cat.description}</span>
+                        <span className="uppercase font-bold tracking-wider">{cat.classification}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Lock Overlay */}
+                {!isUnlocked && (
+                  <div className="absolute inset-0 bg-slate-50/10 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center rounded-lg border border-slate-200/50 shadow-inner">
+                    <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
+                      <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100 text-indigo-600">
+                        <Lock className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900">Unlock Your Business Growth Potential</h3>
+                        <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                          Don&apos;t fall behind. Secure full insights and unlock the other 5 performance dimensions now.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setEmailModalOpen(true)}
+                        className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
+                      >
+                        <Unlock className="w-3.5 h-3.5" />
+                        Unlock Full Report
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-[9px] text-slate-500">
-                    <span>{cat.description}</span>
-                    <span className="uppercase font-bold tracking-wider">{cat.classification}</span>
-                  </div>
-                </motion.div>
-              ))}
+                )}
+              </div>
             </div>
           </motion.div>
         )}
@@ -719,11 +783,14 @@ export default function OpportunityResultsContent() {
               Phased AI Adoption Roadmap
             </h2>
             <button
-              onClick={() => setShowUnlockModal(true)}
+              onClick={() => {
+                if (isUnlocked) return;
+                setShowUnlockModal(true);
+              }}
               className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
             >
-              <Unlock className="w-3 h-3" />
-              Unlock Full Roadmap
+              {isUnlocked ? <CheckCircle2 className="w-3 h-3 text-green-500" /> : <Unlock className="w-3 h-3" />}
+              {isUnlocked ? "Roadmap Unlocked" : "Unlock Full Roadmap"}
             </button>
           </div>
           <p className="text-[10px] text-slate-500 mb-4">
@@ -748,31 +815,33 @@ export default function OpportunityResultsContent() {
               </ul>
             </motion.div>
 
-            {/* Phase 2 - Blurred */}
+            {/* Phase 2 - Gated */}
             <div className="relative transition-all duration-250 group">
-              <div className="absolute inset-0 bg-slate-200/60 backdrop-blur-[2px] rounded-lg flex items-center justify-center z-10 cursor-pointer hover:bg-slate-200/50 transition-colors"
-                onClick={() => setShowUnlockModal(true)}
-              >
-                <div className="text-center p-3">
-                  <Lock className="w-5 h-5 text-slate-400 mx-auto mb-1" />
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                    Premium Roadmap Locked
-                  </p>
-                  <p className="text-[9px] text-slate-600 mb-2">
-                    Unlock to see all phases
-                  </p>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowUnlockModal(true);
-                    }}
-                    className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-colors"
-                  >
-                    Unlock Now
-                  </button>
+              {!isUnlocked && (
+                <div className="absolute inset-0 bg-slate-200/60 backdrop-blur-[2px] rounded-lg flex items-center justify-center z-10 cursor-pointer hover:bg-slate-200/50 transition-colors"
+                  onClick={() => setShowUnlockModal(true)}
+                >
+                  <div className="text-center p-3">
+                    <Lock className="w-5 h-5 text-slate-400 mx-auto mb-1" />
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                      Premium Roadmap Locked
+                    </p>
+                    <p className="text-[9px] text-slate-600 mb-2">
+                      Unlock to see all phases
+                    </p>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowUnlockModal(true);
+                      }}
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-colors"
+                    >
+                      Unlock Now
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div className="relative z-0 opacity-40 blur-[1px]">
+              )}
+              <div className={`relative z-0 transition-all duration-300 ${!isUnlocked ? "opacity-40 blur-[1px]" : "opacity-100 blur-0"}`}>
                 <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-[9px] font-bold text-indigo-600">
                   2
                 </span>
@@ -786,31 +855,33 @@ export default function OpportunityResultsContent() {
               </div>
             </div>
 
-            {/* Phase 3 - Blurred */}
+            {/* Phase 3 - Gated */}
             <div className="relative transition-all duration-250 group">
-              <div className="absolute inset-0 bg-slate-200/60 backdrop-blur-[2px] rounded-lg flex items-center justify-center z-10 cursor-pointer hover:bg-slate-200/50 transition-colors"
-                onClick={() => setShowUnlockModal(true)}
-              >
-                <div className="text-center p-3">
-                  <Lock className="w-5 h-5 text-slate-400 mx-auto mb-1" />
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                    Premium Roadmap Locked
-                  </p>
-                  <p className="text-[9px] text-slate-600 mb-2">
-                    Unlock to see all phases
-                  </p>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowUnlockModal(true);
-                    }}
-                    className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-colors"
-                  >
-                    Unlock Now
-                  </button>
+              {!isUnlocked && (
+                <div className="absolute inset-0 bg-slate-200/60 backdrop-blur-[2px] rounded-lg flex items-center justify-center z-10 cursor-pointer hover:bg-slate-200/50 transition-colors"
+                  onClick={() => setShowUnlockModal(true)}
+                >
+                  <div className="text-center p-3">
+                    <Lock className="w-5 h-5 text-slate-400 mx-auto mb-1" />
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                      Premium Roadmap Locked
+                    </p>
+                    <p className="text-[9px] text-slate-600 mb-2">
+                      Unlock to see all phases
+                    </p>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowUnlockModal(true);
+                      }}
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-colors"
+                    >
+                      Unlock Now
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div className="relative z-0 opacity-40 blur-[1px]">
+              )}
+              <div className={`relative z-0 transition-all duration-300 ${!isUnlocked ? "opacity-40 blur-[1px]" : "opacity-100 blur-0"}`}>
                 <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-[9px] font-bold text-indigo-600">
                   3
                 </span>
@@ -869,6 +940,7 @@ export default function OpportunityResultsContent() {
           onClose={() => setEmailModalOpen(false)}
           submissionId={data.submissionId}
           scanType="opportunity"
+          onSuccess={handleUnlock}
         />
       )}
     </main>

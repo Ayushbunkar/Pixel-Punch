@@ -9,9 +9,10 @@ interface EmailModalProps {
   onClose: () => void;
   submissionId: string;
   scanType: "cost" | "opportunity";
+  onSuccess?: () => void;
 }
 
-export function EmailModal({ isOpen, onClose, submissionId, scanType }: EmailModalProps) {
+export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess }: EmailModalProps) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -38,6 +39,9 @@ export function EmailModal({ isOpen, onClose, submissionId, scanType }: EmailMod
       }
 
       setSent(true);
+      if (onSuccess) {
+        onSuccess();
+      }
       setTimeout(() => {
         setSent(false);
         setEmail("");
