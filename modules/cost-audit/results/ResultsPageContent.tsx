@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { StoredScanResult } from "@/modules/cost-audit/types";
-import { Search, CheckCircle, AlertCircle, CheckCircle2, Cpu, Activity } from "lucide-react";
+import { Search, CheckCircle, AlertCircle, CheckCircle2, Cpu, Activity, Lock, Unlock } from "lucide-react";
 import { ContactBar } from "@/shared/components/ContactBar";
 import * as motion from "framer-motion/client";
 import { slideUp, staggerContainer, fadeIn } from "@/shared/components/animations";
@@ -26,6 +26,7 @@ export default function ResultsPageContent() {
   const [result, setResult] = useState<StoredScanResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [showUnlockModal, setShowUnlockModal] = useState(false);
 
   useEffect(() => {
     async function loadResult() {
@@ -90,7 +91,7 @@ export default function ResultsPageContent() {
             Unable to load your AI Cost Scan results.
           </h2>
           <p className="text-slate-600 text-sm mb-6">
-            We couldn&apos;t find your scan results. Please complete the diagnostic to get your scorecard.
+            We couldn't find your scan results. Please complete the diagnostic to get your scorecard.
           </p>
           <a href="/ai/cost-scan" className="pp-btn-primary inline-flex">
             Start New Scan
@@ -160,6 +161,81 @@ export default function ResultsPageContent() {
       );
     });
   };
+
+  // ── Unlock Modal Component ────────────────────────────────────────────────────
+  const UnlockModal = ({ onClose, onEmail }: { onClose: () => void; onEmail: () => void }) => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      {/* Modal Box */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden relative z-10 p-6 md:p-8">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-full hover:bg-slate-100"
+          aria-label="Close modal"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="text-center space-y-6">
+          <div className="w-16 h-16 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center mx-auto shadow-sm">
+            <Lock className="w-8 h-8" />
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="font-bold text-slate-900 text-xl">Unlock All Insights</h3>
+            <p className="text-slate-500 text-sm">
+              You've seen the highlights. To view all insights and get the complete AI Cost Audit report:
+            </p>
+          </div>
+
+          <div className="space-y-3 text-left bg-slate-50 rounded-xl p-4">
+            <div className="flex items-start gap-2 text-xs text-slate-600">
+              <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+              <span>See all {result.insights.length} insights with full details</span>
+            </div>
+            <div className="flex items-start gap-2 text-xs text-slate-600">
+              <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+              <span>Get the complete technical audit report</span>
+            </div>
+            <div className="flex items-start gap-2 text-xs text-slate-600">
+              <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+              <span>Receive ROI calculation and implementation roadmap</span>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={onEmail}
+              className="w-full px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Email Full Report to My Inbox
+            </button>
+            <button
+              onClick={onClose}
+              className="w-full px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-sm transition-colors"
+            >
+              Continue Browsing
+            </button>
+          </div>
+
+          <p className="text-[10px] text-slate-400">
+            ✓ Secure • Instant Delivery • No Spam
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <main className="min-h-screen bg-[#eef4ff] bg-page-gradient">
@@ -261,7 +337,10 @@ export default function ResultsPageContent() {
 
         {/* ── Insights ─────────────────────────────────────────────── */}
         <motion.div variants={slideUp}>
-          <InsightsList insights={result.insights} />
+          <InsightsList 
+            insights={result.insights} 
+            onUnlock={() => setShowUnlockModal(true)} 
+          />
         </motion.div>
 
         {/* ── AI Technical Cost Audit ─────────────────────────────── */}
@@ -364,6 +443,9 @@ export default function ResultsPageContent() {
           Scan ID: {result.submissionId}
         </motion.p>
       </motion.div>
+
+      {/* Unlock Modal */}
+      {showUnlockModal && <UnlockModal onClose={() => setShowUnlockModal(false)} onEmail={() => { setShowUnlockModal(false); setEmailModalOpen(true); }} />}
 
       {/* Email Modal */}
       {result && (

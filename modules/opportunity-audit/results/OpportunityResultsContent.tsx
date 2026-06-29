@@ -7,7 +7,7 @@ import { ContactBar } from "@/shared/components/ContactBar";
 import { 
   CheckCircle2, ShieldCheck, ArrowLeft, Clock, Calendar, 
   Rocket, Network, Sparkles, AlertCircle, FileText, ChevronDown, ChevronUp,
-  LineChart, BrainCircuit, Info, Mail
+  LineChart, BrainCircuit, Info, Mail, Lock, Unlock
 } from "lucide-react";
 import toast from "react-hot-toast";
 import * as motion from "framer-motion/client";
@@ -150,6 +150,83 @@ function getStepDetails(stepItem: string, idx: number) {
   return { icon, categoryBadge, description, impactBadge, timeFrame };
 }
 
+// ── Unlock Modal Component ────────────────────────────────────────────────────
+function UnlockModal({ onClose, onEmail }: { onClose: () => void; onEmail: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      {/* Modal Box */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden relative z-10 p-6 md:p-8">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-full hover:bg-slate-100"
+          aria-label="Close modal"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="text-center space-y-6">
+          <div className="w-16 h-16 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center mx-auto shadow-sm">
+            <Lock className="w-8 h-8" />
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="font-bold text-slate-900 text-xl">Unlock Your Full AI Opportunity Report</h3>
+            <p className="text-slate-500 text-sm">
+              You've seen the highlights. To view the complete AI Opportunity Audit report:
+            </p>
+          </div>
+
+          <div className="space-y-3 text-left bg-slate-50 rounded-xl p-4">
+            <div className="flex items-start gap-2 text-xs text-slate-600">
+              <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+              <span>See all implementation steps with full details</span>
+            </div>
+            <div className="flex items-start gap-2 text-xs text-slate-600">
+              <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+              <span>Get the complete ROI calculation and implementation roadmap</span>
+            </div>
+            <div className="flex items-start gap-2 text-xs text-slate-600">
+              <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+              <span>Receive executive summary for stakeholders</span>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={onEmail}
+              className="w-full px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Email Full Report to My Inbox
+            </button>
+            <button
+              onClick={onClose}
+              className="w-full px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-sm transition-colors"
+            >
+              Continue Browsing
+            </button>
+          </div>
+
+          <p className="text-[10px] text-slate-400">
+            ✓ Secure • Instant Delivery • No Spam
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function OpportunityResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -159,6 +236,7 @@ export default function OpportunityResultsContent() {
   const [data, setData] = useState<ResultsData | null>(null);
   const [showReport, setShowReport] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [showUnlockModal, setShowUnlockModal] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -494,21 +572,31 @@ export default function OpportunityResultsContent() {
           </motion.div>
         )}
 
-        {/* Priority Next Steps - Visual Upgrade */}
+        {/* Priority Next Steps - Visual Upgrade - GATED */}
         {data.nextSteps && data.nextSteps.length > 0 && (
           <motion.div 
             variants={slideUp}
             className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm"
           >
-            <h2 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-indigo-500" />
-              Priority Actions & Next Steps
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-indigo-500" />
+                Priority Actions & Next Steps
+              </h2>
+              <button
+                onClick={() => setShowUnlockModal(true)}
+                className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+              >
+                <Unlock className="w-3 h-3" />
+                Unlock All Steps
+              </button>
+            </div>
             <p className="text-xs text-slate-500 mb-6">
               PixelPunch recommends executing these foundational steps to prepare your operational systems for AI integration.
             </p>
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {data.nextSteps.map((stepItem, idx) => {
+              {data.nextSteps.slice(0, 2).map((stepItem, idx) => {
                 const details = getStepDetails(stepItem, idx);
                 return (
                   <motion.div 
@@ -563,24 +651,109 @@ export default function OpportunityResultsContent() {
                   </motion.div>
                 );
               })}
+
+              {/* Gated Steps - Blurred */}
+              {data.nextSteps.length > 2 && (
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-slate-200/50 backdrop-blur-[4px] rounded-2xl flex items-center justify-center z-10 cursor-pointer hover:bg-slate-200/40 transition-colors"
+                    onClick={() => setShowUnlockModal(true)}
+                  >
+                    <div className="text-center p-6">
+                      <Lock className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                        Premium Steps Locked
+                      </p>
+                      <p className="text-[10px] text-slate-600 mb-3">
+                        Unlock to see all {data.nextSteps.length} steps
+                      </p>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowUnlockModal(true);
+                        }}
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors"
+                      >
+                        Unlock Now
+                      </button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 opacity-50">
+                    {data.nextSteps.slice(2).map((stepItem, idx) => {
+                      const details = getStepDetails(stepItem, idx + 2);
+                      const actualIdx = idx + 2;
+                      return (
+                        <motion.div 
+                          key={actualIdx} 
+                          className="border border-slate-200 rounded-2xl p-6 bg-slate-50/20 flex flex-col justify-between gap-5 transition-all duration-300 cursor-default relative overflow-hidden shadow-sm blur-[1px]"
+                        >
+                          <div className="absolute top-2 right-4 text-6xl font-black text-slate-100/50 select-none font-sans pointer-events-none">
+                            {actualIdx + 1}
+                          </div>
+
+                          <div className="space-y-4 relative z-10">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-sm opacity-50">
+                              {details.icon}
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider opacity-50">
+                                {details.categoryBadge}
+                              </span>
+                              <span className="text-[10px] font-semibold text-slate-500 flex items-center gap-1 opacity-50">
+                                <Clock className="w-3 h-3 text-slate-400" />
+                                {details.timeFrame}
+                              </span>
+                            </div>
+
+                            <h3 className="font-bold text-slate-900 text-sm leading-snug opacity-50">
+                              {stepItem}
+                            </h3>
+
+                            <p className="text-slate-500 text-xs leading-relaxed opacity-50">
+                              {details.description}
+                            </p>
+                          </div>
+
+                          <div className="border-t border-slate-100 pt-3 mt-1 flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-600 relative z-10 opacity-50">
+                            <span>Milestone {actualIdx + 1}</span>
+                            <span className="text-indigo-600 bg-indigo-50/50 px-2 py-0.5 rounded opacity-50">
+                              {details.impactBadge}
+                            </span>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
 
-        {/* Phased Roadmap Timeline */}
+        {/* Phased Roadmap Timeline - GATED */}
         <motion.div 
           variants={slideUp}
           className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm"
         >
-          <h2 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
-            <Network className="w-5 h-5 text-indigo-500" />
-            Phased AI Adoption Roadmap
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <Network className="w-5 h-5 text-indigo-500" />
+              Phased AI Adoption Roadmap
+            </h2>
+            <button
+              onClick={() => setShowUnlockModal(true)}
+              className="flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+            >
+              <Unlock className="w-3 h-3" />
+              Unlock Full Roadmap
+            </button>
+          </div>
           <p className="text-xs text-slate-500 mb-8">
             Implementation milestones designed to optimize deployment complexity vs ROI.
           </p>
 
           <div className="relative border-l border-indigo-100 pl-6 ml-4 space-y-8">
+            {/* Phase 1 - Visible */}
             <motion.div 
               whileHover={{ x: 4 }}
               className="relative transition-all duration-250"
@@ -597,41 +770,83 @@ export default function OpportunityResultsContent() {
               </ul>
             </motion.div>
 
-            <motion.div 
-              whileHover={{ x: 4 }}
-              className="relative transition-all duration-250"
-            >
-              <span className="absolute -left-[35px] top-0 w-6 h-6 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-xs font-bold text-indigo-600">
-                2
-              </span>
-              <h3 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
-                Phase 2: Core Enhancements (3-6 Months)
-                <span className="text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded">Core Transformation</span>
-              </h3>
-              <ul className="list-disc pl-4 space-y-1.5 text-xs text-slate-600">
-                {data.roadmap.phase2.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-            </motion.div>
+            {/* Phase 2 - Blurred */}
+            <div className="relative transition-all duration-250 group">
+              <div className="absolute inset-0 bg-slate-200/50 backdrop-blur-[4px] rounded-xl flex items-center justify-center z-10 cursor-pointer hover:bg-slate-200/40 transition-colors"
+                onClick={() => setShowUnlockModal(true)}
+              >
+                <div className="text-center p-6">
+                  <Lock className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                    Premium Roadmap Locked
+                  </p>
+                  <p className="text-[10px] text-slate-600 mb-3">
+                    Unlock to see all phases
+                  </p>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowUnlockModal(true);
+                    }}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors"
+                  >
+                    Unlock Now
+                  </button>
+                </div>
+              </div>
+              <div className="relative z-0 opacity-50 blur-[1px]">
+                <span className="absolute -left-[35px] top-0 w-6 h-6 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-xs font-bold text-indigo-600">
+                  2
+                </span>
+                <h3 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
+                  Phase 2: Core Enhancements (3-6 Months)
+                  <span className="text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded">Core Transformation</span>
+                </h3>
+                <ul className="list-disc pl-4 space-y-1.5 text-xs text-slate-600">
+                  {data.roadmap.phase2.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+              </div>
+            </div>
 
-            <motion.div 
-              whileHover={{ x: 4 }}
-              className="relative transition-all duration-250"
-            >
-              <span className="absolute -left-[35px] top-0 w-6 h-6 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-xs font-bold text-indigo-600">
-                3
-              </span>
-              <h3 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
-                Phase 3: Strategic Scaling (6-12+ Months)
-                <span className="text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-100 px-2 py-0.5 rounded">Agentic Automation</span>
-              </h3>
-              <ul className="list-disc pl-4 space-y-1.5 text-xs text-slate-600">
-                {data.roadmap.phase3.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-            </motion.div>
+            {/* Phase 3 - Blurred */}
+            <div className="relative transition-all duration-250 group">
+              <div className="absolute inset-0 bg-slate-200/50 backdrop-blur-[4px] rounded-xl flex items-center justify-center z-10 cursor-pointer hover:bg-slate-200/40 transition-colors"
+                onClick={() => setShowUnlockModal(true)}
+              >
+                <div className="text-center p-6">
+                  <Lock className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                    Premium Roadmap Locked
+                  </p>
+                  <p className="text-[10px] text-slate-600 mb-3">
+                    Unlock to see all phases
+                  </p>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowUnlockModal(true);
+                    }}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors"
+                  >
+                    Unlock Now
+                  </button>
+                </div>
+              </div>
+              <div className="relative z-0 opacity-50 blur-[1px]">
+                <span className="absolute -left-[35px] top-0 w-6 h-6 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-xs font-bold text-indigo-600">
+                  3
+                </span>
+                <h3 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
+                  Phase 3: Strategic Scaling (6-12+ Months)
+                  <span className="text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-100 px-2 py-0.5 rounded">Agentic Automation</span>
+                </h3>
+                <ul className="list-disc pl-4 space-y-1.5 text-xs text-slate-600">
+                  {data.roadmap.phase3.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+              </div>
+            </div>
           </div>
         </motion.div>
-
-
 
         {/* Lead Capture Sales CTA */}
         <motion.div 
@@ -665,6 +880,9 @@ export default function OpportunityResultsContent() {
           </div>
         </motion.div>
       </motion.div>
+
+      {/* Unlock Modal */}
+      {showUnlockModal && <UnlockModal onClose={() => setShowUnlockModal(false)} onEmail={() => { setShowUnlockModal(false); setEmailModalOpen(true); }} />}
 
       {/* Email Modal */}
       {data && (
