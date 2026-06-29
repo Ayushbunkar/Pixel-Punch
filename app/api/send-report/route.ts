@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSubmission } from "@/shared/database/db.service";
+import { submissionCache as costCache } from "../cost-scan/submit/route";
+import { submissionCache as oppCache } from "../opportunity-scan/submit/route";
 
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
@@ -32,7 +34,12 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Fetch submission details
-    const submission = await getSubmission(submissionId);
+    let submission = await getSubmission(submissionId);
+    if (!submission) {
+      // Fallback to memory caches
+      submission = costCache.get(submissionId) || oppCache.get(submissionId);
+    }
+
     if (!submission) {
       return NextResponse.json({ error: "Assessment record not found." }, { status: 404 });
     }
