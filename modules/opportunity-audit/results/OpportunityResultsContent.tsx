@@ -214,6 +214,65 @@ export default function OpportunityResultsContent() {
       : []
   );
 
+  // ── Simple Markdown to React Element Parser ────────────────────────────────
+  const parseInlineMarkdown = (text: string) => {
+    const boldParts = text.split(/\*\*([^*]+)\*\*/g);
+    return boldParts.map((part, i) => {
+      const isBold = i % 2 === 1;
+      const italicParts = part.split(/[_*]([^*_]+)[_*]/g);
+      const content = italicParts.map((subpart, j) => {
+        const isItalic = j % 2 === 1;
+        if (isItalic) {
+          return <span key={j} className="italic text-slate-800">{subpart}</span>;
+        }
+        return subpart;
+      });
+
+      if (isBold) {
+        return <strong key={i} className="text-slate-950 font-bold">{content}</strong>;
+      }
+      return <span key={i}>{content}</span>;
+    });
+  };
+
+  const renderMarkdown = (md: string) => {
+    return md.split("\n").map((line, idx) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("# ")) {
+        return (
+          <h2 key={idx} className="text-lg font-bold text-slate-900 mt-6 mb-3 border-b pb-1.5">
+            {parseInlineMarkdown(trimmed.replace(/^#\s+/, ""))}
+          </h2>
+        );
+      }
+      if (trimmed.startsWith("### ")) {
+        return (
+          <h3 key={idx} className="text-sm font-bold text-slate-800 mt-4 mb-2">
+            {parseInlineMarkdown(trimmed.replace(/^###\s+/, ""))}
+          </h3>
+        );
+      }
+      if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+        return (
+          <li key={idx} className="text-xs text-slate-650 ml-4 list-disc mb-1 leading-relaxed">
+            {parseInlineMarkdown(trimmed.replace(/^[-*]\s+/, ""))}
+          </li>
+        );
+      }
+      if (trimmed === "---") {
+        return <hr key={idx} className="my-4 border-slate-200" />;
+      }
+      if (trimmed === "") {
+        return <div key={idx} className="h-2" />;
+      }
+      return (
+        <p key={idx} className="text-xs text-slate-650 mb-3 leading-relaxed">
+          {parseInlineMarkdown(trimmed)}
+        </p>
+      );
+    });
+  };
+
   return (
     <main className="min-h-screen bg-[#fafbff] pb-20 overflow-x-hidden">
       {/* Contact Bar */}
@@ -601,7 +660,7 @@ export default function OpportunityResultsContent() {
                 transition={{ duration: 0.3 }}
                 className="mt-8 border-t border-slate-100 pt-6 prose prose-indigo max-w-none text-slate-700 text-sm leading-relaxed space-y-4 whitespace-pre-line overflow-hidden"
               >
-                {data.auditReport}
+                {renderMarkdown(data.auditReport)}
               </motion.div>
             )}
           </motion.div>
