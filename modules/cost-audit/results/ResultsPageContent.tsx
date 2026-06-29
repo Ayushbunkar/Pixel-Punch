@@ -16,6 +16,7 @@ import { ShareResults } from "./ShareResults";
 import { PdfButton } from "./PdfButton";
 import { ResultsSkeleton } from "./ResultsSkeleton";
 import { PdfReportTemplate } from "./PdfReportTemplate";
+import { EmailModal } from "@/shared/components/EmailModal";
 
 export default function ResultsPageContent() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function ResultsPageContent() {
 
   const [result, setResult] = useState<StoredScanResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
 
   useEffect(() => {
     async function loadResult() {
@@ -185,8 +187,12 @@ export default function ResultsPageContent() {
       >
         {/* ── Header ───────────────────────────────────────────────── */}
         <motion.div variants={slideUp} className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-600 text-xs font-medium mb-4">
-            <CheckCircle className="w-4 h-4" /> Scan complete
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-600 text-xs font-semibold mb-4">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            Scan Status: Live & Complete
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-3">
             Your AI Cost Scan Results
@@ -205,7 +211,11 @@ export default function ResultsPageContent() {
 
         {/* ── AI Confidence & Cost Audit Metrics Grid ───────────────── */}
         {result.confidenceScore && (
-          <motion.div variants={slideUp} className="mb-8 bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <motion.div 
+            variants={slideUp} 
+            whileHover={{ y: -4, borderColor: "#6366f1", boxShadow: "0 10px 20px -5px rgba(99, 102, 241, 0.04)" }}
+            className="mb-8 bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200 p-6 shadow-sm transition-all duration-300"
+          >
             <h2 className="text-xs font-bold text-slate-950 uppercase tracking-wider mb-4 flex flex-wrap items-center gap-2">
               <Activity className="w-4 h-4 text-indigo-600 animate-pulse" />
               AI Infrastructure Audit Evidence Verification
@@ -277,35 +287,49 @@ export default function ResultsPageContent() {
                 {/* Top side-by-side Findings & Recommendations */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {result.findings && result.findings.length > 0 && (
-                    <div className="bg-red-50/30 rounded-xl border border-red-500/10 p-5 shadow-sm">
+                    <motion.div 
+                      whileHover={{ y: -3, borderColor: "rgba(239, 68, 68, 0.2)", boxShadow: "0 10px 15px -3px rgba(239, 68, 68, 0.03)" }}
+                      className="bg-red-50/30 rounded-xl border border-red-500/10 p-5 shadow-sm transition-all duration-300"
+                    >
                       <h3 className="text-xs font-bold text-red-700 mb-3 flex items-center gap-1.5 uppercase tracking-wider">
                         <AlertCircle className="w-4 h-4 text-red-500" /> Key Findings
                       </h3>
                       <ul className="space-y-2">
                         {result.findings.map((f, i) => (
-                          <li key={i} className="text-xs text-slate-600 flex items-start gap-1.5 leading-normal">
+                          <motion.li 
+                            key={i} 
+                            whileHover={{ x: 4 }}
+                            className="text-xs text-slate-650 flex items-start gap-1.5 leading-normal transition-all duration-200 cursor-default"
+                          >
                             <span className="text-red-500 font-bold">•</span>
                             <span>{f}</span>
-                          </li>
+                          </motion.li>
                         ))}
                       </ul>
-                    </div>
+                    </motion.div>
                   )}
 
                   {result.recommendations && result.recommendations.length > 0 && (
-                    <div className="bg-green-50/30 rounded-xl border border-green-500/10 p-5 shadow-sm">
+                    <motion.div 
+                      whileHover={{ y: -3, borderColor: "rgba(34, 197, 94, 0.2)", boxShadow: "0 10px 15px -3px rgba(34, 197, 94, 0.03)" }}
+                      className="bg-green-50/30 rounded-xl border border-green-500/10 p-5 shadow-sm transition-all duration-300"
+                    >
                       <h3 className="text-xs font-bold text-green-700 mb-3 flex items-center gap-1.5 uppercase tracking-wider">
                         <CheckCircle2 className="w-4 h-4 text-green-500" /> Expert Recommendations
                       </h3>
                       <ul className="space-y-2">
                         {result.recommendations.map((r, i) => (
-                          <li key={i} className="text-xs text-slate-600 flex items-start gap-1.5 leading-normal">
+                          <motion.li 
+                            key={i} 
+                            whileHover={{ x: 4 }}
+                            className="text-xs text-slate-650 flex items-start gap-1.5 leading-normal transition-all duration-200 cursor-default"
+                          >
                             <span className="text-green-500 font-bold">•</span>
                             <span>{r}</span>
-                          </li>
+                          </motion.li>
                         ))}
                       </ul>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
 
@@ -326,7 +350,13 @@ export default function ResultsPageContent() {
         {/* ── Secondary actions ─────────────────────────────────────── */}
         <motion.div variants={slideUp} className="flex flex-wrap items-center justify-center gap-4 mt-12 pt-8 border-t border-slate-200">
           <ShareResults />
-          <PdfButton submissionId={result.submissionId} />
+          <button
+            onClick={() => setEmailModalOpen(true)}
+            className="inline-flex items-center justify-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-sm transition-all duration-200 shadow-sm gap-2"
+          >
+            <Cpu className="w-4 h-4" />
+            Email Audit Report
+          </button>
         </motion.div>
 
         {/* Submission ID (small, for support reference) */}
@@ -335,11 +365,15 @@ export default function ResultsPageContent() {
         </motion.p>
       </motion.div>
 
-      {/* ── Hidden PDF Template ── */}
-      {/* Positioned completely off-screen so it doesn't affect the visible layout, but remains in the DOM for html2pdf to capture */}
-      <div style={{ position: "absolute", top: "-9999px", left: "-9999px" }}>
-        <PdfReportTemplate result={result} />
-      </div>
+      {/* Email Modal */}
+      {result && (
+        <EmailModal
+          isOpen={emailModalOpen}
+          onClose={() => setEmailModalOpen(false)}
+          submissionId={result.submissionId}
+          scanType="cost"
+        />
+      )}
     </main>
   );
 }

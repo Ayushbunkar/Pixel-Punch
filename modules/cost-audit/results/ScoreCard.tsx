@@ -2,7 +2,7 @@
 
 import { Rag } from "@/modules/cost-audit/types";
 import scoreDescriptions from "@/config/score-descriptions.json";
-import { AlertCircle, AlertTriangle, CheckCircle2 } from "lucide-react";
+import * as motion from "framer-motion/client";
 
 const RAG_META: Record<
   Rag,
@@ -12,19 +12,34 @@ const RAG_META: Record<
     label:       "Action needed",
     badgeClass:  "rag-red",
     bgClass:     "border-rag-red/20 bg-rag-red-bg",
-    icon:        <AlertCircle className="w-3.5 h-3.5 inline" />,
+    icon: (
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-450 opacity-75"></span>
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+      </span>
+    ),
   },
   amber: {
     label:       "Room to improve",
     badgeClass:  "rag-amber",
     bgClass:     "border-rag-amber/20 bg-rag-amber-bg",
-    icon:        <AlertTriangle className="w-3.5 h-3.5 inline" />,
+    icon: (
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-450 opacity-75"></span>
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+      </span>
+    ),
   },
   green: {
     label:       "Looking good",
     badgeClass:  "rag-green",
     bgClass:     "border-rag-green/20 bg-rag-green-bg",
-    icon:        <CheckCircle2 className="w-3.5 h-3.5 inline" />,
+    icon: (
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-450 opacity-75"></span>
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+      </span>
+    ),
   },
 };
 
@@ -43,7 +58,14 @@ export function ScoreCard({ title, dimension, score }: ScoreCardProps) {
   const description = descriptions?.[score] ?? "Analysis complete.";
 
   return (
-    <div className={`rounded-xl border p-5 transition-all duration-200 hover:shadow-md ${meta.bgClass}`}>
+    <motion.div 
+      whileHover={{ 
+        y: -6, 
+        boxShadow: "0 12px 20px -8px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08)",
+        borderColor: "#cbd5e1"
+      }}
+      className={`rounded-xl border p-5 transition-all duration-300 ${meta.bgClass}`}
+    >
       <div className="flex flex-col gap-2 mb-3">
         <div>
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${meta.badgeClass}`}>
@@ -55,6 +77,7 @@ export function ScoreCard({ title, dimension, score }: ScoreCardProps) {
         </p>
       </div>
       <p className="text-xs text-slate-600 leading-relaxed">{description}</p>
-    </div>
+    </motion.div>
   );
 }
+
