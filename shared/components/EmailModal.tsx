@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Mail, X, Loader2, Send, CheckCircle2 } from "lucide-react";
+import { Mail, X, Loader2, Send, CheckCircle2, Download } from "lucide-react";
 import * as motion from "framer-motion/client";
 
 interface EmailModalProps {
@@ -11,9 +11,10 @@ interface EmailModalProps {
   scanType: "cost" | "opportunity";
   onSuccess?: () => void;
   defaultEmail?: string;
+  onDirectDownload?: () => void;  // Add callback for direct download
 }
 
-export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess, defaultEmail = "" }: EmailModalProps) {
+export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess, defaultEmail = "", onDirectDownload }: EmailModalProps) {
   const [email, setEmail] = useState(defaultEmail);
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -90,17 +91,26 @@ export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess,
           <X className="w-5 h-5" />
         </button>
 
-        {sent ? (
+                {sent ? (
           <div className="text-center py-6 space-y-4">
             <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 border border-emerald-100 flex items-center justify-center mx-auto shadow-sm">
               <CheckCircle2 className="w-8 h-8 animate-bounce" />
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               <h3 className="font-bold text-slate-900 text-lg">Report Sent Successfully!</h3>
               <p className="text-slate-500 text-sm">
-                We have emailed the full PDF roadmap audit report to <strong className="text-slate-700">{email}</strong>.
+                We've emailed the full audit report to <strong className="text-slate-700">{email}</strong>.
               </p>
             </div>
+            {onDirectDownload && (
+              <button
+                onClick={onDirectDownload}
+                className="w-full px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 hover:border-slate-400 text-slate-700 rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Download PDF Now
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-6">

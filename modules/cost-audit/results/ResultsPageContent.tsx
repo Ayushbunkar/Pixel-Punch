@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { StoredScanResult } from "@/modules/cost-audit/types";
 
-import { Search, CheckCircle2, Cpu, Activity, Lock, Unlock, AlertCircle } from "lucide-react";
+import { Search, CheckCircle2, Cpu, Activity, Lock, Unlock, AlertCircle, Download } from "lucide-react";
 
 import { ContactBar } from "@/shared/components/ContactBar";
 
@@ -81,12 +81,13 @@ export default function ResultsPageContent() {
   }
 
   // Auto-trigger PDF download when ?download=pdf is in URL (from email link)
+    const autoDownload = searchParams.get("download") === "pdf";
 
-  const autoDownload = searchParams.get("download") === "pdf";
+    // Direct PDF download parameter (from email button link)
+    const directPdfDownload = searchParams.get("pdf") === "true";
 
-  // Website always locked; only unlocked temporarily for PDF generation via email link
-
-  const isUnlocked = autoDownload;
+    // Always unlock when downloading PDF
+    const isUnlocked = autoDownload || directPdfDownload;
 
   const [dlState, setDlState] = useState<"idle" | "generating" | "done">("idle");
 
@@ -1130,27 +1131,41 @@ export default function ResultsPageContent() {
 
         {/* ── Secondary actions ─────────────────────────────────────── */}
 
-        <motion.div variants={slideUp} className="flex flex-wrap items-center justify-center gap-3 mt-8 pt-6 border-t border-slate-200">
+                <motion.div variants={slideUp} className="flex flex-wrap items-center justify-center gap-3 mt-8 pt-6 border-t border-slate-200">
 
-          <ShareResults />
+                  <ShareResults />
 
-          <button
+                  <button
 
-            onClick={() => setEmailModalOpen(true)}
+                    onClick={() => setEmailModalOpen(true)}
 
-            className="inline-flex items-center justify-center px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
+                    className="inline-flex items-center justify-center px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
 
-          >
+                  >
 
-            <Cpu className="w-3.5 h-3.5" />
+                    <Cpu className="w-3.5 h-3.5" />
 
-            Email Audit Report
+                    Email Audit Report
 
-          </button>
+                  </button>
 
-        </motion.div>
+                </motion.div>
 
-        {/* Submission ID (small, for support reference) */}
+                {/* ── Floating PDF Download Button (visible when unlocked) ── */}
+
+                {isUnlocked && (
+                  <div className="fixed bottom-6 right-6 z-50">
+                    <button
+                      onClick={() => triggerPdfDownload(result.submissionId, result)}
+                      className="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl flex items-center gap-2"
+                      title="Download PDF Report"
+                    >
+                      <Download className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Submission ID (small, for support reference) */}
 
         <motion.p variants={fadeIn} className="text-center text-[10px] text-slate-400 mt-8">
 
@@ -1211,26 +1226,25 @@ export default function ResultsPageContent() {
 
       {/* Email Modal */}
 
-      {result && (
+            {result && (
 
-        <EmailModal
-
-          isOpen={emailModalOpen}
-
-          onClose={() => setEmailModalOpen(false)}
-
-          submissionId={result.submissionId}
-
-          scanType="cost"
-
-          defaultEmail={result.contact.email}
-
-        />
-
-      )}
-
+              <EmailModal
+                isOpen={emailModalOpen}
+                onClose={() => setEmailModalOpen(false)}
+                submissionId={result.submissionId}
+                scanType="cost"
+                defaultEmail={result.contact.email}
+                onDirectDownload={() => {
+                  // Direct PDF download after email submission
+                  const params = new URLSearchParams(window.location.search);
+                  params.set("download", "pdf");
+                  // Also set pdf flag for direct download
+                  params.set("pdf", "true");
+                  router.push(`?${params.toString()}`);
+                }}
+              />
+            )}
     </div>
-
   );
 
 }
