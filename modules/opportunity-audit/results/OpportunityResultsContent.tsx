@@ -286,7 +286,7 @@ function getStepDetails(stepItem: string, idx: number) {
 
 // ── Unlock Modal Component ────────────────────────────────────────────────────
 
-function UnlockModal({ isOpen, onClose, onEmail, onDownload }: { isOpen: boolean; onClose: () => void; onEmail: () => void; onDownload: () => void }) {
+function UnlockModal({ isOpen, onClose, onEmail }: { isOpen: boolean; onClose: () => void; onEmail: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -301,7 +301,7 @@ function UnlockModal({ isOpen, onClose, onEmail, onDownload }: { isOpen: boolean
 
       />
 
-      
+   
 
       {/* Modal Box */}
 
@@ -335,7 +335,7 @@ function UnlockModal({ isOpen, onClose, onEmail, onDownload }: { isOpen: boolean
 
           </div>
 
-          
+     
 
           <div className="space-y-1">
 
@@ -343,7 +343,7 @@ function UnlockModal({ isOpen, onClose, onEmail, onDownload }: { isOpen: boolean
 
             <p className="text-slate-500 text-xs">
 
-              You've seen the highlights. To view the complete AI Opportunity Audit report:
+              Enter your email below to receive the complete AI Opportunity Audit report with professional visuals and detailed insights.
 
             </p>
 
@@ -355,7 +355,7 @@ function UnlockModal({ isOpen, onClose, onEmail, onDownload }: { isOpen: boolean
 
               <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" />
 
-              <span>See all implementation steps with full details</span>
+              <span>Professional PDF report with visual charts</span>
 
             </div>
 
@@ -363,7 +363,7 @@ function UnlockModal({ isOpen, onClose, onEmail, onDownload }: { isOpen: boolean
 
               <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" />
 
-              <span>Get the complete ROI calculation and implementation roadmap</span>
+              <span>Complete implementation roadmap</span>
 
             </div>
 
@@ -371,27 +371,13 @@ function UnlockModal({ isOpen, onClose, onEmail, onDownload }: { isOpen: boolean
 
               <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" />
 
-              <span>Receive executive summary for stakeholders</span>
+              <span>Executive summary for stakeholders</span>
 
             </div>
 
           </div>
 
           <div className="space-y-2">
-
-            <button
-
-              onClick={onDownload}
-
-              className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
-
-            >
-
-              <Download className="w-3.5 h-3.5" />
-
-              Download Full Report
-
-            </button>
 
             <button
 
@@ -2050,10 +2036,6 @@ export default function OpportunityResultsContent() {
             setUnlockModalOpen(false);
             setEmailModalOpen(true);
           }}
-          onDownload={() => {
-            setUnlockModalOpen(false);
-            triggerPdfDownload(data.submissionId);
-          }}
         />
       )}
 
@@ -2081,7 +2063,7 @@ export default function OpportunityResultsContent() {
           <div style={{ marginBottom: "20px" }}>
             <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>Expert Recommendations</div>
             {data.recommendations.slice(0, 8).map((rec: string, i: number) => (
-              <div key={i} style={{ fontSize: "12px", color: "#475569", padding: "4px 0", borderBottom: "1px solid #f1f5f9" }}>• {rec}</div>
+              <div key={i} style={{ fontSize: "12px", color: "#475569", padding: "4px 0", borderBottom: "1px solid #f1f5f9" }}>{rec}</div>
             ))}
           </div>
         )}
@@ -2089,7 +2071,7 @@ export default function OpportunityResultsContent() {
           <div style={{ marginBottom: "20px" }}>
             <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>Implementation Roadmap</div>
             {data.nextSteps.slice(0, 8).map((step: string, i: number) => (
-              <div key={i} style={{ fontSize: "12px", color: "#475569", padding: "4px 0", borderBottom: "1px solid #f1f5f9" }}>• {step}</div>
+              <div key={i} style={{ fontSize: "12px", color: "#475569", padding: "4px 0", borderBottom: "1px solid #f1f5f9" }}>{step}</div>
             ))}
           </div>
         )}

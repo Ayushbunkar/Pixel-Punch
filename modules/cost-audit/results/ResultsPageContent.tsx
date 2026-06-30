@@ -29,7 +29,6 @@ import { ShareResults } from "./ShareResults";
 import { ResultsSkeleton } from "./ResultsSkeleton";
 
 import { EmailModal } from "@/shared/components/EmailModal";
-import { Download } from "lucide-react";
 
 export default function ResultsPageContent() {
 
@@ -47,7 +46,7 @@ export default function ResultsPageContent() {
   const [unlockModalOpen, setUnlockModalOpen] = useState(false);
 
   // Unlock Modal Component
-  function UnlockModal({ isOpen, onClose, onEmail, onDownload }: { isOpen: boolean; onClose: () => void; onEmail: () => void; onDownload: () => void }) {
+  function UnlockModal({ isOpen, onClose, onEmail }: { isOpen: boolean; onClose: () => void; onEmail: () => void }) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
@@ -61,17 +60,14 @@ export default function ResultsPageContent() {
             </div>
             <div className="space-y-1">
               <h3 className="font-bold text-slate-900 text-lg">Unlock Your Full AI Report</h3>
-              <p className="text-slate-500 text-xs">You've seen the highlights. To view the complete AI Cost Audit report:</p>
+              <p className="text-slate-500 text-xs">Enter your email below to receive the complete AI Cost Audit report with professional visuals and detailed insights.</p>
             </div>
             <div className="space-y-2 text-left bg-slate-50 rounded-lg p-3">
-              <div className="flex items-start gap-2 text-xs text-slate-600"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" /><span>See all implementation steps with full details</span></div>
-              <div className="flex items-start gap-2 text-xs text-slate-600"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" /><span>Get the complete ROI calculation and implementation roadmap</span></div>
-              <div className="flex items-start gap-2 text-xs text-slate-600"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" /><span>Receive executive summary for stakeholders</span></div>
+              <div className="flex items-start gap-2 text-xs text-slate-600"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" /><span>Professional PDF report with visual charts</span></div>
+              <div className="flex items-start gap-2 text-xs text-slate-600"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" /><span>Complete implementation roadmap</span></div>
+              <div className="flex items-start gap-2 text-xs text-slate-600"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" /><span>Executive summary for stakeholders</span></div>
             </div>
             <div className="space-y-2">
-              <button onClick={onDownload} className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2">
-                <Download className="w-3.5 h-3.5" />Download Full Report
-              </button>
               <button onClick={onEmail} className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>Email Full Report to My Inbox
               </button>
@@ -558,20 +554,20 @@ export default function ResultsPageContent() {
               </tbody>
             </table>
           </div>
-          {result.insights && result.insights.length > 0 && (
-            <div style={{ marginBottom: "20px" }}>
-              <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>Key Insights</div>
-              {result.insights.slice(0, 8).map((ins: any, i: number) => (
-                <div key={i} style={{ fontSize: "12px", color: "#475569", padding: "4px 0", borderBottom: "1px solid #f1f5f9" }}>• {typeof ins === "string" ? ins : ins.text || ins.title}</div>
-              ))}
-            </div>
-          )}
-          {result.auditReport && (
-            <div style={{ marginBottom: "20px" }}>
-              <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>Full Technical Audit</div>
-              <div style={{ fontSize: "11px", color: "#475569", whiteSpace: "pre-wrap", lineHeight: "1.6" }}>{result.auditReport}</div>
-            </div>
-          )}
+        {result.insights && result.insights.length > 0 && (
+          <div style={{ marginBottom: "20px" }}>
+            <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>Key Insights</div>
+            {result.insights.slice(0, 8).map((ins: any, i: number) => (
+              <div key={i} style={{ fontSize: "12px", color: "#475569", padding: "4px 0", borderBottom: "1px solid #f1f5f9" }}>{typeof ins === "string" ? ins : ins.text || ins.title}</div>
+            ))}
+          </div>
+        )}
+        {result.auditReport && (
+          <div style={{ marginBottom: "20px" }}>
+            <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>Full Technical Audit</div>
+            <div style={{ fontSize: "11px", color: "#475569", whiteSpace: "pre-wrap", lineHeight: "1.6" }}>{result.auditReport}</div>
+          </div>
+        )}
           <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "12px", fontSize: "10px", color: "#94a3b8", textAlign: "center" }}>Generated by Pixel Punch AI · pixelpunch.org · © 2026 Pixel Punch</div>
         </div>
       </div>
@@ -1172,10 +1168,6 @@ export default function ResultsPageContent() {
           onEmail={() => {
             setUnlockModalOpen(false);
             setEmailModalOpen(true);
-          }}
-          onDownload={() => {
-            setUnlockModalOpen(false);
-            triggerPdfDownload(result.submissionId, result);
           }}
         />
       )}
