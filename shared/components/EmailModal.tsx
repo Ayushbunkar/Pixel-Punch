@@ -113,16 +113,7 @@ export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess,
                 <br /><br />
                 <span className="text-indigo-600 font-medium">Click the link in the email to view and download your report.</span>
               </p>
-          </div>
-            {onDirectDownload && (
-              <button
-                onClick={onDirectDownload}
-                className="w-full px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 hover:border-slate-400 text-slate-700 rounded-lg font-bold text-sm transition-colors shadow-sm flex items-center justify-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Download PDF Now
-              </button>
-            )}
+            </div>
           </div>
         ) : (
           <div className="space-y-6">
