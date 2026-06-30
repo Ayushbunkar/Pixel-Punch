@@ -116,7 +116,7 @@ export function generateFallbackReport(
         .join("\n\n")
     : "";
 
-   const reportText = `# AI Opportunity Audit & Roadmap Report
+  const reportText = `# AI Opportunity Audit & Roadmap Report
 
 ### Executive Summary
 I analyzed the provided business information for **${input.company || "the business"}** and generated a customized AI Opportunity Roadmap. Based on their operating profile, there is a clear opportunity to apply intelligent automation to streamline workflows, reduce manual dependencies, and speed up business outcomes.
@@ -163,6 +163,20 @@ ${recsBullets || "- No specific recommendations available."}
 - Centralize customer records into a single system of truth.
 - Schedule a technical scoping session to outline quick-win AI projects.
 `;
+
+  return {
+    reportText,
+    findings: [
+      `Repetitive tasks like ${manualProcessesStr} create operational drag.`,
+      "Systems are partially isolated, requiring manual synchronization steps.",
+       "Clean data pipelines represent a prerequisite for applying advanced LLM systems.",
+    ],
+    nextSteps: [
+      "Map your manual workflows",
+      "Centralize key datasets",
+      "Schedule an AI Architecture Review",
+    ],
+  };
 }
 
 /**
