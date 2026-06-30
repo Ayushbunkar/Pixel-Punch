@@ -14,7 +14,7 @@ import {
 
   Network, Sparkles, AlertCircle, LineChart, BrainCircuit, 
 
-  Mail, Lock, Unlock
+  Mail, Lock, Unlock, Download
 
 } from "lucide-react";
 
@@ -286,10 +286,9 @@ function getStepDetails(stepItem: string, idx: number) {
 
 // ── Unlock Modal Component ────────────────────────────────────────────────────
 
-function UnlockModal({ onClose, onEmail }: { onClose: () => void; onEmail: () => void }) {
+function UnlockModal({ isOpen, onClose, onEmail, onDownload }: { isOpen: boolean; onClose: () => void; onEmail: () => void; onDownload: () => void }) {
 
   return (
-
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
 
       {/* Backdrop */}
@@ -382,6 +381,20 @@ function UnlockModal({ onClose, onEmail }: { onClose: () => void; onEmail: () =>
 
             <button
 
+              onClick={onDownload}
+
+              className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
+
+            >
+
+              <Download className="w-3.5 h-3.5" />
+
+              Download Full Report
+
+            </button>
+
+            <button
+
               onClick={onEmail}
 
               className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
@@ -443,6 +456,7 @@ export default function OpportunityResultsContent() {
   const [showReport, setShowReport] = useState(false);
 
   const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
 
   // Auto-trigger PDF download when ?download=pdf is in URL (from email link)
 
@@ -1783,25 +1797,25 @@ export default function OpportunityResultsContent() {
 
             </h2>
 
-            <button
+                      <button
 
-              onClick={() => {
+                        onClick={(e) => {
 
-                if (isUnlocked) return;
+                          e.stopPropagation();
 
-                setEmailModalOpen(true);
+                          setEmailModalOpen(true);
 
-              }}
+                        }}
 
-              className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+                        className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
 
-            >
+                      >
 
-              {isUnlocked ? <CheckCircle2 className="w-3 h-3 text-green-500" /> : <Unlock className="w-3 h-3" />}
+                        <Unlock className="w-3.5 h-3.5" />
 
-              {isUnlocked ? "Roadmap Unlocked" : "Unlock Full Roadmap"}
+                        Unlock Full Report
 
-            </button>
+                      </button>
 
           </div>
 
@@ -2028,6 +2042,65 @@ export default function OpportunityResultsContent() {
       </motion.div>
 
       {/* Unlock Modal */}
+      {data && (
+        <UnlockModal
+          isOpen={unlockModalOpen}
+          onClose={() => setUnlockModalOpen(false)}
+          onEmail={() => {
+            setUnlockModalOpen(false);
+            setEmailModalOpen(true);
+          }}
+          onDownload={() => {
+            setUnlockModalOpen(false);
+            triggerPdfDownload(data.submissionId);
+          }}
+        />
+      )}
+
+      {/* Hidden PDF Report Content */}
+      <div id="opportunity-pdf-report-content" data-json-data={JSON.stringify(data)} style={{ position: "absolute", left: "-9999px", top: 0, width: "794px", backgroundColor: "#fff", padding: "32px", fontFamily: "system-ui, sans-serif", display: "none" }}>
+        <div style={{ borderBottom: "2px solid #4f46e5", paddingBottom: "16px", marginBottom: "24px" }}>
+          <div style={{ fontSize: "20px", fontWeight: "800", color: "#0f172a" }}>Pixel Punch AI — Opportunity Audit Report</div>
+          <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>ID: {data.submissionId}</div>
+        </div>
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>RAG Scorecard</div>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+            <thead><tr style={{ backgroundColor: "#f1f5f9" }}><th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Dimension</th><th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Rating</th></tr></thead>
+            <tbody>
+              {([["AI Readiness", data.scorecard.readiness], ["Business Value", data.scorecard.value], ["Automation Opportunity", data.scorecard.opportunity]] as [string, string][]).map(([label, val]) => (
+                <tr key={label} style={{ borderTop: "1px solid #e2e8f0" }}>
+                  <td style={{ padding: "8px 12px", color: "#334155" }}>{label}</td>
+                  <td style={{ padding: "8px 12px", fontWeight: "600", color: val === "red" ? "#dc2626" : val === "amber" ? "#d97706" : "#16a34a" }}>{val.toUpperCase()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {data.recommendations && data.recommendations.length > 0 && (
+          <div style={{ marginBottom: "20px" }}>
+            <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>Expert Recommendations</div>
+            {data.recommendations.slice(0, 8).map((rec: string, i: number) => (
+              <div key={i} style={{ fontSize: "12px", color: "#475569", padding: "4px 0", borderBottom: "1px solid #f1f5f9" }}>• {rec}</div>
+            ))}
+          </div>
+        )}
+        {data.nextSteps && data.nextSteps.length > 0 && (
+          <div style={{ marginBottom: "20px" }}>
+            <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>Implementation Roadmap</div>
+            {data.nextSteps.slice(0, 8).map((step: string, i: number) => (
+              <div key={i} style={{ fontSize: "12px", color: "#475569", padding: "4px 0", borderBottom: "1px solid #f1f5f9" }}>• {step}</div>
+            ))}
+          </div>
+        )}
+        {data.auditReport && (
+          <div style={{ marginBottom: "20px" }}>
+            <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>Full Technical Audit</div>
+            <div style={{ fontSize: "11px", color: "#475569", whiteSpace: "pre-wrap", lineHeight: "1.6" }}>{data.auditReport}</div>
+          </div>
+        )}
+        <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "12px", fontSize: "10px", color: "#94a3b8", textAlign: "center" }}>Generated by Pixel Punch AI · pixelpunch.org · © 2026 Pixel Punch</div>
+      </div>
 
       {/* Email Modal */}
 

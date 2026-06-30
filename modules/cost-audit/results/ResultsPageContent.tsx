@@ -29,6 +29,7 @@ import { ShareResults } from "./ShareResults";
 import { ResultsSkeleton } from "./ResultsSkeleton";
 
 import { EmailModal } from "@/shared/components/EmailModal";
+import { Download } from "lucide-react";
 
 export default function ResultsPageContent() {
 
@@ -43,6 +44,45 @@ export default function ResultsPageContent() {
   const [loading, setLoading] = useState(true);
 
   const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+
+  // Unlock Modal Component
+  function UnlockModal({ isOpen, onClose, onEmail, onDownload }: { isOpen: boolean; onClose: () => void; onEmail: () => void; onDownload: () => void }) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-md w-full overflow-hidden relative z-10 p-5">
+          <button onClick={onClose} className="absolute top-3 right-3 text-slate-400 hover:text-slate-600 transition-colors p-1 rounded hover:bg-slate-100" aria-label="Close modal">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+          <div className="text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center mx-auto shadow-sm">
+              <Lock className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-bold text-slate-900 text-lg">Unlock Your Full AI Report</h3>
+              <p className="text-slate-500 text-xs">You've seen the highlights. To view the complete AI Cost Audit report:</p>
+            </div>
+            <div className="space-y-2 text-left bg-slate-50 rounded-lg p-3">
+              <div className="flex items-start gap-2 text-xs text-slate-600"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" /><span>See all implementation steps with full details</span></div>
+              <div className="flex items-start gap-2 text-xs text-slate-600"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" /><span>Get the complete ROI calculation and implementation roadmap</span></div>
+              <div className="flex items-start gap-2 text-xs text-slate-600"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" /><span>Receive executive summary for stakeholders</span></div>
+            </div>
+            <div className="space-y-2">
+              <button onClick={onDownload} className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2">
+                <Download className="w-3.5 h-3.5" />Download Full Report
+              </button>
+              <button onClick={onEmail} className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>Email Full Report to My Inbox
+              </button>
+              <button onClick={onClose} className="w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-xs transition-colors">Continue Browsing</button>
+            </div>
+            <p className="text-[9px] text-slate-400">✓ Secure • Instant Delivery • No Spam</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Auto-trigger PDF download when ?download=pdf is in URL (from email link)
 
@@ -58,7 +98,7 @@ export default function ResultsPageContent() {
     setDlState("generating");
 
     // Wait/retry loop for the PDF element to render
-    let element = document.getElementById("pdf-report-content");
+    let element = document.getElementById("cost-pdf-report-content") || document.getElementById("pdf-report-content");
     let attempts = 0;
     while (!element && attempts < 6) {
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -1053,49 +1093,27 @@ export default function ResultsPageContent() {
                 </div>
 
                 {/* Lock Overlay */}
-
                 {!isUnlocked && (
-
                   <div className="absolute inset-0 bg-slate-50/10 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center rounded-lg border border-slate-200/50 shadow-inner">
-
                     <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
-
                       <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100 text-indigo-600">
-
                         <Lock className="w-5 h-5" />
-
                       </div>
-
                       <div>
-
                         <h3 className="text-sm font-bold text-slate-900">Unlock Full Technical Audit Report</h3>
-
                         <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
-
                           Enter your email below to receive the full AI Cost Audit report, key findings, and expert recommendations directly in your inbox.
-
                         </p>
-
                       </div>
-
                       <button
-
-                        onClick={() => setEmailModalOpen(true)}
-
+                        onClick={() => setUnlockModalOpen(true)}
                         className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
-
                       >
-
                         <Unlock className="w-3.5 h-3.5" />
-
                         Unlock Report
-
                       </button>
-
                     </div>
-
                   </div>
-
                 )}
 
               </div>
@@ -1145,6 +1163,59 @@ export default function ResultsPageContent() {
         </motion.p>
 
       </motion.div>
+
+      {/* Unlock Modal */}
+      {result && (
+        <UnlockModal
+          isOpen={unlockModalOpen}
+          onClose={() => setUnlockModalOpen(false)}
+          onEmail={() => {
+            setUnlockModalOpen(false);
+            setEmailModalOpen(true);
+          }}
+          onDownload={() => {
+            setUnlockModalOpen(false);
+            triggerPdfDownload(result.submissionId, result);
+          }}
+        />
+      )}
+
+      {/* Hidden PDF Report Content */}
+      <div id="cost-pdf-report-content" data-json-data={JSON.stringify(result)} style={{ position: "absolute", left: "-9999px", top: 0, width: "794px", backgroundColor: "#fff", padding: "32px", fontFamily: "system-ui, sans-serif", display: "none" }}>
+        <div style={{ borderBottom: "2px solid #4f46e5", paddingBottom: "16px", marginBottom: "24px" }}>
+          <div style={{ fontSize: "20px", fontWeight: "800", color: "#0f172a" }}>Pixel Punch AI — Cost Audit Report</div>
+          <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>ID: {result.submissionId}</div>
+        </div>
+        <div style={{ marginBottom: "20px" }}>
+          <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>RAG Scorecard</div>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+            <thead><tr style={{ backgroundColor: "#f1f5f9" }}><th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Dimension</th><th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Rating</th></tr></thead>
+            <tbody>
+              {([["Spend & Visibility", result.scorecard.spend], ["Architecture Risk", result.scorecard.architecture], ["Business Pain", result.scorecard.pain]] as [string, string][]).map(([label, val]) => (
+                <tr key={label} style={{ borderTop: "1px solid #e2e8f0" }}>
+                  <td style={{ padding: "8px 12px", color: "#334155" }}>{label}</td>
+                  <td style={{ padding: "8px 12px", fontWeight: "600", color: val === "red" ? "#dc2626" : val === "amber" ? "#d97706" : "#16a34a" }}>{val.toUpperCase()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {result.insights && result.insights.length > 0 && (
+          <div style={{ marginBottom: "20px" }}>
+            <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>Key Insights</div>
+            {result.insights.slice(0, 8).map((ins: any, i: number) => (
+              <div key={i} style={{ fontSize: "12px", color: "#475569", padding: "4px 0", borderBottom: "1px solid #f1f5f9" }}>• {typeof ins === "string" ? ins : ins.text || ins.title}</div>
+            ))}
+          </div>
+        )}
+        {result.auditReport && (
+          <div style={{ marginBottom: "20px" }}>
+            <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>Full Technical Audit</div>
+            <div style={{ fontSize: "11px", color: "#475569", whiteSpace: "pre-wrap", lineHeight: "1.6" }}>{result.auditReport}</div>
+          </div>
+        )}
+        <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "12px", fontSize: "10px", color: "#94a3b8", textAlign: "center" }}>Generated by Pixel Punch AI · pixelpunch.org · © 2026 Pixel Punch</div>
+      </div>
 
       {/* Email Modal */}
 
