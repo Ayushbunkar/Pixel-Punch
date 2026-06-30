@@ -55,7 +55,7 @@ export function StepDataSystems({ state, errors, onChange, onToggleArray }: Step
           {[
             { value: "data_not_centralized", label: "Data is not centralized" },
             { value: "tools_dont_integrate", label: "Tools do not integrate well" },
-            { value: "team_manual_steps", label: "Team relies on manual copy-paste steps" },
+            { value: "team_manual_steps", label: "Team relies on manual copy paste steps" },
             { value: "no_clear_design", label: "Lack of clear process map or design" },
             { value: "other", label: "Other" },
           ].map((opt) => (
@@ -84,7 +84,7 @@ export function StepDataSystems({ state, errors, onChange, onToggleArray }: Step
           {[
             { value: "very_standardized", label: "Very standardized (clear SOPs)" },
             { value: "somewhat_standardized", label: "Somewhat standardized" },
-            { value: "mostly_adhoc", label: "Mostly ad hoc (varies case-by-case)" },
+            { value: "mostly_adhoc", label: "Mostly ad hoc (varies case by case)" },
             { value: "not_sure", label: "Not sure" },
             { value: "other", label: "Other" },
           ].map((opt) => (

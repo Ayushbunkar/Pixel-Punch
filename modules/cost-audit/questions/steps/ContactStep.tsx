@@ -59,28 +59,16 @@ export function ContactStep({ state, errors, onChange, loading, submitError }: C
         You will see your scorecard immediately on the next screen. We will also email you a PDF copy for your team.
       </p>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid gap-4 mb-4">
         <InputField
           id="firstname"
-          label="First name"
+          label="Name"
           value={state.firstname}
           onChange={(v) => onChange("firstname", v)}
           error={errors.firstname}
-          placeholder="Jane"
-          autoComplete="given-name"
+          placeholder="Jane Doe"
+          autoComplete="name"
         />
-        <InputField
-          id="lastname"
-          label="Last name"
-          value={state.lastname}
-          onChange={(v) => onChange("lastname", v)}
-          error={errors.lastname}
-          placeholder="Doe"
-          autoComplete="family-name"
-        />
-      </div>
-
-      <div className="grid gap-4 mb-4">
         <InputField
           id="email"
           label="Work email"
@@ -91,50 +79,6 @@ export function ContactStep({ state, errors, onChange, loading, submitError }: C
           placeholder="jane@company.com"
           autoComplete="work email"
         />
-        <InputField
-          id="company"
-          label="Company"
-          value={state.company}
-          onChange={(v) => onChange("company", v)}
-          error={errors.company}
-          placeholder="Acme Corp"
-          autoComplete="organization"
-        />
-        <InputField
-          id="job_title"
-          label="Job title"
-          value={state.job_title}
-          onChange={(v) => onChange("job_title", v)}
-          error={errors.job_title}
-          placeholder="VP Engineering"
-          autoComplete="organization-title"
-        />
-      </div>
-
-      {/* Optional extra context */}
-      <div className="mb-2">
-        <label
-          htmlFor="extra_context"
-          className="block text-sm font-medium text-slate-900 mb-1.5"
-        >
-          Anything else we should know?{" "}
-          <span className="text-slate-600 font-normal">(optional)</span>
-        </label>
-        <textarea
-          id="extra_context"
-          rows={3}
-          maxLength={2000}
-          value={state.extra_context ?? ""}
-          onChange={(e) => onChange("extra_context", e.target.value)}
-          placeholder="Regulatory constraints, security requirements, specific workloads, etc."
-          className={`pp-input resize-none ${errors.extra_context ? "border-red-500/60" : ""}`}
-        />
-        <div className="flex justify-between mt-1">
-          <FieldError message={errors.extra_context} />
-          <span className="text-xs text-slate-600 ml-auto">
-            {(state.extra_context ?? "").length} / 2000
-          </span>
-        </div>
       </div>
 
       {/* Submit-level error */}

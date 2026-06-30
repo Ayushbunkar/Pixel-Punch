@@ -53,11 +53,24 @@ export default function ResultsPageContent() {
   const [dlState, setDlState] = useState<"idle" | "generating" | "done">("idle");
 
   const triggerPdfDownload = useCallback(async (submId?: string, data?: typeof result) => {
-
     setDlState("generating");
 
-    try {
+    // Wait/retry loop for the PDF element to render
+    let element = document.getElementById("pdf-report-content");
+    let attempts = 0;
+    while (!element && attempts < 6) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      element = document.getElementById("pdf-report-content");
+      attempts++;
+    }
 
+    if (!element) {
+      console.error("PDF element not found after attempts");
+      setDlState("idle");
+      return;
+    }
+
+    try {
       const { default: html2pdf } = await import("html2pdf.js");
 
       const r = data;
@@ -68,6 +81,11 @@ export default function ResultsPageContent() {
       const ragBg = (v: string) => v === "red" ? "#fee2e2" : v === "amber" ? "#fef3c7" : "#dcfce7";
       const ragText = (v: string) => v === "red" ? "#991b1b" : v === "amber" ? "#b45309" : "#166534";
 
+      const cleanBulletText = (t: string) => {
+        if (!t) return "";
+        return t.replace(/^[-*•\s]+/, "").trim();
+      };
+
       // Generate SVG Pie Chart for RAG Scorecard
       const generatePieChart = (data: { label: string; value: string; color: string }[]) => {
         const size = 160;
@@ -75,10 +93,12 @@ export default function ResultsPageContent() {
         const radius = 60;
         let currentAngle = 0;
         
+        const valueMap: Record<string, number> = { red: 3, amber: 2, green: 1 };
+        const totalValue = data.reduce((sum, item) => sum + (valueMap[item.value] || 1), 0);
+        
         const slices = data.map((item, i) => {
-          const valueMap: Record<string, number> = { red: 3, amber: 2, green: 1 };
           const value = valueMap[item.value] || 1;
-          const angle = (value / 6) * 360; // 3 red + 2 amber + 1 green = 6 parts
+          const angle = (value / (totalValue || 1)) * 360;
           const startAngle = currentAngle;
           currentAngle += angle;
           
@@ -229,7 +249,7 @@ export default function ResultsPageContent() {
                   <div style="background: #dc2626; height: 100%; border-radius: 4px; width: ${(findingsCount / Math.max(findingsCount, recommendationsCount, 1)) * 100}%"></div>
                 </div>
               </div>
-              ${r.findings && r.findings.length > 0 ? r.findings.map((f: string) => `<div style="font-size: 10px; color: #475569; padding: 6px 0; border-bottom: 1px solid #fee2e2; display: flex; gap: 8px;"><span style="color:#dc2626;font-weight:700;">•</span><span>${f}</span></div>`).join("") : ""}
+              ${r.findings && r.findings.length > 0 ? r.findings.map((f: string) => `<div style="font-size: 10px; color: #475569; padding: 6px 0; border-bottom: 1px solid #fee2e2; display: flex; gap: 8px;"><span style="color:#dc2626;font-weight:700;">•</span><span>${cleanBulletText(f)}</span></div>`).join("") : ""}
             </div>
             ` : ""}
             ${recommendationsCount > 0 ? `
@@ -240,7 +260,7 @@ export default function ResultsPageContent() {
                   <div style="background: #16a34a; height: 100%; border-radius: 4px; width: ${(recommendationsCount / Math.max(findingsCount, recommendationsCount, 1)) * 100}%"></div>
                 </div>
               </div>
-              ${r.recommendations && r.recommendations.length > 0 ? r.recommendations.map((rec: string) => `<div style="font-size: 10px; color: #475569; padding: 6px 0; border-bottom: 1px solid #dcfce7; display: flex; gap: 8px;"><span style="color:#16a34a;font-weight:700;">•</span><span>${rec}</span></div>`).join("") : ""}
+              ${r.recommendations && r.recommendations.length > 0 ? r.recommendations.map((rec: string) => `<div style="font-size: 10px; color: #475569; padding: 6px 0; border-bottom: 1px solid #dcfce7; display: flex; gap: 8px;"><span style="color:#16a34a;font-weight:700;">•</span><span>${cleanBulletText(rec)}</span></div>`).join("") : ""}
             </div>
             ` : ""}
           </div>
@@ -732,13 +752,13 @@ export default function ResultsPageContent() {
 
         <motion.div variants={slideUp} className="text-center mb-6">
 
-          <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-600 text-[10px] font-semibold mb-2">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-xs font-bold mb-3 shadow-sm">
 
-            <span className="relative flex h-2 w-2">
+            <span className="relative flex h-3 w-3">
 
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90 shadow-[0_0_10px_#10b981]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90 shadow-[0_0_12px_#10b981]"></span>
 
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-600 shadow-[0_0_10px_#10b981]"></span>
 
             </span>
 
@@ -764,11 +784,11 @@ export default function ResultsPageContent() {
 
         <motion.section variants={slideUp} aria-label="Scorecard dimensions" className="mb-6 grid gap-2 md:grid-cols-3">
 
-          <ScoreCard title="Spend & Visibility" dimension="spend" score={result.scorecard.spend} />
+          <ScoreCard title="Spend & Visibility" dimension="spend" score={isUnlocked ? result.scorecard.spend : "red"} />
 
-          <ScoreCard title="Architecture & Leakage Risk" dimension="architecture" score={result.scorecard.architecture} />
+          <ScoreCard title="Architecture & Leakage Risk" dimension="architecture" score={isUnlocked ? result.scorecard.architecture : "red"} />
 
-          <ScoreCard title="Business Pain & Urgency" dimension="pain" score={result.scorecard.pain} />
+          <ScoreCard title="Business Pain & Urgency" dimension="pain" score={isUnlocked ? result.scorecard.pain : "amber"} />
 
         </motion.section>
 
@@ -832,7 +852,7 @@ export default function ResultsPageContent() {
 
                   <span className="text-slate-900 font-semibold text-right truncate">
 
-                    {result.costAnalysis?.normalizedData?.provider || "Self-reported Provider"}
+                    {isUnlocked ? (result.costAnalysis?.normalizedData?.provider || "Self-reported Provider") : "AI Systems Detected"}
 
                   </span>
 
@@ -842,9 +862,9 @@ export default function ResultsPageContent() {
 
                   <span className="text-slate-500 font-medium">Audited Spend Run:</span>
 
-                  <span className="text-indigo-600 font-extrabold text-right truncate">
+                  <span className={`font-extrabold text-right truncate ${isUnlocked ? "text-indigo-600" : "text-rose-600"}`}>
 
-                    {result.costAnalysis?.normalizedData?.monthlySpend || "No direct billing data"}
+                    {isUnlocked ? (result.costAnalysis?.normalizedData?.monthlySpend || "No direct billing data") : "High Leakage Risk"}
 
                   </span>
 
@@ -854,9 +874,9 @@ export default function ResultsPageContent() {
 
                   <span className="text-slate-500 font-medium">Identified Waste:</span>
 
-                  <span className="text-red-600 font-semibold text-right truncate" title={result.costAnalysis?.normalizedData?.unusedResources}>
+                  <span className={`font-semibold text-right truncate ${isUnlocked ? "text-red-600" : "text-rose-600"}`}>
 
-                    {result.costAnalysis?.normalizedData?.unusedResources || "Unoptimized staging endpoints"}
+                    {isUnlocked ? (result.costAnalysis?.normalizedData?.unusedResources || "Unoptimized staging endpoints") : "CRITICAL RISK: Unlock Details"}
 
                   </span>
 
@@ -1137,6 +1157,8 @@ export default function ResultsPageContent() {
           submissionId={result.submissionId}
 
           scanType="cost"
+
+          defaultEmail={result.contact.email}
 
         />
 

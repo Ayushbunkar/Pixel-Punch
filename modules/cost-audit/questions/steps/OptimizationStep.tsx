@@ -20,18 +20,18 @@ const OPTIONS: { value: OptimizationDone; label: string; sublabel: string; icon:
   {
     value:    "model_tiering",
     label:    "Systematic model tiering",
-    sublabel: "Routing requests to cheaper models based on evals and cost/quality trade-offs.",
+    sublabel: "Routing requests to cheaper models based on evals and cost/quality trade offs.",
     icon:     <Layers className="w-5 h-5 text-indigo-400" />,
   },
   {
     value:    "infra_rightsizing",
-    label:    "GPU / infra right-sizing",
+    label:    "GPU / infra right sizing",
     sublabel: "Adjusting reserved compute to match actual utilization data.",
     icon:     <Scale className="w-5 h-5 text-indigo-400" />,
   },
   {
     value:    "none_adhoc",
-    label:    "None / only ad-hoc changes",
+    label:    "None / only ad hoc changes",
     sublabel: "No structured optimization program — changes have been reactive or informal.",
     icon:     <Ban className="w-5 h-5 text-indigo-400" />,
   },
@@ -50,7 +50,7 @@ export function OptimizationStep({ values, onToggle, error }: OptimizationStepPr
   return (
     <div className="step-enter">
       <h2 className="text-xl font-semibold text-slate-900 mb-1">
-        Which structured cost-optimization steps have you already done?
+        Which structured cost optimization steps have you already done?
       </h2>
       <p className="text-sm text-slate-600 mb-2">
         On your AI stack in any systematic or deliberate way.

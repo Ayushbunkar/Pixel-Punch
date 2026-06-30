@@ -23,8 +23,8 @@ export function StepWorkflows({ state, errors, onChange, onToggleArray }: StepWo
         <MultiSelectHint note="Select all tasks where employees spend the most time copying, writing, or sorting." />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[
-            { value: "data_entry", label: "Data entry & copy-paste" },
-            { value: "email_followup", label: "Email writing & follow-up" },
+            { value: "data_entry", label: "Data entry & copy paste" },
+            { value: "email_followup", label: "Email writing & follow up" },
             { value: "reporting", label: "Reporting & compiling metrics" },
             { value: "customer_support", label: "Customer support replies" },
             { value: "other", label: "Other" },

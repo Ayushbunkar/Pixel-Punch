@@ -13,9 +13,9 @@ const RAG_META: Record<
     badgeClass:  "rag-red",
     bgClass:     "border-rag-red/20 bg-rag-red-bg",
     icon: (
-      <span className="relative flex h-2 w-2">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-450 opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+      <span className="relative flex h-2.5 w-2.5">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-90 shadow-[0_0_8px_#f43f5e]"></span>
+        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_6px_#f43f5e]"></span>
       </span>
     ),
   },
@@ -24,9 +24,9 @@ const RAG_META: Record<
     badgeClass:  "rag-amber",
     bgClass:     "border-rag-amber/20 bg-rag-amber-bg",
     icon: (
-      <span className="relative flex h-2 w-2">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-450 opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+      <span className="relative flex h-2.5 w-2.5">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-90 shadow-[0_0_8px_#f59e0b]"></span>
+        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500 shadow-[0_0_6px_#f59e0b]"></span>
       </span>
     ),
   },
@@ -35,9 +35,9 @@ const RAG_META: Record<
     badgeClass:  "rag-green",
     bgClass:     "border-rag-green/20 bg-rag-green-bg",
     icon: (
-      <span className="relative flex h-2 w-2">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-450 opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+      <span className="relative flex h-2.5 w-2.5">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90 shadow-[0_0_8px_#10b981]"></span>
+        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_6px_#10b981]"></span>
       </span>
     ),
   },

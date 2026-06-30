@@ -71,6 +71,11 @@ export function TechnicalStep({
   };
 
   const handleDocFiles = async (files: FileList) => {
+    const totalFiles = (state.documents?.length || 0) + (state.architecture_files?.length || 0) + (state.cost_files?.length || 0);
+    if (totalFiles + files.length > 5) {
+      toast.error("Maximum limit of 5 files/photos reached.", { id: "limit-error" });
+      return;
+    }
     const allowed = ["md", "pdf", "txt", "doc", "docx"];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -99,6 +104,11 @@ export function TechnicalStep({
   };
 
   const handleArchFiles = async (files: FileList) => {
+    const totalFiles = (state.documents?.length || 0) + (state.architecture_files?.length || 0) + (state.cost_files?.length || 0);
+    if (totalFiles + files.length > 5) {
+      toast.error("Maximum limit of 5 files/photos reached.", { id: "limit-error" });
+      return;
+    }
     const allowed = ["png", "jpg", "jpeg", "pdf", "drawio", "xml", "doc", "docx"];
     const updated = [...(state.architecture_files || [])];
     
@@ -130,6 +140,11 @@ export function TechnicalStep({
   };
 
   const handleCostFiles = async (files: FileList) => {
+    const totalFiles = (state.documents?.length || 0) + (state.architecture_files?.length || 0) + (state.cost_files?.length || 0);
+    if (totalFiles + files.length > 5) {
+      toast.error("Maximum limit of 5 files/photos reached.", { id: "limit-error" });
+      return;
+    }
     const allowed = ["csv", "xlsx", "xls", "pdf", "png", "jpg", "jpeg"];
     const updated = [...(state.cost_files || [])];
     

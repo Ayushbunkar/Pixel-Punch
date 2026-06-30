@@ -26,7 +26,7 @@ const OPTIONS: { value: AiDependence; label: string; sublabel: string; icon: Rea
   {
     value:    "no_production",
     label:    "No production AI yet",
-    sublabel: "Evaluating or pre-production only.",
+    sublabel: "Evaluating or pre production only.",
     icon:     <Sprout className="w-5 h-5 text-indigo-400" />,
   },
 ];

@@ -55,7 +55,7 @@ export function StepContext({ state, errors, onChange }: StepContextProps) {
           {[
             { value: "more_leads", label: "More leads" },
             { value: "higher_conversion", label: "Higher conversion" },
-            { value: "faster_followup", label: "Faster follow-up" },
+            { value: "faster_followup", label: "Faster follow up" },
             { value: "lower_manual_work", label: "Lower manual work" },
             { value: "other", label: "Other" },
           ].map((opt) => (
@@ -78,14 +78,14 @@ export function StepContext({ state, errors, onChange }: StepContextProps) {
           What is the biggest operational challenge you are facing today?
         </h3>
         <p className="text-xs text-slate-500 mb-4">
-          Reveals the primary bottleneck in your day-to-day workflow.
+          Reveals the primary bottleneck in your day to day workflow.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[
             { value: "slow_processes", label: "Slow processes" },
             { value: "too_much_manual", label: "Too much manual work" },
             { value: "data_scattered", label: "Data scattered across tools" },
-            { value: "sales_gaps", label: "Sales follow-up gaps" },
+            { value: "sales_gaps", label: "Sales follow up gaps" },
             { value: "other", label: "Other" },
           ].map((opt) => (
             <OptionCard

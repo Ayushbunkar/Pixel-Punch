@@ -26,7 +26,7 @@ export function StepStrategy({ state, errors, onChange }: StepStrategyProps) {
           {[
             { value: "automating_tasks", label: "Automating repetitive tasks" },
             { value: "customer_support", label: "Improving customer support" },
-            { value: "sales_followup", label: "Speeding up sales follow-up" },
+            { value: "sales_followup", label: "Speeding up sales follow up" },
             { value: "internal_knowledge", label: "Creating internal knowledge access" },
             { value: "other", label: "Other" },
           ].map((opt) => (

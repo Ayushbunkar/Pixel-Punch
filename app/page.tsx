@@ -537,7 +537,7 @@ function Hero() {
               variants={slideUp}
               className="text-lg md:text-xl text-slate-600 max-w-xl"
             >
-              Select one of our 3-minute diagnostic scans below to assess your current systems, calculate RAG scorecards, and generate actionable recommendations.
+              Select one of our 3 minute diagnostic scans below to assess your current systems, calculate RAG scorecards, and generate actionable recommendations.
             </motion.p>
 
             <motion.div 
@@ -722,7 +722,7 @@ function FinalCTA() {
             Ready to Optimize Your AI Strategy?
           </h2>
           <p className="text-slate-400 text-sm max-w-2xl mx-auto">
-            Get instant insights into your AI spending and automation opportunities with our 3-minute diagnostic scans
+            Get instant insights into your AI spending and automation opportunities with our 3 minute diagnostic scans
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">

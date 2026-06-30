@@ -36,9 +36,9 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
         </span>
         <span className="text-xs font-medium text-slate-400">{STEP_LABELS[step - 1]}</span>
       </div>
-      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+      <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
         <div
-          className="h-full bg-indigo-600 transition-all duration-500"
+          className="h-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-all duration-500"
           style={{ width: `${pct}%` }}
           role="progressbar"
           aria-valuenow={step}
@@ -46,15 +46,27 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
           aria-valuemax={total}
         />
       </div>
-      <div className="flex justify-between mt-2">
-        {Array.from({ length: total }, (_, i) => (
-          <span
-            key={i}
-            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-              i + 1 <= step ? "bg-indigo-600" : "bg-slate-200"
-            }`}
-          />
-        ))}
+      <div className="flex justify-between mt-3 px-1">
+        {Array.from({ length: total }, (_, i) => {
+          const isActive = i + 1 === step;
+          const isCompleted = i + 1 < step;
+          return (
+            <div key={i} className="relative flex items-center justify-center w-4 h-4">
+              {isActive && (
+                <span className="absolute animate-ping inline-flex h-3.5 w-3.5 rounded-full bg-emerald-400 opacity-75"></span>
+              )}
+              <span
+                className={`relative rounded-full transition-all duration-300 ${
+                  isActive
+                    ? "w-2.5 h-2.5 bg-emerald-500 shadow-[0_0_6px_#10b981]"
+                    : isCompleted
+                    ? "w-2 h-2 bg-emerald-400"
+                    : "w-1.5 h-1.5 bg-slate-200"
+                }`}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

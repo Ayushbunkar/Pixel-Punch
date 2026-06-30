@@ -25,9 +25,9 @@ export function StepOperations({ state, errors, onChange }: StepOperationsProps)
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[
             { value: "humans_mostly", label: "Humans handle most of it manually" },
-            { value: "partly_automated", label: "Partly automated (simple auto-replies)" },
+            { value: "partly_automated", label: "Partly automated (simple auto replies)" },
             { value: "ticketing_system", label: "Structured ticketing system" },
-            { value: "email_based", label: "Email-based queue" },
+            { value: "email_based", label: "Email based queue" },
             { value: "other", label: "Other" },
           ].map((opt) => (
             <OptionCard

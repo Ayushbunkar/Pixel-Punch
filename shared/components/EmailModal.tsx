@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Mail, X, Loader2, Send, CheckCircle2 } from "lucide-react";
 import * as motion from "framer-motion/client";
 
@@ -10,12 +10,20 @@ interface EmailModalProps {
   submissionId: string;
   scanType: "cost" | "opportunity";
   onSuccess?: () => void;
+  defaultEmail?: string;
 }
 
-export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess }: EmailModalProps) {
-  const [email, setEmail] = useState("");
+export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess, defaultEmail = "" }: EmailModalProps) {
+  const [email, setEmail] = useState(defaultEmail);
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+
+  // Sync email state when defaultEmail becomes available
+  useEffect(() => {
+    if (defaultEmail) {
+      setEmail(defaultEmail);
+    }
+  }, [defaultEmail]);
 
   if (!isOpen) return null;
 

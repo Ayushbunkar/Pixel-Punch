@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AI Cost Scan — See where your AI spend is leaking",
     description:
-      "3-minute diagnostic. Personalized RAG scorecard. Clear next-step recommendation.",
+      "3 minute diagnostic. Personalized RAG scorecard. Clear next-step recommendation.",
     type: "website",
   },
 };
@@ -60,12 +60,12 @@ export default async function AiCostScanPage({ searchParams }: PageProps) {
           className="text-center mb-14"
         >
           {/* Badge */}
-          <motion.div variants={slideUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-600 text-xs font-medium mb-6">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-90 shadow-[0_0_10px_#3b82f6]"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600 shadow-[0_0_8px_#3b82f6]"></span>
+          <motion.div variants={slideUp} className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-xs font-bold mb-6 shadow-sm">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-95 shadow-[0_0_12px_#10b981]"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 shadow-[0_0_10px_#10b981]"></span>
             </span>
-            Free · 3-minute diagnostic
+            Free · 3 minute diagnostic
           </motion.div>
 
           <motion.h1 variants={slideUp} className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-4">
@@ -78,7 +78,7 @@ export default async function AiCostScanPage({ searchParams }: PageProps) {
 
           <motion.p variants={slideUp} className="max-w-2xl mx-auto text-lg text-slate-600 mb-8">
             Answer 7 questions. Get a personalised scorecard across spend visibility,
-            architecture risk, and business urgency — plus 2–3 targeted insights and
+            architecture risk, and business urgency — plus 2 to 3 targeted insights and
             a clear recommendation.
           </motion.p>
 
@@ -86,7 +86,7 @@ export default async function AiCostScanPage({ searchParams }: PageProps) {
           <motion.div variants={slideUp} className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-600">
             {[
               { icon: <Target className="w-4 h-4" />, text: "RAG scorecard across 3 dimensions" },
-              { icon: <Lightbulb className="w-4 h-4" />, text: "2–3 tailored insights" },
+              { icon: <Lightbulb className="w-4 h-4" />, text: "2 to 3 tailored insights" },
               { icon: <ClipboardList className="w-4 h-4" />, text: "Clear next-step recommendation" },
             ].map(({ icon, text }) => (
               <span key={text} className="flex items-center gap-2">

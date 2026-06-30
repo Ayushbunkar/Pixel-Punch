@@ -99,19 +99,10 @@ function validateStep(step: number, state: FormState): ValidationErrors {
       break;
 
     case 8:
-      if (!state.firstname.trim()) errors.firstname = "First name is required.";
-      if (!state.lastname.trim())  errors.lastname  = "Last name is required.";
+      if (!state.firstname.trim()) errors.firstname = "Name is required.";
       if (!state.email.trim())     errors.email     = "Work email is required.";
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email))
         errors.email = "Please enter a valid email address.";
-      if (!state.company.trim())   errors.company   = "Company is required.";
-      if (!state.job_title.trim()) errors.job_title = "Job title is required.";
-      if (
-        state.extra_context &&
-        state.extra_context.length > 2000
-      ) {
-        errors.extra_context = "Maximum 2000 characters.";
-      }
       break;
 
     case 9:

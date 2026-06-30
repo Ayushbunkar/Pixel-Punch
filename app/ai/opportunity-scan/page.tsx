@@ -10,11 +10,11 @@ import { slideUp, staggerContainer, fadeIn } from "@/shared/components/animation
 export const metadata: Metadata = {
   title: "AI Opportunity Scan | Pixel Punch AI",
   description:
-    "Answer a 3-minute diagnostic and get your personalized AI Opportunity Roadmap. Uncover operational bottlenecks and discover where AI can drive value.",
+    "Answer a 3 minute diagnostic and get your personalized AI Opportunity Roadmap. Uncover operational bottlenecks and discover where AI can drive value.",
   openGraph: {
     title: "AI Opportunity Scan — Find where AI can create value",
     description:
-      "3-minute diagnostic. Personalized RAG readiness report. Actionable AI roadmap.",
+      "3 minute diagnostic. Personalized RAG readiness report. Actionable AI roadmap.",
     type: "website",
   },
 };
@@ -59,12 +59,12 @@ export default async function AiOpportunityScanPage({ searchParams }: PageProps)
           className="text-center mb-14"
         >
           {/* Badge */}
-          <motion.div variants={slideUp} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-600 text-xs font-semibold mb-6">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-90 shadow-[0_0_10px_#6366f1]"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-600 shadow-[0_0_8px_#6366f1]"></span>
+          <motion.div variants={slideUp} className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-xs font-bold mb-6 shadow-sm">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-95 shadow-[0_0_12px_#10b981]"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 shadow-[0_0_10px_#10b981]"></span>
             </span>
-            Free · 3-minute diagnostic
+            Free · 3 minute diagnostic
           </motion.div>
 
           <motion.h1 variants={slideUp} className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-4">

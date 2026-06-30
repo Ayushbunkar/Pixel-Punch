@@ -76,16 +76,11 @@ function validateStep(step: number, state: FormState): ValidationErrors {
         errors.adoption_blocker = "Please select AI adoption blocker.";
       break;
 
-    case 6: // Contact & Company
-      if (!state.firstname.trim()) errors.firstname = "First name is required.";
-      if (!state.lastname.trim())  errors.lastname  = "Last name is required.";
+    case 6: // Contact
+      if (!state.firstname.trim()) errors.firstname = "Name is required.";
       if (!state.email.trim())     errors.email     = "Email is required.";
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim()))
         errors.email = "Please enter a valid email address.";
-      if (!state.company.trim())   errors.company   = "Company name is required.";
-      if (!state.company_size || !isValidEnum(state.company_size, COMPANY_SIZE_VALUES))
-        errors.company_size = "Please select company size.";
-      if (!state.job_title.trim()) errors.job_title = "Job title is required.";
       break;
   }
 

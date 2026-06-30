@@ -14,7 +14,7 @@ const OPTIONS: { value: MainPain; label: string; sublabel: string; icon: React.R
   {
     value:    "margin_pressure",
     label:    "Margin pressure on AI features",
-    sublabel: "AI costs are squeezing the unit economics of AI-powered features or products.",
+    sublabel: "AI costs are squeezing the unit economics of AI powered features or products.",
     icon:     <TrendingDown className="w-5 h-5 text-indigo-400" />,
   },
   {

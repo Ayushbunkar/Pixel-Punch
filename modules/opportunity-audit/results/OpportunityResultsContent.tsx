@@ -453,14 +453,22 @@ export default function OpportunityResultsContent() {
   const isUnlocked = autoDownload;
 
   const triggerPdfDownload = useCallback(async (submId?: string) => {
-
     try {
+      // Wait/retry loop for the PDF elements to render
+      let element = document.getElementById("opportunity-pdf-report-content") || document.getElementById("pdf-report-content");
+      let attempts = 0;
+      while (!element && attempts < 6) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        element = document.getElementById("opportunity-pdf-report-content") || document.getElementById("pdf-report-content");
+        attempts++;
+      }
+
+      if (!element) {
+        console.error("PDF target element not found after attempts");
+        return;
+      }
 
       const { default: html2pdf } = await import("html2pdf.js");
-
-      const element = document.getElementById("opportunity-pdf-report-content") || document.getElementById("pdf-report-content");
-
-      if (!element) return;
 
       // Get data from the hidden element
       const hiddenDiv = element as HTMLElement;
@@ -471,6 +479,11 @@ export default function OpportunityResultsContent() {
         console.error("No data found in hidden element");
         return;
       }
+
+      const cleanBulletText = (t: string) => {
+        if (!t) return "";
+        return t.replace(/^[-*•\s]+/, "").trim();
+      };
 
       const ragColor = (v: string) => v === "red" ? "#dc2626" : v === "amber" ? "#d97706" : "#16a34a";
       const ragLabel = (v: string) => v === "red" ? "⚠ HIGH RISK" : v === "amber" ? "◑ NEEDS ATTENTION" : "✓ GOOD";
@@ -483,10 +496,12 @@ export default function OpportunityResultsContent() {
         const radius = 60;
         let currentAngle = 0;
         
+        const valueMap: Record<string, number> = { red: 3, amber: 2, green: 1 };
+        const totalValue = data.reduce((sum, item) => sum + (valueMap[item.value] || 1), 0);
+        
         const slices = data.map((item, i) => {
-          const valueMap: Record<string, number> = { red: 3, amber: 2, green: 1 };
           const value = valueMap[item.value] || 1;
-          const angle = (value / 6) * 360;
+          const angle = (value / (totalValue || 1)) * 360;
           const startAngle = currentAngle;
           currentAngle += angle;
           
@@ -576,7 +591,7 @@ export default function OpportunityResultsContent() {
             ${data.recommendations.slice(0, 8).map((rec: string, i: number) => `
               <div style="background: #f8fafc; border-radius: 8px; border-left: 3px solid #4f46e5; padding: 12px 16px;">
                 <div style="font-size: 9px; font-weight: 800; color: #4f46e5; margin-bottom: 8px;">Recommendation ${i + 1}</div>
-                <div style="font-size: 11px; color: #334155; line-height: 1.5;">${rec}</div>
+                <div style="font-size: 11px; color: #334155; line-height: 1.5;">${cleanBulletText(rec)}</div>
               </div>
             `).join("")}
           </div>
@@ -591,7 +606,7 @@ export default function OpportunityResultsContent() {
             ${data.nextSteps && data.nextSteps.length > 0 ? data.nextSteps.slice(0, 8).map((step: string, i: number) => `
               <div style="background: #f8fafc; border-radius: 8px; border-left: 3px solid #16a34a; padding: 12px 16px;">
                 <div style="font-size: 9px; font-weight: 800; color: #16a34a; margin-bottom: 8px;">Step ${i + 1}</div>
-                <div style="font-size: 11px; color: #334155; line-height: 1.5;">${step}</div>
+                <div style="font-size: 11px; color: #334155; line-height: 1.5;">${cleanBulletText(step)}</div>
               </div>
             `).join("") : ""}
           </div>
@@ -974,13 +989,13 @@ export default function OpportunityResultsContent() {
 
         >
 
-          <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-600 text-[10px] font-semibold mb-2">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-xs font-bold mb-3 shadow-sm">
 
-            <span className="relative flex h-2 w-2">
+            <span className="relative flex h-3 w-3">
 
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90 shadow-[0_0_10px_#10b981]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90 shadow-[0_0_12px_#10b981]"></span>
 
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-600 shadow-[0_0_10px_#10b981]"></span>
 
             </span>
 
@@ -1020,7 +1035,7 @@ export default function OpportunityResultsContent() {
 
               desc: "Workflow standardization, data structure, and system connection levels.",
 
-              rag: scorecard.readiness,
+              rag: isUnlocked ? scorecard.readiness : "red",
 
             },
 
@@ -1030,7 +1045,7 @@ export default function OpportunityResultsContent() {
 
               desc: "Urgency of resolving core manual pain points and expected ROI.",
 
-              rag: scorecard.value,
+              rag: isUnlocked ? scorecard.value : "red",
 
             },
 
@@ -1040,7 +1055,7 @@ export default function OpportunityResultsContent() {
 
               desc: "Density of routine data and customer processes ready for AI.",
 
-              rag: scorecard.opportunity,
+              rag: isUnlocked ? scorecard.opportunity : "amber",
 
             },
 
@@ -1080,13 +1095,13 @@ export default function OpportunityResultsContent() {
 
                   <span className="text-[9px] font-bold uppercase tracking-wider text-slate-700">{styles.label}</span>
 
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1.5">
 
-                    <span className="relative flex h-1.5 w-1.5">
+                    <span className="relative flex h-2.5 w-2.5">
 
-                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${styles.dot} opacity-75`}></span>
+                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${styles.dot} opacity-90 shadow-[0_0_8px_currentColor]`} style={{ color: card.rag === "red" ? "#f43f5e" : card.rag === "amber" ? "#f59e0b" : "#10b981" }}></span>
 
-                      <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${styles.dot}`}></span>
+                      <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${styles.dot} shadow-[0_0_6px_currentColor]`} style={{ color: card.rag === "red" ? "#f43f5e" : card.rag === "amber" ? "#f59e0b" : "#10b981" }}></span>
 
                     </span>
 
@@ -1816,7 +1831,7 @@ export default function OpportunityResultsContent() {
 
               <h3 className="text-xs font-bold text-slate-900 mb-1.5 flex items-center gap-2">
 
-                Phase 1: Quick Wins (0-3 Months)
+                Phase 1: Quick Wins (0 to 3 Months)
 
                 <span className="text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 px-1.5 py-0.5 rounded">High Feasibility</span>
 
@@ -1900,7 +1915,7 @@ export default function OpportunityResultsContent() {
 
                   <h3 className="text-xs font-bold text-slate-900 mb-1.5 flex items-center gap-2">
 
-                    Phase 2: Core Enhancements (3-6 Months)
+                    Phase 2: Core Enhancements (3 to 6 Months)
 
                     <span className="text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-100 px-1.5 py-0.5 rounded">Core Transformation</span>
 
@@ -1926,7 +1941,7 @@ export default function OpportunityResultsContent() {
 
                   <h3 className="text-xs font-bold text-slate-900 mb-1.5 flex items-center gap-2">
 
-                    Phase 3: Strategic Scaling (6-12+ Months)
+                    Phase 3: Strategic Scaling (6 to 12+ Months)
 
                     <span className="text-[9px] font-bold bg-violet-50 text-violet-700 border border-violet-100 px-1.5 py-0.5 rounded">Agentic Automation</span>
 
@@ -1966,7 +1981,7 @@ export default function OpportunityResultsContent() {
 
             <p className="text-slate-400 text-xs mt-1">
 
-              Book a free 15-minute diagnostic call. We will walk you through your RAG scoring dashboard, suggest optimization steps, and define integration scopes.
+              Book a free 15 minute diagnostic call. We will walk you through your RAG scoring dashboard, suggest optimization steps, and define integration scopes.
 
             </p>
 
@@ -2027,6 +2042,8 @@ export default function OpportunityResultsContent() {
           submissionId={data.submissionId}
 
           scanType="opportunity"
+
+          defaultEmail={data.contact.email}
 
         />
 
