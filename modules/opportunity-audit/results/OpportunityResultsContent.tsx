@@ -471,14 +471,28 @@ export default function OpportunityResultsContent() {
       const { default: html2pdf } = await import("html2pdf.js");
 
       // Get data from the hidden element
-      const hiddenDiv = element as HTMLElement;
-      const dataAttr = hiddenDiv.getAttribute("data-json-data");
-      const data: ResultsData = dataAttr ? JSON.parse(dataAttr) : null;
+            const hiddenDiv = element as HTMLElement;
+            const dataAttr = hiddenDiv.getAttribute("data-json-data");
+      
+            if (!dataAttr) {
+              console.error("No data attribute found in hidden element");
+              return;
+            }
 
-      if (!data) {
-        console.error("No data found in hidden element");
-        return;
-      }
+            let parsedData: ResultsData | null = null;
+            try {
+              parsedData = JSON.parse(dataAttr) as ResultsData;
+            } catch (parseError) {
+              console.error("Failed to parse JSON data:", parseError);
+              return;
+            }
+
+            if (!parsedData) {
+              console.error("No data found in hidden element");
+              return;
+            }
+
+            const data = parsedData;
 
       const cleanBulletText = (t: string) => {
         if (!t) return "";
