@@ -30,6 +30,35 @@ import { ResultsSkeleton } from "./ResultsSkeleton";
 
 import { EmailModal } from "@/shared/components/EmailModal";
 
+const cleanMarkdownForPdf = (md: string) => {
+  if (!md) return "";
+  return md.split("\n").map(line => {
+    let trimmed = line.trim();
+    // Remove heading markers
+    trimmed = trimmed.replace(/^#{1,6}\s+/, "");
+    // Remove leading list markers (-, *, •, +)
+    trimmed = trimmed.replace(/^([-*+•]\s*)+/, "");
+    // Remove numbered list markers
+    trimmed = trimmed.replace(/^\d+\.\s+/, "");
+    // Remove bold/italic markers
+    trimmed = trimmed.replace(/\*\*(.*?)\*\*/g, "$1");
+    trimmed = trimmed.replace(/\*(.*?)\*/g, "$1");
+    trimmed = trimmed.replace(/__(.*?)__/g, "$1");
+    trimmed = trimmed.replace(/_(.*?)_/g, "$1");
+    // Remove inline code
+    trimmed = trimmed.replace(/`([^`]+)`/g, "$1");
+    // Remove markdown links
+    trimmed = trimmed.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+    // Remove horizontal rules
+    trimmed = trimmed.replace(/^[-*_]{3,}$/, "");
+    // Remove any remaining leading/trailing asterisks or hyphens that weren't caught
+    trimmed = trimmed.replace(/^[*\-_>]+\s*/, "");
+    // Remove standalone asterisks/hyphens left anywhere
+    trimmed = trimmed.replace(/\*\*/g, "").replace(/\*/g, "");
+    return trimmed;
+  }).filter(line => line.trim() !== "---" && line.trim() !== "***" && line.trim() !== "___").join("\n");
+};
+
 export default function ResultsPageContent() {
 
   const router = useRouter();
@@ -150,52 +179,29 @@ export default function ResultsPageContent() {
         return text;
       };
 
-      const cleanMarkdownForPdf = (md: string) => {
-        if (!md) return "";
-        return md.split("\n").map(line => {
-          let trimmed = line.trim();
-          trimmed = trimmed.replace(/^#{1,6}\s+/, "");
-          trimmed = trimmed.replace(/^([-\*•]\s*)+/, "");
-          trimmed = trimmed.replace(/\*\*(.*?)\*\*/g, "$1").replace(/\*(.*?)\*/g, "$1");
-          trimmed = trimmed.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
-          return trimmed;
-        }).join("\n");
-      };
-
-      // Generate SVG Pie Chart for RAG Scorecard
+      // Generate HTML-based RAG color chart (replaces SVG pie which html2canvas clips)
       const generatePieChart = (data: { label: string; value: string; color: string }[]) => {
-        const size = 160;
-        const center = size / 2;
-        const radius = 60;
-        let currentAngle = 0;
-        
-        // Calculate equal slices (120 degrees each for 3 categories)
-        const sliceAngle = 120;
-        
-        const slices = data.map((item, i) => {
-          const startAngle = currentAngle;
-          currentAngle += sliceAngle;
-          
-          const x1 = center + radius * Math.cos((startAngle * Math.PI) / 180);
-          const y1 = center + radius * Math.sin((startAngle * Math.PI) / 180);
-          const x2 = center + radius * Math.cos((currentAngle * Math.PI) / 180);
-          const y2 = center + radius * Math.sin((currentAngle * Math.PI) / 180);
-          
-          const largeArcFlag = sliceAngle > 180 ? 1 : 0;
-          
-          const pathData = `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
-          
-          return `<path d="${pathData}" fill="${item.color}" stroke="#fff" stroke-width="2"/>`;
-        }).join("");
-        
+        const rows = data.map(item => `
+          <tr>
+            <td style="padding: 6px 8px; vertical-align: middle;">
+              <div style="width: 14px; height: 14px; background: ${item.color}; border-radius: 50%; display: inline-block; vertical-align: middle;"></div>
+            </td>
+            <td style="padding: 6px 8px; font-size: 10px; color: #334155; font-weight: 600; vertical-align: middle;">${item.label}</td>
+            <td style="padding: 6px 8px; vertical-align: middle;">
+              <div style="width: 80px; height: 10px; background: #f1f5f9; border-radius: 5px; overflow: hidden;">
+                <div style="width: 100%; height: 100%; background: ${item.color}; border-radius: 5px;"></div>
+              </div>
+            </td>
+            <td style="padding: 6px 8px; font-size: 10px; color: ${item.color}; font-weight: 700; text-transform: uppercase; vertical-align: middle;">${item.value}</td>
+          </tr>
+        `).join("");
         return `
-        <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="margin: 0 auto;">
-          ${slices}
-          <circle cx="${center}" cy="${center}" r="30" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
-          <text x="${center}" y="${center - 5}" text-anchor="middle" font-size="10" font-weight="bold" fill="#334155">RAG</text>
-          <text x="${center}" y="${center + 10}" text-anchor="middle" font-size="7" fill="#64748b">Scorecard</text>
-        </svg>
-        `;
+        <div style="text-align: center; padding: 8px 0 4px 0;">
+          <div style="font-size: 11px; font-weight: 700; color: #334155; letter-spacing: 0.5px; margin-bottom: 8px;">RAG Scorecard</div>
+          <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; border-collapse: separate;">
+            ${rows}
+          </table>
+        </div>`;
       };
 
       // Generate SVG Bar Chart for Insights Count
