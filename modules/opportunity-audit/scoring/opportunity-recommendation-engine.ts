@@ -180,7 +180,11 @@ export async function generateAIRecommendations(
       });
 
       if (!res.ok) throw new Error(`Gemini API returned status ${res.status}`);
-      const json = await res.json();
+      const responseText = await res.text();
+      if (!responseText.trim()) {
+        throw new Error("Gemini API returned empty response");
+      }
+      const json = JSON.parse(responseText);
       rawResponse = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
     } else if (openaiKey) {
@@ -200,7 +204,11 @@ export async function generateAIRecommendations(
       });
 
       if (!res.ok) throw new Error(`OpenAI API returned status ${res.status}`);
-      const json = await res.json();
+      const responseText = await res.text();
+      if (!responseText.trim()) {
+        throw new Error("OpenAI API returned empty response");
+      }
+      const json = JSON.parse(responseText);
       rawResponse = json.choices?.[0]?.message?.content || "";
     }
 

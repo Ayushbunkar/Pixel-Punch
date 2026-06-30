@@ -108,38 +108,40 @@ export function generateFallbackReport(
   scores: ConfigScoringResult,
   recommendations: AIRecommendation[]
 ): ReportOutput {
-  const dataSystemsStr = (input.data_systems || []).join(", ");
-  const manualProcessesStr = (input.manual_processes || []).join(", ");
-  const recsBullets = recommendations
-    .map((r, i) => `- **Opportunity ${i + 1}: ${r.opportunity}**\n  * *Problem solved:* ${r.problem}\n  * *Business Impact:* ${r.impact}\n  * *Complexity & Priority:* ${r.complexity} Complexity | ${r.priority} Priority`)
-    .join("\n\n");
+  const dataSystemsStr = (input.data_systems || []).join(", ") || "various systems";
+  const manualProcessesStr = (input.manual_processes || []).join(", ") || "manual tasks";
+  const recsBullets = recommendations && recommendations.length > 0
+    ? recommendations
+        .map((r, i) => `- **Opportunity ${i + 1}: ${r.opportunity || 'AI Opportunity'}**\n  * *Problem solved:* ${r.problem || 'N/A'}\n  * *Business Impact:* ${r.impact || 'N/A'}\n  * *Complexity & Priority:* ${r.complexity || 'N/A'} Complexity | ${r.priority || 'N/A'} Priority`)
+        .join("\n\n")
+    : "";
 
-  const reportText = `# AI Opportunity Audit & Roadmap Report
+   const reportText = `# AI Opportunity Audit & Roadmap Report
 
 ### Executive Summary
-I analyzed the provided business information for **${input.company}** and generated a customized AI Opportunity Roadmap. Based on their operating profile, there is a clear opportunity to apply intelligent automation to streamline workflows, reduce manual dependencies, and speed up business outcomes.
+I analyzed the provided business information for **${input.company || "the business"}** and generated a customized AI Opportunity Roadmap. Based on their operating profile, there is a clear opportunity to apply intelligent automation to streamline workflows, reduce manual dependencies, and speed up business outcomes.
 
-Given that the primary objective is to improve **${input.main_outcome.replace("_", " ")}**, we have aligned this roadmap with their target operational goals and systems context.
+Given that the primary objective is to improve **${(input.main_outcome || "operational efficiency").replace("_", " ")}**, we have aligned this roadmap with their target operational goals and systems context.
 
 ### Current Operations & Inefficiencies
-The client currently experiences operational bottlenecks under **${input.biggest_challenge.replace("_", " ")}**, with core processes like **${manualProcessesStr}** requiring significant manual, repetitive effort. 
+The client currently experiences operational bottlenecks under **${(input.biggest_challenge || " operational challenges").replace("_", " ")}**, with core processes like **${manualProcessesStr}** requiring significant manual, repetitive effort. 
 
-The primary barrier preventing automation is **${input.automation_barriers.replace("_", " ")}**. Because key customer and operational data is stored in **${dataSystemsStr}**, data synchronization and system connectivity represent critical areas of focus.
+The primary barrier preventing automation is **${(input.automation_barriers || "lack of infrastructure").replace("_", " ")}**. Because key customer and operational data is stored in **${dataSystemsStr}**, data synchronization and system connectivity represent critical areas of focus.
 
 ### AI Readiness & Scorecard Analysis
-The 6 category dimensions calculated for ${input.company} show:
-- **Automation Opportunity**: ${scores.automation_opportunity?.score}/100 (${scores.automation_opportunity?.classification.toUpperCase()})
-- **AI Readiness**: ${scores.ai_readiness?.score}/100 (${scores.ai_readiness?.classification.toUpperCase()})
-- **Data Maturity**: ${scores.data_maturity?.score}/100 (${scores.data_maturity?.classification.toUpperCase()})
-- **Process Maturity**: ${scores.process_maturity?.score}/100 (${scores.process_maturity?.classification.toUpperCase()})
-- **Integration Readiness**: ${scores.integration_readiness?.score}/100 (${scores.integration_readiness?.classification.toUpperCase()})
-- **Business Impact**: ${scores.business_impact?.score}/100 (${scores.business_impact?.classification.toUpperCase()})
+The 6 category dimensions calculated for ${input.company || "the business"} show:
+- **Automation Opportunity**: ${scores.automation_opportunity?.score || 0}/100 (${scores.automation_opportunity?.classification?.toUpperCase() || "N/A"})
+- **AI Readiness**: ${scores.ai_readiness?.score || 0}/100 (${scores.ai_readiness?.classification?.toUpperCase() || "N/A"})
+- **Data Maturity**: ${scores.data_maturity?.score || 0}/100 (${scores.data_maturity?.classification?.toUpperCase() || "N/A"})
+- **Process Maturity**: ${scores.process_maturity?.score || 0}/100 (${scores.process_maturity?.classification?.toUpperCase() || "N/A"})
+- **Integration Readiness**: ${scores.integration_readiness?.score || 0}/100 (${scores.integration_readiness?.classification?.toUpperCase() || "N/A"})
+- **Business Impact**: ${scores.business_impact?.score || 0}/100 (${scores.business_impact?.classification?.toUpperCase() || "N/A"})
 
 A lower Data and Integration readiness indicates that before deploying advanced agentic AI, the client should focus on centralizing data pipelines and mapping workflow steps.
 
 ### Top AI Opportunities
 Based on the diagnostic scan, we recommend prioritizing these initiatives:
-${recsBullets}
+${recsBullets || "- No specific recommendations available."}
 
 ### Phased Implementation Roadmap
 - **Phase 1: Quick Wins (0-3 Months)**: Focus on low-complexity automations such as standardizing customer data fields and setting up basic automated alerts.
@@ -161,20 +163,6 @@ ${recsBullets}
 - Centralize customer records into a single system of truth.
 - Schedule a technical scoping session to outline quick-win AI projects.
 `;
-
-  return {
-    reportText,
-    findings: [
-      `Repetitive manual tasks (like ${manualProcessesStr}) restrict operational scale.`,
-      `Systems are disconnected, creating copy-paste silos.`,
-      `Workflow standardization represents the biggest step to AI readiness.`
-    ],
-    nextSteps: [
-      "Map step-by-step logic of manual tasks.",
-      "Centralize operational records in CRM/ERP.",
-      "Schedule a scoping review with PixelPunch."
-    ]
-  };
 }
 
 /**
@@ -213,7 +201,11 @@ export async function generateOpportunityReport(
       });
 
       if (!res.ok) throw new Error(`Gemini API returned status ${res.status}`);
-      const json = await res.json();
+      const responseText = await res.text();
+      if (!responseText.trim()) {
+        throw new Error("Gemini API returned empty response");
+      }
+      const json = JSON.parse(responseText);
       reportText = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
     } else if (openaiKey) {
@@ -232,7 +224,11 @@ export async function generateOpportunityReport(
       });
 
       if (!res.ok) throw new Error(`OpenAI API returned status ${res.status}`);
-      const json = await res.json();
+      const responseText = await res.text();
+      if (!responseText.trim()) {
+        throw new Error("OpenAI API returned empty response");
+      }
+      const json = JSON.parse(responseText);
       reportText = json.choices?.[0]?.message?.content || "";
     }
 
