@@ -10,7 +10,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing id parameter" }, { status: 400 });
   }
 
-  // 1. Try file-based database first
+  // 1. Try memory cache first (fastest, always works on Vercel)
+  const cached = submissionCache.get(id);
+  if (cached) {
+    return NextResponse.json(cached, { status: 200 });
+  }
+
+  // 2. Fallback to file-based database (works locally, not on Vercel serverless)
   try {
     const dbResult = await getSubmission(id);
     if (dbResult) {
@@ -20,12 +26,5 @@ export async function GET(req: NextRequest) {
     console.error("[result] Failed to read from file database:", err);
   }
 
-  // 2. Fallback to memory cache
-  const result = submissionCache.get(id);
-
-  if (!result) {
-    return NextResponse.json({ error: "Result not found" }, { status: 404 });
-  }
-
-  return NextResponse.json(result, { status: 200 });
+  return NextResponse.json({ error: "Result not found" }, { status: 404 });
 }

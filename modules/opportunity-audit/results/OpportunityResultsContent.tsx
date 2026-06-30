@@ -1042,7 +1042,7 @@ export default function OpportunityResultsContent() {
 
           <p className="text-slate-600 text-sm">
 
-            Customized for <strong className="text-slate-800">{data.company.name}</strong> · {data.company.businessType.toUpperCase()} ({data.company.size.replace("_", "-")} employees)
+            Customized for <strong className="text-slate-800">{data.company.name}</strong> · {(data.company.businessType ?? data.company.industry ?? "Business").toUpperCase()} ({(data.company.size ?? "unknown").replace("_", "-")} employees)
 
           </p>
 
