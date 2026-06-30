@@ -40,12 +40,19 @@ export function useSubmitOpportunity(): UseSubmitOpportunityReturn {
 
       // 2. Network POST request
       try {
+        // Strip empty optional lead fields to avoid server validation issues
+        const payload = { ...state };
+        if (!payload.lastname?.trim())     delete (payload as any).lastname;
+        if (!payload.company?.trim())      delete (payload as any).company;
+        if (!payload.company_size)         delete (payload as any).company_size;
+        if (!payload.job_title?.trim())    delete (payload as any).job_title;
+
         const response = await fetch("/api/opportunity-scan/submit", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(state),
+          body: JSON.stringify(payload),
         });
 
         const data = await response.json();

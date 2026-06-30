@@ -147,10 +147,17 @@ export function validateSubmission(body: unknown): FieldError[] {
 
   // ── Lead capture ──────────────────────────────────────────────────────────
   stringField("firstname", "First name", { maxLength: 100 });
-  stringField("lastname",  "Last name",  { maxLength: 100 });
   stringField("email",     "Email",      { maxLength: 254, format: "email" });
-  stringField("company",   "Company",    { maxLength: 200 });
-  stringField("job_title", "Job title",  { maxLength: 150 });
+
+  if (data["lastname"] !== undefined && data["lastname"] !== null && data["lastname"] !== "") {
+    stringField("lastname",  "Last name",  { maxLength: 100 });
+  }
+  if (data["company"] !== undefined && data["company"] !== null && data["company"] !== "") {
+    stringField("company",   "Company",    { maxLength: 200 });
+  }
+  if (data["job_title"] !== undefined && data["job_title"] !== null && data["job_title"] !== "") {
+    stringField("job_title", "Job title",  { maxLength: 150 });
+  }
 
   // ── Technical audit fields validation (if nested payload) ─────────────────
   if (hasAnswers) {
@@ -316,11 +323,11 @@ export function castToFormState(data: Record<string, unknown>): FormState {
     optimization_done:  answersData.optimization_done  as FormState["optimization_done"],
     savings_threshold:  answersData.savings_threshold  as FormState["savings_threshold"],
     extra_context:      (answersData.extra_context as string | undefined) ?? "",
-    firstname:          (answersData.firstname as string).trim(),
-    lastname:           (answersData.lastname  as string).trim(),
-    email:              (answersData.email     as string).trim().toLowerCase(),
-    company:            (answersData.company   as string).trim(),
-    job_title:          (answersData.job_title as string).trim(),
+    firstname:          (answersData.firstname as string || "").trim(),
+    lastname:           (answersData.lastname  as string || "").trim(),
+    email:              (answersData.email     as string || "").trim().toLowerCase(),
+    company:            (answersData.company   as string || "").trim(),
+    job_title:          (answersData.job_title as string || "").trim(),
     ref:                (answersData.ref       as string | undefined) ?? "co-landing",
 
     website_url:        (techCtx.websiteUrl || (isNested ? data.websiteUrl : null) || answersData.website_url || "") as string,

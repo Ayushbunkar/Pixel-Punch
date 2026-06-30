@@ -119,11 +119,20 @@ export function validateSubmission(body: unknown): FieldError[] {
 
   // ── Lead context ──────────────────────────────────────────────────────────
   stringField("firstname", "First name", { maxLength: 100 });
-  stringField("lastname",  "Last name",  { maxLength: 100 });
   stringField("email",     "Email",      { maxLength: 254, format: "email" });
-  stringField("company",   "Company",    { maxLength: 200 });
-  enumField("company_size", COMPANY_SIZE_VALUES, "Company size");
-  stringField("job_title", "Job title",  { maxLength: 150 });
+
+  if (data["lastname"] !== undefined && data["lastname"] !== null && data["lastname"] !== "") {
+    stringField("lastname",  "Last name",  { maxLength: 100 });
+  }
+  if (data["company"] !== undefined && data["company"] !== null && data["company"] !== "") {
+    stringField("company",   "Company",    { maxLength: 200 });
+  }
+  if (data["company_size"] !== undefined && data["company_size"] !== null && data["company_size"] !== "") {
+    enumField("company_size", COMPANY_SIZE_VALUES, "Company size");
+  }
+  if (data["job_title"] !== undefined && data["job_title"] !== null && data["job_title"] !== "") {
+    stringField("job_title", "Job title",  { maxLength: 150 });
+  }
 
   // Optional
   if (data["extra_context"] !== undefined && data["extra_context"] !== null && data["extra_context"] !== "") {
@@ -156,12 +165,12 @@ export function castToFormState(data: Record<string, unknown>): FormState {
     desired_use_case:         data.desired_use_case         as FormState["desired_use_case"],
     adoption_blocker:         data.adoption_blocker         as FormState["adoption_blocker"],
     extra_context:            (data.extra_context as string | undefined) ?? "",
-    firstname:                (data.firstname as string).trim(),
-    lastname:                 (data.lastname as string).trim(),
-    email:                    (data.email as string).trim().toLowerCase(),
-    company:                  (data.company as string).trim(),
+    firstname:                (data.firstname as string || "").trim(),
+    lastname:                 (data.lastname as string || "").trim(),
+    email:                    (data.email as string || "").trim().toLowerCase(),
+    company:                  (data.company as string || "").trim(),
     company_size:             data.company_size             as FormState["company_size"],
-    job_title:                (data.job_title as string).trim(),
+    job_title:                (data.job_title as string || "").trim(),
     ref:                      (data.ref as string | undefined) ?? "op-landing",
   };
 }
