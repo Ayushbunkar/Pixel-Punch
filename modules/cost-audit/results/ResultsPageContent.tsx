@@ -47,6 +47,7 @@ export default function ResultsPageContent() {
 
   // Unlock Modal Component
   function UnlockModal({ isOpen, onClose, onEmail }: { isOpen: boolean; onClose: () => void; onEmail: () => void }) {
+    if (!isOpen) return null;
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
@@ -1257,13 +1258,6 @@ export default function ResultsPageContent() {
                 submissionId={result.submissionId}
                 scanType="cost"
                 defaultEmail={result.contact.email}
-                onSuccess={() => {
-                  // Direct PDF download after email submission
-                  const params = new URLSearchParams(window.location.search);
-                  params.set("download", "pdf");
-                  params.set("pdf", "true");
-                  router.push(`?${params.toString()}`);
-                }}
               />
             )}
     </div>

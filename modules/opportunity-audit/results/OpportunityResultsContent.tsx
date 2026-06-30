@@ -287,7 +287,7 @@ function getStepDetails(stepItem: string, idx: number) {
 // ── Unlock Modal Component ────────────────────────────────────────────────────
 
 function UnlockModal({ isOpen, onClose, onEmail }: { isOpen: boolean; onClose: () => void; onEmail: () => void }) {
-
+  if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
 
