@@ -550,50 +550,52 @@ export default function OpportunityResultsContent() {
       const scorecardHtml = `
         <div style="padding: 32px 40px; background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); border-bottom: 1px solid #e2e8f0;">
           <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 20px 0;">RAG Scorecard Overview</h2>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-            <!-- Pie Chart -->
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;">
-              ${generatePieChart([
-                { label: "Readiness", value: data.scorecard.readiness, color: ragColor(data.scorecard.readiness) },
-                { label: "Value", value: data.scorecard.value, color: ragColor(data.scorecard.value) },
-                { label: "Opportunity", value: data.scorecard.opportunity, color: ragColor(data.scorecard.opportunity) }
-              ])}
-              <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; justify-content: center;">
-                <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #64748b;">
-                  <span style="width: 10px; height: 10px; background: ${ragColor(data.scorecard.readiness)}; border-radius: 2px;"></span>
-                  <span>Readiness</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #64748b;">
-                  <span style="width: 10px; height: 10px; background: ${ragColor(data.scorecard.value)}; border-radius: 2px;"></span>
-                  <span>Value</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #64748b;">
-                  <span style="width: 10px; height: 10px; background: ${ragColor(data.scorecard.opportunity)}; border-radius: 2px;"></span>
-                  <span>Opportunity</span>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Scorecard Details -->
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-              ${[
-                ["AI Readiness", data.scorecard.readiness],
-                ["Business Value", data.scorecard.value],
-                ["Automation Opportunity", data.scorecard.opportunity]
-              ].map(([label, val]) => `
-                <div style="background: #fff; border-radius: 8px; border: 1.5px solid ${ragColor(val as string)}40; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
-                  <div>
-                    <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">${label}</div>
-                    <div style="font-size: 16px; font-weight: 900; color: ${ragColor(val as string)};">${(val as string).toUpperCase()}</div>
+          <table border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+              <td width="48%" valign="middle" style="padding: 16px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+                ${generatePieChart([
+                  { label: "Readiness", value: data.scorecard.readiness, color: ragColor(data.scorecard.readiness) },
+                  { label: "Value", value: data.scorecard.value, color: ragColor(data.scorecard.value) },
+                  { label: "Opportunity", value: data.scorecard.opportunity, color: ragColor(data.scorecard.opportunity) }
+                ])}
+                <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; justify-content: center;">
+                  <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #64748b;">
+                    <span style="width: 10px; height: 10px; background: ${ragColor(data.scorecard.readiness)}; border-radius: 2px;"></span>
+                    <span>Readiness</span>
                   </div>
-                  <div style="text-align: right;">
-                    <div style="font-size: 9px; color: ${ragColor(val as string)}; font-weight: 600;">${ragLabel(val as string)}</div>
-                    <div style="font-size: 8px; color: #94a3b8; margin-top: 2px;">${ragBg(val as string)}</div>
+                  <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #64748b;">
+                    <span style="width: 10px; height: 10px; background: ${ragColor(data.scorecard.value)}; border-radius: 2px;"></span>
+                    <span>Value</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 6px; font-size: 10px; color: #64748b;">
+                    <span style="width: 10px; height: 10px; background: ${ragColor(data.scorecard.opportunity)}; border-radius: 2px;"></span>
+                    <span>Opportunity</span>
                   </div>
                 </div>
-              `).join("")}
-            </div>
-          </div>
+              </td>
+              <td width="4%"></td>
+              <td width="48%" valign="top">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  ${[
+                    ["AI Readiness", data.scorecard.readiness],
+                    ["Business Value", data.scorecard.value],
+                    ["Automation Opportunity", data.scorecard.opportunity]
+                  ].map(([label, val]) => `
+                    <div style="background: #fff; border-radius: 8px; border: 1.5px solid ${ragColor(val as string)}40; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
+                      <div>
+                        <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">${label}</div>
+                        <div style="font-size: 16px; font-weight: 900; color: ${ragColor(val as string)};">${(val as string).toUpperCase()}</div>
+                      </div>
+                      <div style="text-align: right;">
+                        <div style="font-size: 9px; color: ${ragColor(val as string)}; font-weight: 600;">${ragLabel(val as string)}</div>
+                        <div style="font-size: 8px; background-color: ${ragBg(val as string)}; padding: 2px 6px; border-radius: 4px; margin-top: 2px; color: ${val === "red" ? "#991b1b" : val === "amber" ? "#b45309" : "#166534"}; display: inline-block;">${(val as string).toUpperCase()}</div>
+                      </div>
+                    </div>
+                  `).join("")}
+                </div>
+              </td>
+            </tr>
+          </table>
         </div>
       `;
 
