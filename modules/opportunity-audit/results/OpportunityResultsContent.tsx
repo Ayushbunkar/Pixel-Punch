@@ -811,20 +811,20 @@ export default function OpportunityResultsContent() {
   if (!data) return null;
 
   // Safe fallback for database vs in-memory api schemas
-
-  const scorecard = data.scorecard || {
-
-    readiness: data.score?.readiness ?? "amber",
-
-    value: data.score?.value ?? "amber",
-
-    opportunity: data.score?.opportunity ?? "amber",
-
+  // Old cached records store scorecard under `score`, new ones under `scorecard`
+  const rawScore = (data as any).score;
+  const scorecard = data.scorecard ?? {
+    readiness: (rawScore?.readiness ?? "amber") as Rag,
+    value: (rawScore?.value ?? "amber") as Rag,
+    opportunity: (rawScore?.opportunity ?? "amber") as Rag,
   };
+
+  const safeRoadmap = data.roadmap ?? { phase1: [] as string[], phase2: [] as string[], phase3: [] as string[] };
 
   // Extract categories for 6-grid view, with fallbacks
 
-  const categories = data.score?.categories || {};
+  const categories = ((data as any).score?.categories || {}) as Record<string, { name: string; score: number; maxScore: number; classification: string; description: string }>;
+
 
   // Extract recommendations safely from db or direct api
 
@@ -1870,7 +1870,7 @@ export default function OpportunityResultsContent() {
 
               <ul className="list-disc pl-4 space-y-1 text-[10px] text-slate-600">
 
-                {data.roadmap.phase1.map((item, i) => <li key={i}>{item}</li>)}
+                {safeRoadmap.phase1.map((item, i) => <li key={i}>{item}</li>)}
 
               </ul>
 
@@ -1954,7 +1954,7 @@ export default function OpportunityResultsContent() {
 
                   <ul className="list-disc pl-4 space-y-1 text-[10px] text-slate-600">
 
-                    {data.roadmap.phase2.map((item, i) => <li key={i}>{item}</li>)}
+                    {safeRoadmap.phase2.map((item, i) => <li key={i}>{item}</li>)}
 
                   </ul>
 
@@ -1980,7 +1980,7 @@ export default function OpportunityResultsContent() {
 
                   <ul className="list-disc pl-4 space-y-1 text-[10px] text-slate-600">
 
-                    {data.roadmap.phase3.map((item, i) => <li key={i}>{item}</li>)}
+                    {safeRoadmap.phase3.map((item, i) => <li key={i}>{item}</li>)}
 
                   </ul>
 
@@ -2081,7 +2081,7 @@ export default function OpportunityResultsContent() {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
             <thead><tr style={{ backgroundColor: "#f1f5f9" }}><th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Dimension</th><th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Rating</th></tr></thead>
             <tbody>
-              {([["AI Readiness", data.scorecard.readiness], ["Business Value", data.scorecard.value], ["Automation Opportunity", data.scorecard.opportunity]] as [string, string][]).map(([label, val]) => (
+              {([["AI Readiness", scorecard.readiness], ["Business Value", scorecard.value], ["Automation Opportunity", scorecard.opportunity]] as [string, string][]).map(([label, val]) => (
                 <tr key={label} style={{ borderTop: "1px solid #e2e8f0" }}>
                   <td style={{ padding: "8px 12px", color: "#334155" }}>{label}</td>
                   <td style={{ padding: "8px 12px", fontWeight: "600", color: val === "red" ? "#dc2626" : val === "amber" ? "#d97706" : "#16a34a" }}>{val.toUpperCase()}</td>

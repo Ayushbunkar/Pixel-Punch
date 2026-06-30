@@ -155,6 +155,13 @@ export async function POST(req: NextRequest) {
       tier: results.tier,
       categories: results.categories,
     },
+    // Alias for component compatibility (component reads data.scorecard)
+    scorecard: {
+      readiness: results.scorecard.readiness,
+      value: results.scorecard.value,
+      opportunity: results.scorecard.opportunity,
+    },
+    tier: results.tier,
     recommendations: deduplicateRecommendations(aiRecommendations.map(r => r.opportunity)), // Deduplicated recommendations
     roadmap: results.roadmap,
     auditReport: reportResult.reportText,
