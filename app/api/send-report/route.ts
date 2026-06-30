@@ -276,9 +276,9 @@ export async function POST(req: NextRequest) {
                 <table border="0" cellpadding="0" cellspacing="0" style="margin:0 auto;">
                   <tr>
                     <td style="padding:0 6px;">
-                      <a href="${resultsPageUrl}" target="_blank"
+                      <a href="${resultsPageUrl}&download=pdf" target="_blank"
                          style="display:inline-block;padding:12px 22px;background:#0f172a;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:700;font-size:13px;letter-spacing:0.3px;">
-                        View Full Results →
+                        Download PDF Report
                       </a>
                     </td>
                     <td style="padding:0 6px;">
