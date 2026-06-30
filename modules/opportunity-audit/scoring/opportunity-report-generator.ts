@@ -21,8 +21,8 @@ export function buildReportPrompt(
   scores: ConfigScoringResult,
   recommendations: AIRecommendation[]
 ): string {
-  const dataSystemsStr = input.data_systems.join(", ");
-  const manualProcessesStr = input.manual_processes.join(", ");
+  const dataSystemsStr = (input.data_systems || []).join(", ");
+  const manualProcessesStr = (input.manual_processes || []).join(", ");
   const recsStr = recommendations
     .map((r, i) => `${i + 1}. ${r.opportunity} (Problem: ${r.problem} | Priority: ${r.priority})`)
     .join("\n");
@@ -108,8 +108,8 @@ export function generateFallbackReport(
   scores: ConfigScoringResult,
   recommendations: AIRecommendation[]
 ): ReportOutput {
-  const dataSystemsStr = input.data_systems.join(", ");
-  const manualProcessesStr = input.manual_processes.join(", ");
+  const dataSystemsStr = (input.data_systems || []).join(", ");
+  const manualProcessesStr = (input.manual_processes || []).join(", ");
   const recsBullets = recommendations
     .map((r, i) => `- **Opportunity ${i + 1}: ${r.opportunity}**\n  * *Problem solved:* ${r.problem}\n  * *Business Impact:* ${r.impact}\n  * *Complexity & Priority:* ${r.complexity} Complexity | ${r.priority} Priority`)
     .join("\n\n");

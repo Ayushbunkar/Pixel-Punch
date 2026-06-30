@@ -29,39 +29,49 @@ export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess,
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim() || !email.includes("@")) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch("/api/send-report", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ submissionId, email: email.trim(), scanType }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to send email.");
+      e.preventDefault();
+      if (!email.trim() || !email.includes("@")) {
+        return;
       }
 
-      setSent(true);
-      if (onSuccess) {
-        onSuccess();
+      setLoading(true);
+      try {
+        const response = await fetch("/api/send-report", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ submissionId, email: email.trim(), scanType }),
+        });
+
+        let errorData: { error?: string } | null = null;
+      
+        if (!response.ok) {
+                try {
+                  errorData = await response.json();
+                } catch (jsonError) {
+                  // If response body is empty or invalid JSON, use response status text
+                  errorData = { error: response.statusText || "Failed to send email." };
+                }
+                const errorMessage = errorData?.error || "Failed to send email.";
+                throw new Error(errorMessage);
+              }
+
+        setSent(true);
+        if (onSuccess) {
+          onSuccess();
+        }
+        setTimeout(() => {
+          setSent(false);
+          setEmail("");
+          onClose();
+        }, 2500);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Failed to send report email. Please try again.";
+        console.error("EmailModal error:", err);
+        alert(errorMessage);
+      } finally {
+        setLoading(false);
       }
-      setTimeout(() => {
-        setSent(false);
-        setEmail("");
-        onClose();
-      }, 2500);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to send report email. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -91,7 +101,7 @@ export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess,
           <X className="w-5 h-5" />
         </button>
 
-                {sent ? (
+        {sent ? (
           <div className="text-center py-6 space-y-4">
             <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-500 border border-emerald-100 flex items-center justify-center mx-auto shadow-sm">
               <CheckCircle2 className="w-8 h-8 animate-bounce" />
@@ -100,8 +110,10 @@ export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess,
               <h3 className="font-bold text-slate-900 text-lg">Report Sent Successfully!</h3>
               <p className="text-slate-500 text-sm">
                 We've emailed the full audit report to <strong className="text-slate-700">{email}</strong>.
+                <br /><br />
+                <span className="text-indigo-600 font-medium">Click the link in the email to view and download your report.</span>
               </p>
-            </div>
+          </div>
             {onDirectDownload && (
               <button
                 onClick={onDirectDownload}
@@ -122,6 +134,8 @@ export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess,
                 <h3 className="font-bold text-slate-900 text-lg">Send Report to Email</h3>
                 <p className="text-slate-500 text-xs leading-relaxed">
                   Enter your email address below to receive the complete customized {scanType === "cost" ? "Cost Audit" : "Opportunity Roadmap"} report directly in your inbox.
+                  <br /><br />
+                  <span className="text-indigo-600 font-medium">Click the link in the email to view and download your report.</span>
                 </p>
               </div>
             </div>

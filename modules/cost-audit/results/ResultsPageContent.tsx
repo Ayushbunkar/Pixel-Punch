@@ -122,7 +122,33 @@ export default function ResultsPageContent() {
 
       const cleanBulletText = (t: string) => {
         if (!t) return "";
-        return t.replace(/^[-*•\s]+/, "").trim();
+        let text = t
+          // Remove markdown bold/italic symbols
+          .replace(/\*\*(.*?)\*\*/g, "$1")  // **text** -> text
+          .replace(/\*(.*?)\*/g, "$1")       // *text* -> text
+          .replace(/__(.*?)__/g, "$1")       // __text__ -> text
+          .replace(/_(.*?)_/g, "$1")         // _text_ -> text
+          // Remove headings
+          .replace(/^#{1,6}\s+/gm, "")       // # Heading -> Heading
+          // Remove code blocks and inline code
+          .replace(/`([^`]+)`/g, "$1")        // `code` -> code
+          .replace(/```[\s\S]*?```/g, "")    // code blocks
+          // Remove horizontal rules
+          .replace(/^-{3,}$/gm, "")           // --- -> empty
+          // Remove links [text](url) -> text
+          .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+          // Remove leading markdown list markers
+          .replace(/^[\s]*[-*•]\s+/gm, "")
+          .replace(/^[\s]*\d+\.\s+/gm, "")
+          // Clean up remaining markdown symbols
+          .replace(/^[#*_`>]+\s*/g, "")
+          // Remove multiple newlines
+          .replace(/\n{3,}/g, "\n\n")
+          // Trim leading/trailing whitespace
+          .trim();
+        // Remove any remaining markdown characters
+        text = text.replace(/[#*_`>\-]+/g, "");
+        return text;
       };
 
       // Generate SVG Pie Chart for RAG Scorecard
@@ -132,21 +158,19 @@ export default function ResultsPageContent() {
         const radius = 60;
         let currentAngle = 0;
         
-        const valueMap: Record<string, number> = { red: 3, amber: 2, green: 1 };
-        const totalValue = data.reduce((sum, item) => sum + (valueMap[item.value] || 1), 0);
+        // Calculate equal slices (120 degrees each for 3 categories)
+        const sliceAngle = 120;
         
         const slices = data.map((item, i) => {
-          const value = valueMap[item.value] || 1;
-          const angle = (value / (totalValue || 1)) * 360;
           const startAngle = currentAngle;
-          currentAngle += angle;
+          currentAngle += sliceAngle;
           
           const x1 = center + radius * Math.cos((startAngle * Math.PI) / 180);
           const y1 = center + radius * Math.sin((startAngle * Math.PI) / 180);
           const x2 = center + radius * Math.cos((currentAngle * Math.PI) / 180);
           const y2 = center + radius * Math.sin((currentAngle * Math.PI) / 180);
           
-          const largeArcFlag = angle > 180 ? 1 : 0;
+          const largeArcFlag = sliceAngle > 180 ? 1 : 0;
           
           const pathData = `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
           
@@ -155,11 +179,10 @@ export default function ResultsPageContent() {
         
         return `
         <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="margin: 0 auto;">
-          <circle cx="${center}" cy="${center}" r="${radius}" fill="#f1f5f9"/>
           ${slices}
-          <circle cx="${center}" cy="${center}" r="30" fill="#fff"/>
+          <circle cx="${center}" cy="${center}" r="30" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
           <text x="${center}" y="${center - 5}" text-anchor="middle" font-size="10" font-weight="bold" fill="#334155">RAG</text>
-          <text x="${center}" y="${center + 10}" text-anchor="middle" font-size="8" fill="#64748b">Scorecard</text>
+          <text x="${center}" y="${center + 10}" text-anchor="middle" font-size="7" fill="#64748b">Scorecard</text>
         </svg>
         `;
       };
@@ -1234,11 +1257,10 @@ export default function ResultsPageContent() {
                 submissionId={result.submissionId}
                 scanType="cost"
                 defaultEmail={result.contact.email}
-                onDirectDownload={() => {
+                onSuccess={() => {
                   // Direct PDF download after email submission
                   const params = new URLSearchParams(window.location.search);
                   params.set("download", "pdf");
-                  // Also set pdf flag for direct download
                   params.set("pdf", "true");
                   router.push(`?${params.toString()}`);
                 }}

@@ -55,7 +55,19 @@ export function useSubmitOpportunity(): UseSubmitOpportunityReturn {
           body: JSON.stringify(payload),
         });
 
-        const data = await response.json();
+        let data: any = null;
+        
+        // Handle empty response body
+        if (response.status === 204) {
+          throw new Error("Empty response from server");
+        }
+        
+        try {
+          data = await response.json();
+        } catch (jsonError) {
+          console.error("Failed to parse JSON response:", jsonError);
+          throw new Error("Invalid response from server. Please try again.");
+        }
 
         if (!response.ok) {
           // If server validation failed
@@ -75,6 +87,7 @@ export function useSubmitOpportunity(): UseSubmitOpportunityReturn {
       } catch (err: any) {
         const msg = err.message || "An unexpected error occurred.";
         setError(msg);
+        console.error("Submit error:", err);
         setLoading(false);
         return { success: false, message: msg };
       }
