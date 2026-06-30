@@ -84,8 +84,8 @@ export function qualifyLead(input: FormState, submissionId: string): CRMLeadPayl
   const tags: string[] = [];
 
   // Identify tag indicators
-  tags.push(`SIZE_${input.company_size.toUpperCase()}`);
-  tags.push(`TYPE_${input.business_type.toUpperCase()}`);
+  tags.push(`SIZE_${(input.company_size ?? "unknown").toUpperCase()}`);
+  tags.push(`TYPE_${(input.business_type ?? "unknown").toUpperCase()}`);
 
   if (input.data_quality === "clean_reliable") {
     tags.push("DATA_MATURE");
