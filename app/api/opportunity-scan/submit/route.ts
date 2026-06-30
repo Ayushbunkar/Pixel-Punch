@@ -7,6 +7,17 @@ import { generateAIRecommendations } from "@/modules/opportunity-audit/scoring/o
 import { generateOpportunityReport } from "@/modules/opportunity-audit/scoring/opportunity-report-generator";
 import { saveSubmission } from "@/shared/database/db.service";
 
+// ── Helper: Remove duplicate recommendations ───────────────────────────────────
+function deduplicateRecommendations(recommendations: string[]): string[] {
+  const seen = new Set<string>();
+  return recommendations.filter((rec) => {
+    const normalized = rec.toLowerCase().trim();
+    if (seen.has(normalized)) return false;
+    seen.add(normalized);
+    return true;
+  });
+}
+
 // In-memory submission cache
 export const submissionCache = new Map<string, any>();
 
@@ -144,11 +155,11 @@ export async function POST(req: NextRequest) {
       tier: results.tier,
       categories: results.categories,
     },
-    recommendations: aiRecommendations, // Full array of AI recommendations
+    recommendations: deduplicateRecommendations(aiRecommendations.map(r => r.opportunity)), // Deduplicated recommendations
     roadmap: results.roadmap,
     auditReport: reportResult.reportText,
-    findings: reportResult.findings,
-    nextSteps: reportResult.nextSteps,
+    findings: deduplicateRecommendations(reportResult.findings || []),
+    nextSteps: deduplicateRecommendations(reportResult.nextSteps || []),
     leadQualification: leadResult,
   };
 
@@ -164,11 +175,11 @@ export async function POST(req: NextRequest) {
   // Return the scorecard response augmented with AI content
   return NextResponse.json({
     ...results,
-    recommendations: aiRecommendations.map(r => r.opportunity),
+    recommendations: deduplicateRecommendations(aiRecommendations.map(r => r.opportunity)),
     aiRecommendations,
     auditReport: reportResult.reportText,
-    findings: reportResult.findings,
-    nextSteps: reportResult.nextSteps,
+    findings: deduplicateRecommendations(reportResult.findings || []),
+    nextSteps: deduplicateRecommendations(reportResult.nextSteps || []),
   }, { status: 200 });
 }
 

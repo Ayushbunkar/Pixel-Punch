@@ -9,6 +9,17 @@ import { generateAuditReport }                from "@/shared/utils/audit.service
 import { saveSubmission }                     from "@/shared/database/db.service";
 import { calculateConfidenceScore, analyzeArchitecture, analyzeCostEvidence, analyzeUsageMetrics } from "@/shared/utils/medium-analysis.service";
 
+// ── Helper: Remove duplicate recommendations ───────────────────────────────────
+function deduplicateRecommendations(recommendations: string[]): string[] {
+  const seen = new Set<string>();
+  return recommendations.filter((rec) => {
+    const normalized = rec.toLowerCase().trim();
+    if (seen.has(normalized)) return false;
+    seen.add(normalized);
+    return true;
+  });
+}
+
 // ── In-memory submission cache (Fallback for GET /api/cost-scan/result) ──────
 export const submissionCache = new Map<string, any>();
 
@@ -240,8 +251,8 @@ export async function POST(req: NextRequest) {
     insights,
     ctaUrl,
     auditReport:     auditResult.auditReport,
-    findings:        auditResult.findings,
-    recommendations: auditResult.recommendations,
+    findings:        deduplicateRecommendations(auditResult.findings),
+    recommendations: deduplicateRecommendations(auditResult.recommendations),
     confidenceScore,
     architectureAnalysis: archAnalysis,
     costAnalysis: costAnalysis,

@@ -3,6 +3,17 @@ import { getSubmission } from "@/shared/database/db.service";
 import { submissionCache as costCache } from "../cost-scan/submit/route";
 import { submissionCache as oppCache } from "../opportunity-scan/submit/route";
 
+// ── Helper: Remove duplicate recommendations ───────────────────────────────────
+function deduplicateRecommendations(recommendations: string[]): string[] {
+  const seen = new Set<string>();
+  return recommendations.filter((rec) => {
+    const normalized = rec.toLowerCase().trim();
+    if (seen.has(normalized)) return false;
+    seen.add(normalized);
+    return true;
+  });
+}
+
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
 // ─────────────────────────────────────────────────────────────────────────────

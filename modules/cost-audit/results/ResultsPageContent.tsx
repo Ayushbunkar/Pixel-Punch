@@ -12,6 +12,8 @@ import { Search, CheckCircle2, Cpu, Activity, Lock, Unlock, AlertCircle } from "
 
 import { ContactBar } from "@/shared/components/ContactBar";
 
+import { BarChart3, PieChart, TrendingUp, Target, Zap, Check, AlertTriangle } from "lucide-react";
+
 import * as motion from "framer-motion/client";
 
 import { slideUp, staggerContainer, fadeIn } from "@/shared/components/animations";
