@@ -948,27 +948,17 @@ export default function ResultsPageContent() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-1 border-b border-slate-100 pb-1">
-
                   <span className="text-slate-500 font-medium">Audited Spend Run:</span>
-
-                  <span className={`font-extrabold text-right truncate ${isUnlocked ? "text-indigo-600" : "text-rose-600"}`}>
-
+                  <span className={`font-extrabold text-right truncate ${isUnlocked ? "text-indigo-600" : "text-rose-600 animate-pulse"}`}>
                     {isUnlocked ? (result.costAnalysis?.normalizedData?.monthlySpend || "No direct billing data") : "High Leakage Risk"}
-
                   </span>
-
                 </div>
 
                 <div className="grid grid-cols-2 gap-1">
-
                   <span className="text-slate-500 font-medium">Identified Waste:</span>
-
-                  <span className={`font-semibold text-right truncate ${isUnlocked ? "text-red-600" : "text-rose-600"}`}>
-
+                  <span className={`font-semibold text-right truncate ${isUnlocked ? "text-red-600" : "text-rose-600 animate-pulse"}`}>
                     {isUnlocked ? (result.costAnalysis?.normalizedData?.unusedResources || "Unoptimized staging endpoints") : "CRITICAL RISK: Unlock Details"}
-
                   </span>
-
                 </div>
 
               </div>
