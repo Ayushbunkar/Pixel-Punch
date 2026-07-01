@@ -477,9 +477,9 @@ export default function OpportunityResultsContent() {
 
   const autoDownload = searchParams.get("download") === "pdf";
 
-  // Website always locked; only unlocked temporarily for PDF generation via email link
+  // Always unlock report results (no fake blurred content)
 
-  const isUnlocked = autoDownload;
+  const isUnlocked = true;
 
   const triggerPdfDownload = useCallback(async (submId?: string) => {
     try {
@@ -710,7 +710,7 @@ export default function OpportunityResultsContent() {
 
         image: { type: "jpeg" as const, quality: 0.98 },
 
-        html2canvas: { scale: 2, useCORS: true, logging: false, width: 794, windowWidth: 794 },
+        html2canvas: { scale: 3, useCORS: true, logging: false, width: 794, windowWidth: 794 },
 
         jsPDF: { unit: "mm" as const, format: "a4", orientation: "portrait" as const, compress: true },
 
@@ -1020,7 +1020,7 @@ export default function OpportunityResultsContent() {
 
         >
 
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-xs font-bold mb-3 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-xs font-bold mb-3 shadow-sm animate-pulse">
 
             <span className="relative flex h-3 w-3">
 

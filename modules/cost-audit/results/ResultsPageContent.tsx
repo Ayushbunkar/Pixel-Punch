@@ -116,8 +116,8 @@ export default function ResultsPageContent() {
     // Direct PDF download parameter (from email button link)
     const directPdfDownload = searchParams.get("pdf") === "true";
 
-    // Always unlock when downloading PDF
-    const isUnlocked = autoDownload || directPdfDownload;
+    // Always unlock report results (no fake blurred content)
+    const isUnlocked = true;
 
   const [dlState, setDlState] = useState<"idle" | "generating" | "done">("idle");
 
@@ -427,7 +427,7 @@ export default function ResultsPageContent() {
         margin: [10, 10, 10, 10] as [number, number, number, number], // Margins prevent content clipping at edges
         filename: `Pixel-Punch-Cost-Audit-${submId?.slice(0, 8) ?? "report"}.pdf`,
         image: { type: "jpeg" as const, quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false, width: 794, windowWidth: 794 },
+        html2canvas: { scale: 3, useCORS: true, logging: false, width: 794, windowWidth: 794 },
         jsPDF: { unit: "mm" as const, format: "a4", orientation: "portrait" as const, compress: true },
         pagebreak: { mode: ["css", "avoid-all"] as const },
       };
@@ -833,7 +833,7 @@ export default function ResultsPageContent() {
 
         <motion.div variants={slideUp} className="text-center mb-6">
 
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-xs font-bold mb-3 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-xs font-bold mb-3 shadow-sm animate-pulse">
 
             <span className="relative flex h-3 w-3">
 
