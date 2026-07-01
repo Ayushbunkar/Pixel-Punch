@@ -477,9 +477,8 @@ export default function OpportunityResultsContent() {
 
   const autoDownload = searchParams.get("download") === "pdf";
 
-  // Always unlock report results (no fake blurred content)
-
-  const isUnlocked = true;
+  // Lock and blur report results by default until unlocked
+  const isUnlocked = false;
 
   const triggerPdfDownload = useCallback(async (submId?: string) => {
     try {
@@ -1822,25 +1821,16 @@ export default function OpportunityResultsContent() {
 
             </h2>
 
-                      <button
-
-                        onClick={(e) => {
-
-                          e.stopPropagation();
-
-                          setEmailModalOpen(true);
-
-                        }}
-
-                        className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
-
-                      >
-
-                        <Unlock className="w-3.5 h-3.5" />
-
-                        Unlock Full Report
-
-                      </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEmailModalOpen(true);
+                }}
+                className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+              >
+                <Unlock className="w-3 h-3" />
+                Unlock Full Report
+              </button>
 
           </div>
 

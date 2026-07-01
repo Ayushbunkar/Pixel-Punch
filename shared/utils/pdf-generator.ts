@@ -1,4 +1,5 @@
 import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium-min";
 
 // ── Shared PDF Report Types ────────────────────────────────────────────────────────
 export interface PdfReportData {
@@ -348,11 +349,33 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
   return fullHtml;
 }
 
-// ── Main PDF Generation Function ──────────────────────────────────────────────────────
 export async function generatePdf(data: PdfReportData): Promise<Buffer> {
+  // Determine executable path and args for chromium based on serverless vs local environment
+  let executablePath = "";
+  let launchArgs = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
+  
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
+    // Vercel serverless environment
+    executablePath = await chromium.executablePath(
+      "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar"
+    );
+    launchArgs = [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
+  } else {
+    // Local environment - locate chrome executable
+    const os = require("os");
+    if (os.platform() === "win32") {
+      executablePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+    } else if (os.platform() === "darwin") {
+      executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+    } else {
+      executablePath = "/usr/bin/google-chrome";
+    }
+  }
+
   const browser = await puppeteer.launch({
+    args: launchArgs,
+    executablePath,
     headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
   });
 
   try {
