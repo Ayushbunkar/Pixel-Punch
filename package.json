@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "framer-motion": "^12.41.0",
-    "html2pdf.js": "^0.14.0",
     "lucide-react": "^1.21.0",
+    "puppeteer-core": "^24.1.0",
     "next": "^16.2.9",
     "officeparser": "^7.2.2",
     "react": "^19.0.0",

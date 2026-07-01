@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSubmission } from "@/shared/database/db.service";
 import { submissionCache as costCache } from "../cost-scan/submit/route";
 import { submissionCache as oppCache } from "../opportunity-scan/submit/route";
+import { generatePdf } from "@/shared/utils/pdf-generator";
 
 // ── Helper: Remove duplicate recommendations ───────────────────────────────────
 function deduplicateRecommendations(recommendations: string[]): string[] {
@@ -85,6 +86,20 @@ function ragBadge(label: string, rag: string): string {
         <div style="font-size:11px;font-weight:500;color:${c.text};margin-top:2px;">● ${rag?.toUpperCase() || "N/A"}</div>
       </div>
     </td>`;
+}
+
+// ── Helper: Get color config for PDF report ──────────────────────────────────
+function getColorConfig(rag: string): { bgColor: string; textColor: string; borderColor: string; dotColor: string; labelColor: string } {
+  switch (rag?.toLowerCase()) {
+    case "red":
+      return { bgColor: "#fee2e2", textColor: "#dc2626", borderColor: "#fca5a5", dotColor: "#dc2626", labelColor: "Action Needed" };
+    case "amber":
+      return { bgColor: "#fffbeb", textColor: "#d97706", borderColor: "#fcd34d", dotColor: "#d97706", labelColor: "Needs Attention" };
+    case "green":
+      return { bgColor: "#f0fdf4", textColor: "#16a34a", borderColor: "#86efac", dotColor: "#16a34a", labelColor: "Looking Good" };
+    default:
+      return { bgColor: "#f1f5f9", textColor: "#64748b", borderColor: "#e2e8f0", dotColor: "#64748b", labelColor: rag?.toUpperCase() || "N/A" };
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -311,7 +326,45 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`;
 
-    // ── 8. Send via Brevo Transactional API ───────────────────────────────────
+    // ── 8. Generate PDF and Attach to Email ──────────────────────────────────────
+    // Build PDF data for both report types
+    const reportType: "cost" | "opportunity" = isCost ? "cost" : "opportunity";
+    const pdfData = {
+      submissionId,
+      companyName,
+      contactName: recipientName,
+      reportTitle,
+      reportType,
+      scorecard: {
+        dimensions: isCost
+          ? [
+              { label: "Spend", value: submission.scorecard?.spend || "unknown", ...getColorConfig(submission.scorecard?.spend || "unknown") },
+              { label: "Architecture", value: submission.scorecard?.architecture || "unknown", ...getColorConfig(submission.scorecard?.architecture || "unknown") },
+              { label: "Pain", value: submission.scorecard?.pain || "unknown", ...getColorConfig(submission.scorecard?.pain || "unknown") },
+            ]
+          : [
+              { label: "AI Readiness", value: submission.scorecard?.readiness || "unknown", ...getColorConfig(submission.scorecard?.readiness || "unknown") },
+              { label: "Business Value", value: submission.scorecard?.value || "unknown", ...getColorConfig(submission.scorecard?.value || "unknown") },
+              { label: "Opportunity", value: submission.scorecard?.opportunity || "unknown", ...getColorConfig(submission.scorecard?.opportunity || "unknown") },
+            ],
+      },
+      tier: submission.tier,
+      insights: submission.insights,
+      findings: submission.findings,
+      recommendations: submission.recommendations,
+      auditReport: submission.auditReport,
+      confidenceScore: submission.confidenceScore,
+      roadmap: submission.roadmap,
+    };
+
+    // Generate the PDF
+    const pdfBuffer = await generatePdf(pdfData);
+    const pdfBase64 = pdfBuffer.toString("base64");
+    const pdfFileName = isCost ? "audit-cost-scan.pdf" : "opportunity-audit.pdf";
+
+    console.log(`[send-report] Generated PDF (${(pdfBuffer.length / 1024).toFixed(2)} KB) for submission ${submissionId}`);
+
+    // ── 9. Send email with PDF attachment via Brevo ─────────────────────────────
     const response = await fetch(BREVO_API_URL, {
       method: "POST",
       headers: {
@@ -319,10 +372,16 @@ export async function POST(req: NextRequest) {
         "api-key": apiKey,
       },
       body: JSON.stringify({
-        sender:      { name: senderName, email: senderEmail },
-        to:          [{ email, name: recipientName }],
-        subject:     `Your ${reportTitle} Report — Pixel Punch`,
+        sender: { name: senderName, email: senderEmail },
+        to: [{ email, name: recipientName }],
+        subject: `Your ${reportTitle} Report — Pixel Punch`,
         htmlContent,
+        attachment: [
+          {
+            name: pdfFileName,
+            content: pdfBase64,
+          },
+        ],
       }),
     });
 
@@ -330,7 +389,6 @@ export async function POST(req: NextRequest) {
       const text = await response.text();
       console.error("[send-report] Brevo API error:", response.status, text);
 
-      // In dev or if API key has sandbox restrictions, log and return success
       if (response.status === 401 || response.status === 403) {
         console.warn("[send-report] Brevo auth issue — check BREVO_API_KEY and sender domain.");
         return NextResponse.json(
@@ -345,8 +403,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log(`[send-report] Email sent successfully to ${email} for submission ${submissionId}`);
-    return NextResponse.json({ success: true, message: "Report email sent successfully!" }, { status: 200 });
+    console.log(`[send-report] Email sent successfully to ${email} with attachment ${pdfFileName} for submission ${submissionId}`);
+    return NextResponse.json({ success: true, message: "Report email sent successfully with PDF attachment!" }, { status: 200 });
 
   } catch (error: any) {
     console.error("[send-report] Unexpected error:", error);
