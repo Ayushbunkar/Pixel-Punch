@@ -190,17 +190,14 @@ export const PdfReportTemplate: React.FC<Props> = ({ data, reportType = "cost" }
     ? (["spend", "architecture", "pain"] as const)
     : (["readiness", "value", "opportunity"] as const);
 
-  const scoreLabels: Record<typeof scoreKeys[number], string> = isCost
-    ? {
-        spend: "Spend & Visibility",
-        architecture: "Architecture Risk",
-        pain: "Business Urgency",
-      }
-    : {
-        readiness: "Technical AI Readiness",
-        value: "Business Value Potential",
-        opportunity: "Automation Opportunity",
-      };
+    const scoreLabels: Record<keyof ScanData["scorecard"], string> = {
+      spend: "Spend & Visibility",
+      architecture: "Architecture Risk",
+      pain: "Business Urgency",
+      readiness: "Technical AI Readiness",
+      value: "Business Value Potential",
+      opportunity: "Automation Opportunity",
+    };
 
   const scoreValues = scoreKeys
     .map((key) => data.scorecard[key])
