@@ -157,7 +157,7 @@ function buildCostAuditHtml(data: PdfReportData): string {
       </td>
     </tr>
   ` : "";
-
+//hfg
   const insightsHtml = data.insights && data.insights.length > 0 ? `
     <tr style="page-break-inside:avoid">
       <td style="padding:16px 0">
