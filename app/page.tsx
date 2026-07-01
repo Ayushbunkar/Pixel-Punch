@@ -528,7 +528,7 @@ function Hero() {
               className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 leading-tight"
             >
               Identify AI Waste or Uncover{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-indigo-600">
+              <span className="text-indigo-600">
                 New Opportunities
               </span>
             </motion.h1>

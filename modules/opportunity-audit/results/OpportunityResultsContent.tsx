@@ -722,7 +722,7 @@ export default function OpportunityResultsContent() {
 
         jsPDF: { unit: "mm" as const, format: "a4", orientation: "portrait" as const, compress: true },
 
-        pagebreak: { mode: ["css", "avoid-all"] as const, before: ".page-break-before" },
+        pagebreak: { mode: ["css", "legacy"] as const, before: ".page-break-before" },
 
       };
 

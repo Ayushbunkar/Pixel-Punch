@@ -437,7 +437,7 @@ export default function ResultsPageContent() {
         image: { type: "jpeg" as const, quality: 0.98 },
         html2canvas: { scale: 3, useCORS: true, logging: false, width: 794, windowWidth: 794 },
         jsPDF: { unit: "mm" as const, format: "a4", orientation: "portrait" as const, compress: true },
-        pagebreak: { mode: ["css", "avoid-all"] as const, before: ".page-break-before" },
+        pagebreak: { mode: ["css", "legacy"] as const, before: ".page-break-before" },
       };
 
       await html2pdf().set(opt).from(htmlContent).save();
