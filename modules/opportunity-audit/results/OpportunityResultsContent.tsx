@@ -956,7 +956,7 @@ export default function OpportunityResultsContent() {
 
       {/* Contact Bar */}
 
-      <ContactBar containerClassName="max-w-3xl" />
+      <ContactBar containerClassName="max-w-4xl" />
 
       {/* Nav Strip */}
 
@@ -972,7 +972,7 @@ export default function OpportunityResultsContent() {
 
       >
 
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
 
           <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
 
@@ -1006,7 +1006,7 @@ export default function OpportunityResultsContent() {
 
         animate="show"
 
-        className="max-w-3xl mx-auto px-4 py-8 md:py-10 space-y-6"
+        className="max-w-4xl mx-auto px-4 py-8 md:py-10 space-y-6"
 
       >
 
