@@ -686,14 +686,22 @@ export default function OpportunityResultsContent() {
           </div>
 
           ${scorecardHtml}
-
-          ${recommendationsHtml}
-
-          ${nextStepsHtml}
-
-          ${auditReportHtml}
-
-          ${comparisonHtml}
+ 
+          <div class="page-break-before">
+            ${recommendationsHtml}
+          </div>
+ 
+          <div class="page-break-before">
+            ${nextStepsHtml}
+          </div>
+ 
+          <div class="page-break-before">
+            ${auditReportHtml}
+          </div>
+ 
+          <div class="page-break-before">
+            ${comparisonHtml}
+          </div>
 
           <!-- Footer -->
           <div style="padding: 20px 40px; background: #0f172a; text-align: center; page-break-inside: avoid;">

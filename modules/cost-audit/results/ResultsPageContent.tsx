@@ -407,14 +407,22 @@ export default function ResultsPageContent() {
           </div>
 
           ${scorecardHtml}
-
-          ${insightsHtml}
-
-          ${findingsRecsHtml}
-
-          ${auditReportHtml}
-
-          ${confidenceHtml}
+ 
+          <div class="page-break-before">
+            ${insightsHtml}
+          </div>
+ 
+          <div class="page-break-before">
+            ${findingsRecsHtml}
+          </div>
+ 
+          <div class="page-break-before">
+            ${auditReportHtml}
+          </div>
+ 
+          <div class="page-break-before">
+            ${confidenceHtml}
+          </div>
 
           <!-- Footer -->
           <div style="padding: 20px 40px; background: #1e1b4b; text-align: center;">
