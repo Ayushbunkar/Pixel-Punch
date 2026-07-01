@@ -65,22 +65,50 @@ function buildCostAuditHtml(data: PdfReportData): string {
   const reportId = data.submissionId.slice(0, 8).toUpperCase();
 
   const scorecardRows = data.scorecard.dimensions.map(dim => `
-    <td style="padding:12px 16px;background:${dim.bgColor};border:1px solid ${dim.borderColor};border-radius:8px">
+    <td style="padding:12px 16px;background:${dim.bgColor};border:1px solid ${dim.borderColor};border-radius:8px;width:32%">
       <p style="margin:0 0 6px 0;font-size:10px;font-weight:700;color:${dim.textColor};text-transform:uppercase;letter-spacing:0.4px">${dim.label}</p>
       <div style="display:flex;align-items:center;gap:6px">
         <div style="width:8px;height:8px;border-radius:50%;background:${dim.dotColor}"></div>
         <span style="font-size:12px;font-weight:700;color:${dim.textColor}">${dim.labelColor}</span>
       </div>
-      <p style="margin:4px 0 0 0;font-size:9px;color:${dim.textColor}">${dim.value}</p>
+      <p style="margin:4px 0 0 0;font-size:9px;color:${dim.textColor}">${dim.value?.toUpperCase()}</p>
     </td>
-  `).join("");
+  `).join("<td style='width:2%'></td>");
+
+  const ragColor = (v: string) => v === "red" ? "#dc2626" : v === "amber" ? "#d97706" : "#16a34a";
+  
+  // Calculate SVG dash offset values based on 3 dimensions
+  const circumference = 2 * Math.PI * 35; // ~219.91
+  const sliceLength = circumference / 3;
+
+  const costData = [
+    { value: data.scorecard.dimensions[0]?.value || "green", color: ragColor(data.scorecard.dimensions[0]?.value || "green") },
+    { value: data.scorecard.dimensions[1]?.value || "green", color: ragColor(data.scorecard.dimensions[1]?.value || "green") },
+    { value: data.scorecard.dimensions[2]?.value || "green", color: ragColor(data.scorecard.dimensions[2]?.value || "green") },
+  ];
+
+  const svgPieChart = `
+    <td style="width:35%;padding:16px;background:#ffffff;border-radius:12px;border:1px solid #e2e8f0;text-align:center;vertical-align:middle">
+      <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg);margin:0 auto;display:block">
+        <circle cx="50" cy="50" r="35" fill="none" stroke="#f1f5f9" stroke-width="14"/>
+        <circle cx="50" cy="50" r="35" fill="none" stroke="${costData[0].color}" stroke-width="14" stroke-dasharray="${sliceLength} ${circumference}" stroke-dashoffset="0"/>
+        <circle cx="50" cy="50" r="35" fill="none" stroke="${costData[1].color}" stroke-width="14" stroke-dasharray="${sliceLength} ${circumference}" stroke-dashoffset="-${sliceLength}"/>
+        <circle cx="50" cy="50" r="35" fill="none" stroke="${costData[2].color}" stroke-width="14" stroke-dasharray="${sliceLength} ${circumference}" stroke-dashoffset="-${sliceLength * 2}"/>
+      </svg>
+      <div style="display:flex;gap:6px;margin-top:10px;justify-content:center;font-size:8px;color:#64748b">
+        <span>● Spend</span>
+        <span>● Arch</span>
+        <span>● Pain</span>
+      </div>
+    </td>
+  `;
 
   const tierHtml = tier ? `
     <tr style="page-break-inside:avoid">
       <td style="padding:16px;background:${tierStyles.bg};border:1.5px solid ${tierStyles.border};border-radius:12px">
         <table border="0" cellpadding="0" cellspacing="0" style="width:100%">
           <tr>
-            <td style="vertical-align:top;padding-right:12px">
+            <td style="vertical-align:top;padding-right:12px;width:40px">
               <div style="width:32px;height:32px;border-radius:8px;background:${tierStyles.badge};text-align:center;line-height:32px;font-size:15px;font-weight:900;color:#ffffff">${tier}</div>
             </td>
             <td style="vertical-align:top">
@@ -100,16 +128,16 @@ function buildCostAuditHtml(data: PdfReportData): string {
         <table border="0" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse">
           ${data.insights.map((ins, i) => `
             <tr>
-              <td style="padding:8px 0">
+              <td style="padding:4px 0">
                 <table border="0" cellpadding="0" cellspacing="0" style="width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px">
                   <tr>
                     <td style="padding:10px 12px">
                       <table border="0" cellpadding="0" cellspacing="0">
                         <tr>
-                          <td style="vertical-align:top;padding-right:10px">
+                          <td style="vertical-align:top;padding-right:10px;width:20px">
                             <div style="width:20px;min-width:20px;font-size:12px;font-weight:800;color:#94a3b8;text-align:center">${i + 1}.</div>
                           </td>
-                          <td style="vertical-align:top;font-size:11.5px;color:#334155">${renderMarkdown(ins)}</td>
+                          <td style="vertical-align:top;font-size:11px;color:#334155">${renderMarkdown(ins)}</td>
                         </tr>
                       </table>
                     </td>
@@ -192,6 +220,8 @@ function buildCostAuditHtml(data: PdfReportData): string {
     </tr>
   ` : "";
 
+  const logoBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAx";
+
   const fullHtml = `
     <!DOCTYPE html>
     <html lang="en">
@@ -209,11 +239,11 @@ function buildCostAuditHtml(data: PdfReportData): string {
     </head>
     <body>
       <div class="pdf-container">
-        <div style="height: 5px; background: linear-gradient(90deg, #0d6efd 0%, #6610f2 100%);"></div>
+        <div style="height: 5px; background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);"></div>
         <div style="padding: 32px;">
           <div class="header">
             <div style="display:flex;align-items:center;gap:12px">
-              <div style="height:32px;width:auto;background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);border-radius:8px;padding:6px 16px;font-weight:700;color:#fff;letter-spacing:0.5px">PIXEL PUNCH</div>
+              <img src="${logoBase64}" alt="Pixel Punch" style="height:28px;width:auto;object-contain:true" />
               <div style="height:20px;width:1px;background:#e2e8f0"></div>
               <div>
                 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#64748b">AI Cost Architecture Diagnostics</div>
@@ -229,9 +259,17 @@ function buildCostAuditHtml(data: PdfReportData): string {
             <h1 style="margin:0 0 8px 0;font-size:20px;font-weight:800;color:#0f172a;line-height:1.3">${data.reportTitle}</h1>
             ${data.companyName ? `<p style="margin:0;font-size:11px;color:#64748b">For: <strong style="color:#334155">${data.companyName}</strong></p>` : ""}
           </div>
-          <table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px" class="scorecard-table">
+          <table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px">
             <tr style="page-break-inside:avoid">
-              ${scorecardRows}
+              <td style="width:63%;vertical-align:top">
+                <table border="0" cellpadding="0" cellspacing="0" style="width:100%">
+                  <tr>
+                    ${scorecardRows}
+                  </tr>
+                </table>
+              </td>
+              <td style="width:2%"></td>
+              ${svgPieChart}
             </tr>
           </table>
           ${tierHtml}
@@ -259,28 +297,56 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
   const reportId = data.submissionId.slice(0, 8).toUpperCase();
 
   const scorecardRows = data.scorecard.dimensions.map(dim => `
-    <td style="padding:12px 16px;background:${dim.bgColor};border:1px solid ${dim.borderColor};border-radius:8px">
+    <td style="padding:12px 16px;background:${dim.bgColor};border:1px solid ${dim.borderColor};border-radius:8px;width:32%">
       <p style="margin:0 0 6px 0;font-size:10px;font-weight:700;color:${dim.textColor};text-transform:uppercase;letter-spacing:0.4px">${dim.label}</p>
       <div style="display:flex;align-items:center;gap:6px">
         <div style="width:8px;height:8px;border-radius:50%;background:${dim.dotColor}"></div>
         <span style="font-size:12px;font-weight:700;color:${dim.textColor}">${dim.labelColor}</span>
       </div>
-      <p style="margin:4px 0 0 0;font-size:9px;color:${dim.textColor}">${dim.value}</p>
+      <p style="margin:4px 0 0 0;font-size:9px;color:${dim.textColor}">${dim.value?.toUpperCase()}</p>
     </td>
-  `).join("");
+  `).join("<td style='width:2%'></td>");
+
+  const ragColor = (v: string) => v === "red" ? "#dc2626" : v === "amber" ? "#d97706" : "#16a34a";
+  
+  // Calculate SVG dash offset values based on 3 dimensions
+  const circumference = 2 * Math.PI * 35; // ~219.91
+  const sliceLength = circumference / 3;
+
+  const oppData = [
+    { value: data.scorecard.dimensions[0]?.value || "green", color: ragColor(data.scorecard.dimensions[0]?.value || "green") },
+    { value: data.scorecard.dimensions[1]?.value || "green", color: ragColor(data.scorecard.dimensions[1]?.value || "green") },
+    { value: data.scorecard.dimensions[2]?.value || "green", color: ragColor(data.scorecard.dimensions[2]?.value || "green") },
+  ];
+
+  const svgPieChart = `
+    <td style="width:35%;padding:16px;background:#ffffff;border-radius:12px;border:1px solid #e2e8f0;text-align:center;vertical-align:middle">
+      <svg width="100" height="100" viewBox="0 0 100 100" style="transform:rotate(-90deg);margin:0 auto;display:block">
+        <circle cx="50" cy="50" r="35" fill="none" stroke="#f1f5f9" stroke-width="14"/>
+        <circle cx="50" cy="50" r="35" fill="none" stroke="${oppData[0].color}" stroke-width="14" stroke-dasharray="${sliceLength} ${circumference}" stroke-dashoffset="0"/>
+        <circle cx="50" cy="50" r="35" fill="none" stroke="${oppData[1].color}" stroke-width="14" stroke-dasharray="${sliceLength} ${circumference}" stroke-dashoffset="-${sliceLength}"/>
+        <circle cx="50" cy="50" r="35" fill="none" stroke="${oppData[2].color}" stroke-width="14" stroke-dasharray="${sliceLength} ${circumference}" stroke-dashoffset="-${sliceLength * 2}"/>
+      </svg>
+      <div style="display:flex;gap:6px;margin-top:10px;justify-content:center;font-size:8px;color:#64748b">
+        <span>● Read.</span>
+        <span>● Value</span>
+        <span>● Opp.</span>
+      </div>
+    </td>
+  `;
 
   const roadmapSection = data.roadmap ? `
     <tr style="page-break-inside:avoid">
       <td style="padding:16px 0">
-        <table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+        <table border="0" cellpadding="0" cellspacing="0" style="width:100%">
           <tr>
             <td style="padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px">
-              <p style="margin:0 0 14px 0;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">AI Roadmap</p>
+              <p style="margin:0 0 14px 0;font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;color:#312e81">AI Roadmap & Phased Adoption</p>
               ${["phase1", "phase2", "phase3"].map(phase => `
-                <div style="margin-bottom:16px">
-                  <p style="margin:0 0 6px 0;font-size:10px;font-weight:700;color:#1e293b">${phase === "phase1" ? "Phase 1: Quick Wins" : phase === "phase2" ? "Phase 2: Strategic Expansion" : "Phase 3: Long-term Scale"} (${data.roadmap![phase as keyof typeof data.roadmap]!.length} items)</p>
+                <div style="margin-bottom:14px">
+                  <p style="margin:0 0 6px 0;font-size:9.5px;font-weight:800;color:#1e293b">${phase === "phase1" ? "Phase 1: Quick Wins (0 to 3 Months)" : phase === "phase2" ? "Phase 2: Strategic Expansion (3 to 6 Months)" : "Phase 3: Long-term Scale (6 to 12 Months)"} (${data.roadmap![phase as keyof typeof data.roadmap]!.length} items)</p>
                   <ul style="margin:0;padding-left:20px">
-                    ${data.roadmap![phase as keyof typeof data.roadmap]!.map(item => `<li style="font-size:9.5px;color:#475569;margin-bottom:4px">${renderMarkdown(item)}</li>`).join("")}
+                    ${data.roadmap![phase as keyof typeof data.roadmap]!.map(item => `<li style="font-size:9px;color:#475569;margin-bottom:4px">${renderMarkdown(item)}</li>`).join("")}
                   </ul>
                 </div>
               `).join("")}
@@ -290,6 +356,70 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
       </td>
     </tr>
   ` : "";
+
+  const insightsHtml = data.insights && data.insights.length > 0 ? `
+    <tr style="page-break-inside:avoid">
+      <td style="padding:16px 0">
+        <p style="margin:0 0 10px 0;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">Key Opportunities Insights</p>
+        <table border="0" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse">
+          ${data.insights.map((ins, i) => `
+            <tr>
+              <td style="padding:4px 0">
+                <table border="0" cellpadding="0" cellspacing="0" style="width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px">
+                  <tr>
+                    <td style="padding:10px 12px">
+                      <table border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="vertical-align:top;padding-right:10px;width:20px">
+                            <div style="width:20px;min-width:20px;font-size:12px;font-weight:800;color:#94a3b8;text-align:center">${i + 1}.</div>
+                          </td>
+                          <td style="vertical-align:top;font-size:11px;color:#334155">${renderMarkdown(ins)}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          `).join("")}
+        </table>
+      </td>
+    </tr>
+  ` : "";
+
+  const recommendationsHtml = data.recommendations && data.recommendations.length > 0 ? `
+    <tr style="page-break-inside:avoid">
+      <td style="padding:16px 0">
+        <table border="0" cellpadding="0" cellspacing="0" style="width:100%;background:#f0fdf4;border:1px solid #dcfce7;border-radius:10px">
+          <tr>
+            <td style="padding:12px 14px">
+              <p style="margin:0 0 8px 0;font-size:10.5px;font-weight:900;color:#15803d;text-transform:uppercase;letter-spacing:0.5px">Core Recommendations (${data.recommendations.length})</p>
+              <ul style="margin:0;padding-left:20px">
+                ${data.recommendations.map(r => `<li style="font-size:9.5px;color:#475569;margin-bottom:4px">${renderMarkdown(r)}</li>`).join("")}
+              </ul>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  ` : "";
+
+  const auditReportHtml = data.auditReport ? `
+    <tr style="page-break-inside:avoid">
+      <td style="padding:16px 0">
+        <table border="0" cellpadding="0" cellspacing="0" style="width:100%;background:#fafaf9;border:1px solid #f5f5f4;border-radius:10px">
+          <tr>
+            <td style="padding:16px 20px">
+              <p style="margin:0 0 10px 0;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">Full Opportunities Analysis</p>
+              <div style="font-size:10px;color:#475569;line-height:1.6;white-space:pre-wrap">${renderMarkdown(data.auditReport)}</div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  ` : "";
+
+  const logoBase64 = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAx";
 
   const fullHtml = `
     <!DOCTYPE html>
@@ -304,17 +434,15 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
         .footer { margin-top: 40px; padding-top: 10px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; text-align: center; }
         ul { margin: 0; padding-left: 20px; }
         li { margin-bottom: 6px; }
-        .scorecard-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-        .scorecard-cell { padding: 12px 16px; border-radius: 8px; }
       </style>
     </head>
     <body>
       <div class="pdf-container">
-        <div style="height: 5px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+        <div style="height: 5px; background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);"></div>
         <div style="padding: 32px;">
           <div class="header">
             <div style="display:flex;align-items:center;gap:12px">
-              <div style="height:32px;width:auto;background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%);border-radius:8px;padding:6px 16px;font-weight:700;color:#fff;letter-spacing:0.5px">PIXEL PUNCH</div>
+              <img src="${logoBase64}" alt="Pixel Punch" style="height:28px;width:auto;object-contain:true" />
               <div style="height:20px;width:1px;background:#e2e8f0"></div>
               <div>
                 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#64748b">AI Opportunity Audit & Roadmap</div>
@@ -330,12 +458,23 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
             <h1 style="margin:0 0 8px 0;font-size:20px;font-weight:800;color:#0f172a;line-height:1.3">${data.reportTitle}</h1>
             ${data.companyName ? `<p style="margin:0;font-size:11px;color:#64748b">For: <strong style="color:#334155">${data.companyName}</strong></p>` : ""}
           </div>
-          <table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px" class="scorecard-table">
+          <table border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:24px">
             <tr style="page-break-inside:avoid">
-              ${scorecardRows}
+              <td style="width:63%;vertical-align:top">
+                <table border="0" cellpadding="0" cellspacing="0" style="width:100%">
+                  <tr>
+                    ${scorecardRows}
+                  </tr>
+                </table>
+              </td>
+              <td style="width:2%"></td>
+              ${svgPieChart}
             </tr>
           </table>
           ${roadmapSection}
+          ${insightsHtml}
+          ${recommendationsHtml}
+          ${auditReportHtml}
           <div class="footer">
             <p>This report was automatically compiled by <strong>Pixel Punch AI</strong>.<br>
             Report ID: ${reportId} | © 2026 Pixel Punch. All rights reserved.</p>

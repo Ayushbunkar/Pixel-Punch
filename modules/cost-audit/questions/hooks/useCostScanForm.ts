@@ -99,18 +99,18 @@ function validateStep(step: number, state: FormState): ValidationErrors {
       break;
 
     case 8:
-      if (!state.firstname.trim()) errors.firstname = "Name is required.";
-      if (!state.email.trim())     errors.email     = "Work email is required.";
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email))
-        errors.email = "Please enter a valid email address.";
-      break;
-
-    case 9:
       if (state.website_url.trim()) {
         if (!/^https?:\/\/[^\s$.?#].[^\s]*$/i.test(state.website_url.trim())) {
           errors.website_url = "Please enter a valid website URL.";
         }
       }
+      break;
+
+    case 9:
+      if (!state.firstname.trim()) errors.firstname = "Name is required.";
+      if (!state.email.trim())     errors.email     = "Work email is required.";
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email))
+        errors.email = "Please enter a valid email address.";
       break;
   }
 

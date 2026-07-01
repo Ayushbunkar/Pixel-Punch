@@ -1117,36 +1117,21 @@ export default function OpportunityResultsContent() {
 
                 }}
 
-                className="bg-white rounded-lg border border-slate-200 p-3 shadow-sm flex flex-col justify-between transition-all duration-300"
-
+                className="bg-white rounded-lg border border-slate-200 p-5 min-h-[175px] shadow-sm flex flex-col justify-between transition-all duration-300"
               >
-
-                <div>
-
-                  <h3 className="font-bold text-slate-900 text-xs mb-1">{card.title}</h3>
-
+                <div className="mb-4">
+                  <h3 className="font-bold text-slate-900 text-xs mb-1.5">{card.title}</h3>
                   <p className="text-slate-500 text-[10px] leading-relaxed">{card.desc}</p>
-
                 </div>
-
                 <div className={`rounded border p-2 flex items-center justify-between ${styles.bg} ${styles.border}`}>
-
                   <span className="text-[9px] font-bold uppercase tracking-wider text-slate-700">{styles.label}</span>
-
                   <span className="flex items-center gap-1.5">
-
                     <span className="relative flex h-2.5 w-2.5">
-
                       <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${styles.dot} opacity-90 shadow-[0_0_8px_currentColor]`} style={{ color: card.rag === "red" ? "#f43f5e" : card.rag === "amber" ? "#f59e0b" : "#10b981" }}></span>
-
                       <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${styles.dot} shadow-[0_0_6px_currentColor]`} style={{ color: card.rag === "red" ? "#f43f5e" : card.rag === "amber" ? "#f59e0b" : "#10b981" }}></span>
-
                     </span>
-
                     <span className={`text-[9px] font-extrabold uppercase ${styles.text}`}>{card.rag}</span>
-
                   </span>
-
                 </div>
 
               </motion.div>

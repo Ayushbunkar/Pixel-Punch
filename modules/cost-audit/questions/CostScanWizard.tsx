@@ -30,8 +30,8 @@ const STEP_LABELS = [
   "Leakage",
   "Optimization",
   "Savings Threshold",
-  "Contact",
   "Technical Audit",
+  "Contact",
 ];
 
 // ── Progress bar ─────────────────────────────────────────────────────────────
@@ -278,16 +278,6 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
         );
       case 8:
         return (
-          <ContactStep
-            state={state}
-            errors={errors}
-            onChange={setField}
-            loading={loading}
-            submitError={submitError}
-          />
-        );
-      case 9:
-        return (
           <TechnicalStep
             state={state}
             errors={errors}
@@ -300,6 +290,16 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
               const updatedDocs = (state.documents || []).filter((_, i) => i !== index);
               setField("documents", updatedDocs);
             }}
+          />
+        );
+      case 9:
+        return (
+          <ContactStep
+            state={state}
+            errors={errors}
+            onChange={setField}
+            loading={loading}
+            submitError={submitError}
           />
         );
       default:
