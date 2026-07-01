@@ -68,6 +68,7 @@ export function ContactStep({ state, errors, onChange, loading, submitError }: C
           error={errors.firstname}
           placeholder="Jane Doe"
           autoComplete="name"
+          required={false}
         />
         <InputField
           id="email"
@@ -78,6 +79,7 @@ export function ContactStep({ state, errors, onChange, loading, submitError }: C
           error={errors.email}
           placeholder="jane@company.com"
           autoComplete="work email"
+          required={false}
         />
       </div>
 

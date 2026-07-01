@@ -108,7 +108,7 @@ function NavButtons({ step, total, loading, onBack, onNext, onSubmit }: NavProps
       </button>
 
       <div className="flex items-center gap-3">
-        {step === 8 && (
+        {step === 9 && (
           <button
             type="button"
             onClick={onSubmit}
