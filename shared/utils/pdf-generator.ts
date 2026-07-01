@@ -361,7 +361,7 @@ export async function generatePdf(data: PdfReportData): Promise<Buffer> {
       ? buildCostAuditHtml(data)
       : buildOpportunityAuditHtml(data);
 
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    await page.setContent(html, { waitUntil: "domcontentloaded" });
 
     const pdf = await page.pdf({
       format: "A4",
