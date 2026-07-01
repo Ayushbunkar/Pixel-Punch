@@ -77,10 +77,9 @@ function validateStep(step: number, state: FormState): ValidationErrors {
       break;
 
     case 6: // Contact
-      if (!state.firstname.trim()) errors.firstname = "Name is required.";
-      if (!state.email.trim())     errors.email     = "Email is required.";
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim()))
+      if (state.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim())) {
         errors.email = "Please enter a valid email address.";
+      }
       break;
   }
 

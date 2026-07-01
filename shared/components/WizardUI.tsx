@@ -36,8 +36,8 @@ export function OptionCard({
         className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-${multi ? "md" : "full"} border-2 flex items-center justify-center transition-all duration-150
           ${selected
             ? multi
-              ? "border-violet-600 bg-violet-600"
-              : "border-indigo-600 bg-indigo-600"
+              ? "border-blue-600 bg-blue-600"
+              : "border-blue-600 bg-blue-600"
             : "border-slate-300"
           }`}
       >

@@ -1068,33 +1068,19 @@ export default function OpportunityResultsContent() {
           {[
 
             {
-
               title: "Technical AI Readiness",
-
-              desc: "Workflow standardization, data structure, and system connection levels.",
-
+              desc: "Workflow standardization, structured data pipeline models preparation, system integrations, and APIs connectivity levels required to support robust deployment of custom AI agents and models across your organization's internal workflows.",
               rag: isUnlocked ? scorecard.readiness : "red",
-
             },
-
             {
-
               title: "Business Value Potential",
-
-              desc: "Urgency of resolving core manual pain points and expected ROI.",
-
+              desc: "Urgency of addressing core operational pain points, manual labor bottlenecks, projected labor cost reduction, and business ROI impact of agent workflows across departments.",
               rag: isUnlocked ? scorecard.value : "red",
-
             },
-
             {
-
               title: "Automation Opportunity",
-
-              desc: "Density of routine data and customer processes ready for AI.",
-
-              rag: isUnlocked ? scorecard.opportunity : "amber",
-
+              desc: "Density of routine structured data sources, customer ticketing patterns, manual entry processes, and back-office pipelines suited for direct agentic automation.",
+              rag: isUnlocked ? scorecard.opportunity : "green", // Align green default value from screenshot
             },
 
           ].map((card, idx) => {

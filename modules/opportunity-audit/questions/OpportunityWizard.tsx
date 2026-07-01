@@ -112,7 +112,7 @@ function NavButtons({ step, total, loading, onBack, onNext, onSubmit }: NavProps
             type="button"
             onClick={onSubmit}
             disabled={loading}
-            className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors min-w-[200px] flex items-center justify-center gap-2 text-sm font-semibold"
+            className="px-6 py-2.5 bg-[#0d6efd] text-white rounded-lg hover:bg-blue-700 transition-colors min-w-[200px] flex items-center justify-center gap-2 text-sm font-semibold"
             aria-label="Submit and get your AI Opportunity Roadmap"
           >
             {loading ? (

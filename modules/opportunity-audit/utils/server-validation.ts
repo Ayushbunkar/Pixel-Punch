@@ -118,8 +118,12 @@ export function validateSubmission(body: unknown): FieldError[] {
   enumField("adoption_blocker", ADOPTION_BLOCKER_VALUES, "Adoption blocker (Q15)");
 
   // ── Lead context ──────────────────────────────────────────────────────────
-  stringField("firstname", "First name", { maxLength: 100 });
-  stringField("email",     "Email",      { maxLength: 254, format: "email" });
+  if (data["firstname"] !== undefined && data["firstname"] !== null && data["firstname"] !== "") {
+    stringField("firstname", "First name", { maxLength: 100 });
+  }
+  if (data["email"] !== undefined && data["email"] !== null && data["email"] !== "") {
+    stringField("email",     "Email",      { maxLength: 254, format: "email" });
+  }
 
   if (data["lastname"] !== undefined && data["lastname"] !== null && data["lastname"] !== "") {
     stringField("lastname",  "Last name",  { maxLength: 100 });

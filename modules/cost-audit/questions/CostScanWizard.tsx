@@ -125,7 +125,7 @@ function NavButtons({ step, total, loading, onBack, onNext, onSubmit }: NavProps
             id="cost-scan-submit-btn"
             onClick={onSubmit}
             disabled={loading}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors min-w-[180px] flex items-center justify-center gap-2"
+            className="px-6 py-2 bg-[#0d6efd] text-white rounded-lg hover:bg-blue-700 transition-colors min-w-[180px] flex items-center justify-center gap-2"
             aria-label="Submit and see your results"
           >
             {loading ? (
