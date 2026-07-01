@@ -93,14 +93,22 @@ function buildCostAuditHtml(data: PdfReportData): string {
   const today = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
   const reportId = data.submissionId.slice(0, 8).toUpperCase();
 
+  const getCostDesc = (lbl: string) => {
+    const l = lbl.toLowerCase();
+    if (l.includes("spend")) return "Monthly spend rate and financial overhead visibility.";
+    if (l.includes("arch")) return "Operational dependencies and single-point architecture leakage.";
+    return "Manual team bottlenecks and critical tool integrations pain.";
+  };
+
   const scorecardRows = data.scorecard.dimensions.map(dim => `
-    <td style="padding:12px 16px;background:${dim.bgColor};border:1px solid ${dim.borderColor};border-radius:8px;width:23%;height:110px;vertical-align:top">
-      <p style="margin:0 0 6px 0;font-size:10px;font-weight:700;color:${dim.textColor};text-transform:uppercase;letter-spacing:0.4px">${dim.label}</p>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-        <div style="width:8px;height:8px;border-radius:50%;background:${dim.dotColor}"></div>
-        <span style="font-size:12px;font-weight:700;color:${dim.textColor}">${dim.labelColor}</span>
+    <td style="padding:12px 14px;background:${dim.bgColor};border:1px solid ${dim.borderColor};border-radius:8px;width:23%;height:125px;vertical-align:top">
+      <p style="margin:0 0 4px 0;font-size:9.5px;font-weight:800;color:${dim.textColor};text-transform:uppercase;letter-spacing:0.3px">${dim.label}</p>
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">
+        <div style="width:7px;height:7px;border-radius:50%;background:${dim.dotColor}"></div>
+        <span style="font-size:10.5px;font-weight:700;color:${dim.textColor}">${dim.labelColor}</span>
       </div>
-      <p style="margin:4px 0 0 0;font-size:9px;color:${dim.textColor};font-weight:600">${dim.value?.toUpperCase()}</p>
+      <p style="margin:0 0 6px 0;font-size:7.5px;color:${dim.textColor};line-height:1.2;opacity:0.85">${getCostDesc(dim.label)}</p>
+      <p style="margin:0;font-size:8.5px;color:${dim.textColor};font-weight:750;text-transform:uppercase">${dim.value}</p>
     </td>
   `).join("<td style='width:2.6%'></td>");
 
@@ -117,8 +125,8 @@ function buildCostAuditHtml(data: PdfReportData): string {
   ];
 
   const svgPieChart = `
-    <td style="width:23%;padding:12px 16px;background:#ffffff;border-radius:12px;border:1px solid #e2e8f0;text-align:center;vertical-align:middle;height:110px">
-      <svg width="72" height="72" viewBox="0 0 100 100" style="transform:rotate(-90deg);margin:0 auto;display:block">
+    <td style="width:23%;padding:12px 16px;background:#ffffff;border-radius:12px;border:1px solid #e2e8f0;text-align:center;vertical-align:middle;height:125px">
+      <svg width="68" height="68" viewBox="0 0 100 100" style="transform:rotate(-90deg);margin:0 auto;display:block">
         <circle cx="50" cy="50" r="35" fill="none" stroke="#f1f5f9" stroke-width="14"/>
         <circle cx="50" cy="50" r="35" fill="none" stroke="${costData[0].color}" stroke-width="14" stroke-dasharray="${sliceLength} ${circumference}" stroke-dashoffset="0"/>
         <circle cx="50" cy="50" r="35" fill="none" stroke="${costData[1].color}" stroke-width="14" stroke-dasharray="${sliceLength} ${circumference}" stroke-dashoffset="-${sliceLength}"/>
@@ -325,14 +333,22 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
   const today = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
   const reportId = data.submissionId.slice(0, 8).toUpperCase();
 
+  const getOppDesc = (lbl: string) => {
+    const l = lbl.toLowerCase();
+    if (l.includes("readiness")) return "Infrastructure maturity, data availability, and tooling readiness.";
+    if (l.includes("value")) return "Strategic business alignment and automated workflow ROI potential.";
+    return "Identified workflow opportunities suited for agent automation.";
+  };
+
   const scorecardRows = data.scorecard.dimensions.map(dim => `
-    <td style="padding:12px 16px;background:${dim.bgColor};border:1px solid ${dim.borderColor};border-radius:8px;width:23%;height:110px;vertical-align:top">
-      <p style="margin:0 0 6px 0;font-size:10px;font-weight:700;color:${dim.textColor};text-transform:uppercase;letter-spacing:0.4px">${dim.label}</p>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
-        <div style="width:8px;height:8px;border-radius:50%;background:${dim.dotColor}"></div>
-        <span style="font-size:12px;font-weight:700;color:${dim.textColor}">${dim.labelColor}</span>
+    <td style="padding:12px 14px;background:${dim.bgColor};border:1px solid ${dim.borderColor};border-radius:8px;width:23%;height:125px;vertical-align:top">
+      <p style="margin:0 0 4px 0;font-size:9.5px;font-weight:800;color:${dim.textColor};text-transform:uppercase;letter-spacing:0.3px">${dim.label}</p>
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">
+        <div style="width:7px;height:7px;border-radius:50%;background:${dim.dotColor}"></div>
+        <span style="font-size:10.5px;font-weight:700;color:${dim.textColor}">${dim.labelColor}</span>
       </div>
-      <p style="margin:4px 0 0 0;font-size:9px;color:${dim.textColor};font-weight:600">${dim.value?.toUpperCase()}</p>
+      <p style="margin:0 0 6px 0;font-size:7.5px;color:${dim.textColor};line-height:1.2;opacity:0.85">${getOppDesc(dim.label)}</p>
+      <p style="margin:0;font-size:8.5px;color:${dim.textColor};font-weight:750;text-transform:uppercase">${dim.value}</p>
     </td>
   `).join("<td style='width:2.6%'></td>");
 

@@ -117,7 +117,7 @@ export default function ResultsPageContent() {
     const directPdfDownload = searchParams.get("pdf") === "true";
 
     // Always unlock report results (no fake blurred content)
-    const isUnlocked = true;
+    const isUnlocked = false;
 
   const [dlState, setDlState] = useState<"idle" | "generating" | "done">("idle");
 
