@@ -714,7 +714,7 @@ export default function OpportunityResultsContent() {
 
         jsPDF: { unit: "mm" as const, format: "a4", orientation: "portrait" as const, compress: true },
 
-        pagebreak: { mode: ["css", "avoid-all"] as const },
+        pagebreak: { mode: ["css", "avoid-all"] as const, before: ".page-break-before" },
 
       };
 
@@ -886,7 +886,7 @@ export default function OpportunityResultsContent() {
 
         return (
 
-          <h2 key={idx} className="text-base font-bold text-slate-900 mt-4 mb-2 border-b border-slate-200 pb-1">
+          <h2 key={idx} className="text-base font-bold text-slate-900 mt-4 mb-2 border-b border-slate-200 pb-1" style={{ pageBreakInside: "avoid" }}>
 
             {parseInlineMarkdown(trimmed.replace(/^#\s+/, ""))}
 
@@ -900,7 +900,7 @@ export default function OpportunityResultsContent() {
 
         return (
 
-          <h3 key={idx} className="text-sm font-bold text-slate-800 mt-3 mb-1">
+          <h3 key={idx} className="text-sm font-bold text-slate-800 mt-3 mb-1" style={{ pageBreakInside: "avoid" }}>
 
             {parseInlineMarkdown(trimmed.replace(/^###\s+/, ""))}
 
@@ -914,7 +914,7 @@ export default function OpportunityResultsContent() {
 
         return (
 
-          <li key={idx} className="text-xs text-slate-600 ml-4 list-disc mb-0.5 leading-relaxed">
+          <li key={idx} className="text-xs text-slate-600 ml-4 list-disc mb-0.5 leading-relaxed" style={{ pageBreakInside: "avoid" }}>
 
             {parseInlineMarkdown(trimmed.replace(/^[-*]\s+/, ""))}
 
@@ -926,19 +926,19 @@ export default function OpportunityResultsContent() {
 
       if (trimmed === "---") {
 
-        return <hr key={idx} className="my-3 border-slate-200" />;
+        return <hr key={idx} className="my-3 border-slate-200" style={{ pageBreakInside: "avoid" }} />;
 
       }
 
       if (trimmed === "") {
 
-        return <div key={idx} className="h-1" />;
+        return <div key={idx} className="h-1" style={{ pageBreakInside: "avoid" }} />;
 
       }
 
       return (
 
-        <p key={idx} className="text-xs text-slate-600 mb-2 leading-relaxed">
+        <p key={idx} className="text-xs text-slate-600 mb-2 leading-relaxed" style={{ pageBreakInside: "avoid" }}>
 
           {parseInlineMarkdown(trimmed)}
 
@@ -1006,7 +1006,7 @@ export default function OpportunityResultsContent() {
 
         animate="show"
 
-        className="max-w-4xl mx-auto px-4 py-8 md:py-10 space-y-6"
+        className="max-w-4xl mx-auto px-4 py-8 md:py-10 space-y-6 md:[zoom:1.06]"
 
       >
 
