@@ -532,28 +532,28 @@ export default function OpportunityResultsContent() {
       const ragLabel = (v: string) => v === "red" ? "⚠ HIGH RISK" : v === "amber" ? "◑ NEEDS ATTENTION" : "✓ GOOD";
       const ragBg = (v: string) => v === "red" ? "#fee2e2" : v === "amber" ? "#fef3c7" : "#dcfce7";
 
-      // Generate HTML-based RAG color chart (replaces SVG pie which html2canvas clips)
+      // Generate SVG Pie Chart for RAG Scorecard ratings (each slice represents 1/3 since there are 3 scorecard ratings)
       const generatePieChart = (data: { label: string; value: string; color: string }[]) => {
-        const rows = data.map(item => `
-          <tr>
-            <td style="padding: 6px 8px; vertical-align: middle;">
-              <div style="width: 14px; height: 14px; background: ${item.color}; border-radius: 50%; display: inline-block; vertical-align: middle;"></div>
-            </td>
-            <td style="padding: 6px 8px; font-size: 10px; color: #334155; font-weight: 600; vertical-align: middle;">${item.label}</td>
-            <td style="padding: 6px 8px; vertical-align: middle;">
-              <div style="width: 80px; height: 10px; background: #f1f5f9; border-radius: 5px; overflow: hidden;">
-                <div style="width: 100%; height: 100%; background: ${item.color}; border-radius: 5px;"></div>
-              </div>
-            </td>
-            <td style="padding: 6px 8px; font-size: 10px; color: ${item.color}; font-weight: 700; text-transform: uppercase; vertical-align: middle;">${item.value}</td>
-          </tr>
-        `).join("");
+        const size = 100;
+        const radius = 35;
+        const cx = 50;
+        const cy = 50;
+        
+        // 3 dimensions -> each takes exactly 120 degrees (dasharray calculations on 2 * pi * r ≈ 220)
+        // Slice 1: stroke-dasharray="73.3 220" stroke-dashoffset="0"
+        // Slice 2: stroke-dasharray="73.3 220" stroke-dashoffset="-73.3"
+        // Slice 3: stroke-dasharray="73.3 220" stroke-dashoffset="-146.6"
+        const circumference = 2 * Math.PI * radius; // ~219.91
+        const sliceLength = circumference / 3;
+
         return `
-        <div style="text-align: center; padding: 8px 0 4px 0;">
-          <div style="font-size: 11px; font-weight: 700; color: #334155; letter-spacing: 0.5px; margin-bottom: 8px;">RAG Scorecard</div>
-          <table border="0" cellpadding="0" cellspacing="0" style="margin: 0 auto; border-collapse: separate;">
-            ${rows}
-          </table>
+        <div style="text-align: center; padding: 4px 0;">
+          <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="transform: rotate(-90deg); margin: 0 auto; display: block;">
+            <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="#f1f5f9" stroke-width="14"/>
+            <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${data[0].color}" stroke-width="14" stroke-dasharray="${sliceLength} ${circumference}" stroke-dashoffset="0"/>
+            <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${data[1].color}" stroke-width="14" stroke-dasharray="${sliceLength} ${circumference}" stroke-dashoffset="-${sliceLength}"/>
+            <circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${data[2].color}" stroke-width="14" stroke-dasharray="${sliceLength} ${circumference}" stroke-dashoffset="-${sliceLength * 2}"/>
+          </svg>
         </div>`;
       };
 
