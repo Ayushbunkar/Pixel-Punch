@@ -17,7 +17,7 @@ function deduplicateRecommendations(recommendations: string[]): string[] {
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Markdow  jbkj n → clean HTML (proper list wrapping, no stray <br> inside <li>)
+// Markdowdfdf s  jbkj n → clean HTML (proper list wrapping, no stray <br> inside <li>)
 // ─────────────────────────────────────────────────────────────────────────────
 function mdToHtml(markdown: string): string {
   if (!markdown) return "";
