@@ -146,6 +146,10 @@ export function useCostScanForm(initialRef?: string) {
     setState((prev) => {
       const current = prev.unit_economics;
       if (value === "none") {
+        // If already selected, deselect it (return empty array)
+        if (current.includes("none")) {
+          return { ...prev, unit_economics: [] };
+        }
         // Selecting "none" clears everything else
         return { ...prev, unit_economics: ["none"] };
       }
@@ -165,6 +169,10 @@ export function useCostScanForm(initialRef?: string) {
     setState((prev) => {
       const current = prev.optimization_done;
       if (value === "none_adhoc") {
+        // If already selected, deselect it (return empty array)
+        if (current.includes("none_adhoc")) {
+          return { ...prev, optimization_done: [] };
+        }
         return { ...prev, optimization_done: ["none_adhoc"] };
       }
       const without = current.filter(

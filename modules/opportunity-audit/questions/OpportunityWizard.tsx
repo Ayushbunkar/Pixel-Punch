@@ -38,7 +38,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
       </div>
       <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
         <div
-          className="h-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-all duration-500"
+          className="h-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] transition-all duration-500 animate-[pulse_2s_infinite]"
           style={{ width: `${pct}%` }}
           role="progressbar"
           aria-valuenow={step}
@@ -97,6 +97,16 @@ function NavButtons({ step, total, loading, onBack, onNext, onSubmit }: NavProps
       </button>
 
       <div className="flex items-center gap-3">
+        {step === 6 && (
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={loading}
+            className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors text-sm font-medium"
+          >
+            Skip & See Results
+          </button>
+        )}
         {isLast ? (
           <button
             type="button"
