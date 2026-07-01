@@ -70,7 +70,7 @@ function buildCostAuditHtml(data: PdfReportData): string {
         <div style="width:8px;height:8px;border-radius:50%;background:${dim.dotColor}"></div>
         <span style="font-size:12px;font-weight:700;color:${dim.textColor}">${dim.labelColor}</span>
       </div>
-      <p style="margin:4px 0 0 0;font-size:9px;color:${dim.text}">${dim.value}</p>
+      <p style="margin:4px 0 0 0;font-size:9px;color:${dim.textColor}">${dim.value}</p>
     </td>
   `).join("");
 
@@ -264,7 +264,7 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
         <div style="width:8px;height:8px;border-radius:50%;background:${dim.dotColor}"></div>
         <span style="font-size:12px;font-weight:700;color:${dim.textColor}">${dim.labelColor}</span>
       </div>
-      <p style="margin:4px 0 0 0;font-size:9px;color:${dim.text}">${dim.value}</p>
+      <p style="margin:4px 0 0 0;font-size:9px;color:${dim.textColor}">${dim.value}</p>
     </td>
   `).join("");
 
@@ -351,7 +351,7 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
 // ── Main PDF Generation Function ──────────────────────────────────────────────────────
 export async function generatePdf(data: PdfReportData): Promise<Buffer> {
   const browser = await puppeteer.launch({
-    headless: "new",
+    headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
   });
 
