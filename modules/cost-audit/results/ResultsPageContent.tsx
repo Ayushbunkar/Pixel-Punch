@@ -251,7 +251,7 @@ export default function ResultsPageContent() {
 
       // Generate scorecard HTML with visual enhancements
       const scorecardHtml = `
-        <div style="padding: 32px 40px; background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); border-bottom: 1px solid #e2e8f0;">
+        <div style="padding: 32px 40px; background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); border-bottom: 1px solid #e2e8f0; page-break-inside: avoid;">
           <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 20px 0;">RAG Scorecard Overview</h2>
           <table border="0" cellpadding="0" cellspacing="0" width="100%">
             <tr>
@@ -304,11 +304,11 @@ export default function ResultsPageContent() {
 
       // Generate insights section with visual enhancements
       const insightsHtml = insightsCount > 0 ? `
-        <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
+        <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0; page-break-inside: avoid;">
           <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Key Insights</h2>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             ${r.insights.slice(0, 8).map((ins: any, i: number) => `
-              <div style="background: #f8fafc; border-radius: 8px; border-left: 3px solid #4f46e5; padding: 12px 16px;">
+              <div style="background: #f8fafc; border-radius: 8px; border-left: 3px solid #4f46e5; padding: 12px 16px; page-break-inside: avoid;">
                 <div style="font-size: 9px; font-weight: 800; color: #4f46e5; margin-bottom: 8px;">Insight ${i + 1}</div>
                 <div style="font-size: 11px; color: #334155; line-height: 1.5;">${typeof ins === "string" ? ins : ins.text || ins.title || ""}</div>
               </div>
@@ -319,11 +319,11 @@ export default function ResultsPageContent() {
 
       // Generate findings & recommendations section with visual enhancements
       const findingsRecsHtml = (findingsCount > 0 || recommendationsCount > 0) ? `
-        <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0;">
+        <div style="padding: 28px 40px; border-bottom: 1px solid #e2e8f0; page-break-inside: avoid;">
           <h2 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin: 0 0 16px 0;">Analysis Summary</h2>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px;">
             ${findingsCount > 0 ? `
-            <div style="background: #fff; border-radius: 10px; border: 1px solid #fee2e2; padding: 16px;">
+            <div style="background: #fff; border-radius: 10px; border: 1px solid #fee2e2; padding: 16px; page-break-inside: avoid;">
               <h3 style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #dc2626; margin: 0 0 12px 0;">⚠ Key Findings (${findingsCount})</h3>
               <div style="display: flex; gap: 8px; margin-bottom: 12px;">
                 <div style="flex: 1; background: #fee2e2; border-radius: 4px; height: 8px;">
@@ -334,7 +334,7 @@ export default function ResultsPageContent() {
             </div>
             ` : ""}
             ${recommendationsCount > 0 ? `
-            <div style="background: #fff; border-radius: 10px; border: 1px solid #dcfce7; padding: 16px;">
+            <div style="background: #fff; border-radius: 10px; border: 1px solid #dcfce7; padding: 16px; page-break-inside: avoid;">
               <h3 style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #16a34a; margin: 0 0 12px 0;">✓ Recommendations (${recommendationsCount})</h3>
               <div style="display: flex; gap: 8px; margin-bottom: 12px;">
                 <div style="flex: 1; background: #dcfce7; border-radius: 4px; height: 8px;">
@@ -346,7 +346,7 @@ export default function ResultsPageContent() {
             ` : ""}
           </div>
           ${findingsCount > 0 && recommendationsCount > 0 ? `
-          <div style="background: #f8fafc; border-radius: 10px; padding: 16px; text-align: center;">
+          <div style="background: #f8fafc; border-radius: 10px; padding: 16px; text-align: center; page-break-inside: avoid;">
             <h3 style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin: 0 0 12px 0;">Comparison Overview</h3>
             <div style="display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;">
               <div style="text-align: center;">
@@ -424,12 +424,12 @@ export default function ResultsPageContent() {
       `;
 
       const opt = {
-        margin: 0,
+        margin: [10, 10, 10, 10] as [number, number, number, number], // Margins prevent content clipping at edges
         filename: `Pixel-Punch-Cost-Audit-${submId?.slice(0, 8) ?? "report"}.pdf`,
         image: { type: "jpeg" as const, quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true, logging: false, width: 794, windowWidth: 794 },
         jsPDF: { unit: "mm" as const, format: "a4", orientation: "portrait" as const, compress: true },
-        pagebreak: { mode: ["css", "legacy"] as const },
+        pagebreak: { mode: ["css", "avoid-all"] as const },
       };
 
       await html2pdf().set(opt).from(htmlContent).save();
