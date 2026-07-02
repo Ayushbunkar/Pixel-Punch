@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSubmission } from "@/shared/database/db.service";
 import { submissionCache as costCache } from "../cost-scan/submit/route";
 import { submissionCache as oppCache } from "../opportunity-scan/submit/route";
-import { generatePdf } from "@/shared/utils/pdf-generator";
+import { generatePdf, loadLogoBase64 } from "@/shared/utils/pdf-generator";
 
 // ── Helper: Remove duplicate recommendations ───────────────────────────────────
 function deduplicateRecommendations(recommendations: string[]): string[] {
@@ -376,6 +376,7 @@ export async function POST(req: NextRequest) {
       auditReport: submission.auditReport,
       confidenceScore: submission.confidenceScore,
       roadmap: submission.roadmap,
+      logoBase64: await loadLogoBase64(),
     };
 
     // Generate the PDF

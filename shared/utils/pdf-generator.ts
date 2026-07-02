@@ -32,6 +32,7 @@ export interface PdfReportData {
     phase2: string[];
     phase3: string[];
   };
+  logoBase64?: string;
 }
 
 // ── RAG Color Config ───────────────────────────────────────────────────────────────
@@ -460,6 +461,10 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
           </tr>
         </table>
       </td>
+    </tr>
+  ` : "";
+
+  const logoBase64 = data.logoBase64 || "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wgARCAIyBQADASIAAhEBAxEB/8QAGwABAAIDAQEA";
 
   const fullHtml = `
     <!DOCTYPE html>
@@ -528,7 +533,7 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
   return fullHtml;
 }
 
-async function loadLogoBase64(): Promise<string> {
+export async function loadLogoBase64(): Promise<string> {
   try {
     const logoPath = path.join(process.cwd(), "public", "logo.jpg");
     if (fs.existsSync(logoPath)) {
@@ -542,7 +547,7 @@ async function loadLogoBase64(): Promise<string> {
 }
 
 export async function generatePdf(data: PdfReportData): Promise<Buffer> {
-  const logoBase64 = await loadLogoBase64();
+  const logoBase64 = data.logoBase64 || "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wgARCAIyBQADASIAAhEBAxEB/8QAGwABAAIDAQEA";
   
   // Determine executable path and args for chromium based on serverless vs local environment
   let executablePath = "";
@@ -576,7 +581,7 @@ export async function generatePdf(data: PdfReportData): Promise<Buffer> {
     const page = await browser.newPage();
     const html = data.reportType === "cost"
       ? buildCostAuditHtml(data, logoBase64)
-      : buildOpportunityAuditHtml(data, logoBase64);
+      : buildOpportunityAuditHtml(data);
 
     await page.setContent(html, { waitUntil: "domcontentloaded" });
 
