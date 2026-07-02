@@ -158,9 +158,8 @@ function buildCostAuditHtml(data: PdfReportData, logoBase64: string): string {
         </table>
       </td>
     </tr>
-  ` : "";
-//hfg
-  const insightsHtml = data.insights && data.insights.length > 0 ? `
+   ` : "";
+   const insightsHtml = data.insights && data.insights.length > 0 ? `
     <tr style="page-break-inside:avoid">
       <td style="padding:16px 0">
         <p style="margin:0 0 10px 0;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">Key Insights</p>
