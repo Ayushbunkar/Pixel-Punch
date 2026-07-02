@@ -69,9 +69,9 @@ function mdToHtml(markdown: string): string {
 // ─────────────────────────────────────────────────────────────────────────────
 function ragColor(rag: string): { bg: string; text: string; label: string } {
   switch (rag?.toLowerCase()) {
-    case "red":   return { bg: "#fee2e2", text: "#be123c", label: "HIGH RISK" };
-    case "amber": return { bg: "#fef3c7", text: "#b45309", label: "MEDIUM RISK" };
-    case "green": return { bg: "#dcfce7", text: "#15803d", label: "LOW RISK" };
+    case "red":   return { bg: "#fee2e2", text: "#dc2626", label: "Action Needed" };
+    case "amber": return { bg: "#fffbeb", text: "#d97706", label: "Needs Attention" };
+    case "green": return { bg: "#f0fdf4", text: "#16a34a", label: "Looking Good" };
     default:      return { bg: "#f1f5f9", text: "#64748b", label: rag?.toUpperCase() || "N/A" };
   }
 }
@@ -149,7 +149,7 @@ export async function POST(req: NextRequest) {
     const recipientName =
       `${submission.contact?.firstname ?? ""} ${submission.contact?.lastname ?? ""}`.trim() ||
       undefined;
-    const reportTitle = isCost ? "AI Cost Architecture Audit" : "AI Opportunity Audit & Roadmap";
+    const reportTitle = isCost ? "AI Cost Audit" : "AI Opportunity Audit";
     const companySize = submission.answers?.company_size || submission.company?.size || "small-to-midsize";
     const businessType = submission.answers?.business_type || submission.company?.type || "technology";
 
@@ -202,7 +202,20 @@ export async function POST(req: NextRequest) {
       ? mdToHtml(submission.auditReport)
       : `<p style="color:#475569;font-size:14px;line-height:1.6;">Your detailed audit analysis is being compiled. A follow-up report will be sent once complete.</p>`;
 
-    // ── 5. Recommendations list ───────────────────────────────────────────────
+    // ── 5. Findings list ────────────────────────────────────────────────
+    const findings: string[] =
+      submission.findings
+        ?.filter((f: any) => typeof f === "string")
+        .slice(0, 5) || [];
+    const findingsHtml = findings.length > 0
+      ? `<div style="background:#fff5f5;border-radius:12px;padding:20px;border:1px solid #fee2e2;margin-bottom:16px;"><p style="margin:0 0 12px 0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#b91c1c;">⚠ Key Findings (${findings.length})</p><ul style="margin:0;padding-left:20px;">
+          ${findings.map((f: string) =>
+            `<li style="margin-bottom:8px;font-size:14px;color:#475569;line-height:1.6;">${f}</li>`
+          ).join("")}
+        </ul></div>`
+      : "";
+
+    // ── 6. Recommendations list ───────────────────────────────────────────────
     const recommendations: string[] =
       submission.recommendations
         ?.filter((r: any) => typeof r === "string")
@@ -234,11 +247,11 @@ export async function POST(req: NextRequest) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your ${reportTitle} — Pixel Punch</title>
 </head>
-<body style="margin:0;padding:0;background-color:#f1f5f9;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
-  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background:#f1f5f9;padding:24px 16px;">
+<body style="margin:0;padding:0;background-color:#f8fafc;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background:#f8fafc;padding:32px 16px;">
     <tr>
       <td align="center">
-        <table border="0" cellpadding="0" cellspacing="0" width="600" style="max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+        <table border="0" cellpadding="0" cellspacing="0" width="640" style="max-width:640px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(2,6,23,0.08);">
 
           <!-- ░░ HEADER ░░ -->
           <tr>
@@ -266,7 +279,7 @@ export async function POST(req: NextRequest) {
                 <strong style="color:#1e293b">${companyName}</strong> (${companySize}, ${businessType} sector)
               </p>
               <p style="margin:0 0 0 0;font-size:14px;color:#64748b;line-height:1.7;">
-                Your AI scan is complete. We've compiled your personalised scorecard and a full consultative audit report below.
+                Your AI scan is complete. We've compiled your personalized scorecard and a full consultative audit report below.
                 Use the results to benchmark your current AI position and identify the highest-impact improvements.
               </p>
             </td>
@@ -286,25 +299,36 @@ export async function POST(req: NextRequest) {
           <tr>
             <td style="padding:28px 32px 0 32px;">
               <div style="border-top:1px solid #e2e8f0;"></div>
-              <p style="margin:20px 0 8px 0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94a3b8;">📋 Full Audit Report</p>
+              <p style="margin:20px 0 8px 0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94a3b8;">📋 Full Technical Audit</p>
             </td>
           </tr>
 
-          <!-- ░░ AUDIT REPORT BODY ░░ -->
+          <!-- ░░ FULL AUDIT REPORT BODY ░░ -->
           <tr>
-            <td style="padding:0 32px 0 32px;">
-              <div style="font-size:14px;color:#475569;line-height:1.7;">
-                ${reportHtml}
+            <td style="padding:28px 32px 0 32px;">
+              <div style="background:#f8fafc;border-radius:12px;padding:24px;border:1px solid #e2e8f0;">
+                <p style="margin:0 0 16px 0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94a3b8;">📋 Full Technical Audit</p>
+                <div style="font-size:14px;color:#475569;line-height:1.7;">
+                  ${reportHtml}
+                </div>
               </div>
             </td>
           </tr>
+
+          ${findingsHtml ? `
+          <!-- ░░ KEY FINDINGS ░░ -->
+          <tr>
+            <td style="padding:28px 32px 0 32px;">
+              ${findingsHtml}
+            </td>
+          </tr>` : ""}
 
           ${recsHtml ? `
           <!-- ░░ RECOMMENDATIONS ░░ -->
           <tr>
             <td style="padding:24px 32px 0 32px;">
               <div style="background:#f0fdf4;border-radius:12px;padding:20px;border:1px solid #bbf7d0;">
-                <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#15803d;">✅ Top Recommendations</p>
+                <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#15803d;">✅ Expert Recommendations</p>
                 ${recsHtml}
               </div>
             </td>

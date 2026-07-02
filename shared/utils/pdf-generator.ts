@@ -196,7 +196,7 @@ function buildCostAuditHtml(data: PdfReportData, logoBase64: string): string {
         <table border="0" cellpadding="0" cellspacing="0" style="width:100%;background:#fff5f5;border:1px solid #fee2e2;border-radius:10px">
           <tr>
             <td style="padding:12px 14px">
-              <p style="margin:0 0 8px 0;font-size:10.5px;font-weight:900;color:#b91c1c;text-transform:uppercase;letter-spacing:0.5px">Key Findings (${data.findings.length})</p>
+              <p style="margin:0 0 8px 0;font-size:10.5px;font-weight:900;color:#b91c1c;text-transform:uppercase;letter-spacing:0.5px">⚠ Key Findings (${data.findings.length})</p>
               <ul style="margin:0;padding-left:20px">
                 ${data.findings.map(f => `<li style="font-size:9.5px;color:#475569;margin-bottom:4px">${renderMarkdown(f)}</li>`).join("")}
               </ul>
@@ -282,9 +282,9 @@ function buildCostAuditHtml(data: PdfReportData, logoBase64: string): string {
             <div style="display:flex;align-items:center;gap:12px">
               <img src="${logoBase64}" alt="Pixel Punch" style="height:28px;width:auto;object-contain:true" />
               <div style="height:20px;width:1px;background:#e2e8f0"></div>
-              <div>
-                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#64748b">AI Cost Architecture Diagnostics</div>
-              </div>
+                 <div>
+                   <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#64748b">AI Cost Audit</div>
+                 </div>
             </div>
             <div style="text-align:right">
               <div style="font-size:10px;color:#64748b;margin-bottom:4px">Report Date: <strong style="color:#1e293b">${today}</strong></div>
@@ -402,35 +402,7 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
     </tr>
   ` : "";
 
-  const insightsHtml = data.insights && data.insights.length > 0 ? `
-    <tr style="page-break-inside:avoid">
-      <td style="padding:16px 0">
-        <p style="margin:0 0 10px 0;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">Key Opportunities Insights</p>
-        <table border="0" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse">
-          ${data.insights.map((ins, i) => `
-            <tr>
-              <td style="padding:4px 0">
-                <table border="0" cellpadding="0" cellspacing="0" style="width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px">
-                  <tr>
-                    <td style="padding:10px 12px">
-                      <table border="0" cellpadding="0" cellspacing="0">
-                        <tr>
-                          <td style="vertical-align:top;padding-right:10px;width:20px">
-                            <div style="width:20px;min-width:20px;font-size:12px;font-weight:800;color:#94a3b8;text-align:center">${i + 1}.</div>
-                          </td>
-                          <td style="vertical-align:top;font-size:11px;color:#334155">${renderMarkdown(ins)}</td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          `).join("")}
-        </table>
-      </td>
-    </tr>
-  ` : "";
+  const insightsHtml = "";
 
   const recommendationsHtml = data.recommendations && data.recommendations.length > 0 ? `
     <tr style="page-break-inside:avoid">
@@ -438,7 +410,7 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
         <table border="0" cellpadding="0" cellspacing="0" style="width:100%;background:#f0fdf4;border:1px solid #dcfce7;border-radius:10px">
           <tr>
             <td style="padding:12px 14px">
-              <p style="margin:0 0 8px 0;font-size:10.5px;font-weight:900;color:#15803d;text-transform:uppercase;letter-spacing:0.5px">Core Recommendations (${data.recommendations.length})</p>
+              <p style="margin:0 0 8px 0;font-size:10.5px;font-weight:900;color:#15803d;text-transform:uppercase;letter-spacing:0.5px">Expert Recommendations (${data.recommendations.length})</p>
               <ul style="margin:0;padding-left:20px">
                 ${data.recommendations.map(r => `<li style="font-size:9.5px;color:#475569;margin-bottom:4px">${renderMarkdown(r)}</li>`).join("")}
               </ul>
@@ -452,14 +424,14 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
   const auditReportHtml = data.auditReport ? `
     <tr style="page-break-inside:avoid">
       <td style="padding:16px 0">
-        <table border="0" cellpadding="0" cellspacing="0" style="width:100%;background:#fafaf9;border:1px solid #f5f5f4;border-radius:10px">
-          <tr>
-            <td style="padding:16px 20px">
-              <p style="margin:0 0 10px 0;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">Full Opportunities Analysis</p>
-              <div style="font-size:10px;color:#475569;line-height:1.6;white-space:pre-wrap">${renderMarkdown(data.auditReport)}</div>
-            </td>
-          </tr>
-        </table>
+      <table border="0" cellpadding="0" cellspacing="0" style="width:100%;background:#fafaf9;border:1px solid #f5f5f4;border-radius:10px">
+        <tr>
+          <td style="padding:16px 20px">
+            <p style="margin:0 0 10px 0;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#94a3b8">Full Technical Audit</p>
+            <div style="font-size:10px;color:#475569;line-height:1.6;white-space:pre-wrap">${renderMarkdown(data.auditReport)}</div>
+          </td>
+        </tr>
+      </table>
       </td>
     </tr>
   ` : "";
@@ -489,9 +461,9 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
             <div style="display:flex;align-items:center;gap:12px">
               <img src="${logoBase64}" alt="Pixel Punch" style="height:28px;width:auto;object-contain:true" />
               <div style="height:20px;width:1px;background:#e2e8f0"></div>
-              <div>
-                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#64748b">AI Opportunity Audit & Roadmap</div>
-              </div>
+                 <div>
+                   <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#64748b">AI Opportunity Audit</div>
+                 </div>
             </div>
             <div style="text-align:right">
               <div style="font-size:10px;color:#64748b;margin-bottom:4px">Report Date: <strong style="color:#1e293b">${today}</strong></div>
