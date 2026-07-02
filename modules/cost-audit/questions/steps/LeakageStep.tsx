@@ -56,7 +56,7 @@ export function LeakageStep({ value, onChange, error }: LeakageStepProps) {
         Where do you believe most AI cost leakage is happening?
       </h2>
       <p className="text-sm text-slate-600 mb-6">
-        Best guess is fine — we will surface the evidence in the audit.
+        Best guess is fine we will surface the evidence in the audit.
       </p>
 
       <div className="grid gap-3">
