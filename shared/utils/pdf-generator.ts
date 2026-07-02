@@ -1,5 +1,7 @@
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium-min";
+import fs from "fs";
+import path from "path";
 
 // ── Shared PDF Report Types ────────────────────────────────────────────────────────
 export interface PdfReportData {
@@ -87,7 +89,7 @@ function renderMarkdown(text: string): string {
 }
 
 // ── Build PDF HTML for Cost Audit ────────────────────────────────────────────────────
-function buildCostAuditHtml(data: PdfReportData): string {
+function buildCostAuditHtml(data: PdfReportData, logoBase64: string): string {
   const tier = data.tier || 4;
   const tierStyles = getTierStyles(tier);
   const today = new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" });
@@ -533,7 +535,22 @@ function buildOpportunityAuditHtml(data: PdfReportData): string {
   return fullHtml;
 }
 
+async function loadLogoBase64(): Promise<string> {
+  try {
+    const logoPath = path.join(process.cwd(), "public", "logo.jpg");
+    if (fs.existsSync(logoPath)) {
+      const logoData = fs.readFileSync(logoPath);
+      return `data:image/jpeg;base64,${logoData.toString("base64")}`;
+    }
+  } catch (err) {
+    console.warn("[pdf-generator] Could not load logo.jpg, using placeholder");
+  }
+  return "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wgARCAIyBQADASIAAhEBAxEB/8QAGwABAAIDAQEA";
+}
+
 export async function generatePdf(data: PdfReportData): Promise<Buffer> {
+  const logoBase64 = await loadLogoBase64();
+  
   // Determine executable path and args for chromium based on serverless vs local environment
   let executablePath = "";
   let launchArgs = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
@@ -565,8 +582,8 @@ export async function generatePdf(data: PdfReportData): Promise<Buffer> {
   try {
     const page = await browser.newPage();
     const html = data.reportType === "cost"
-      ? buildCostAuditHtml(data)
-      : buildOpportunityAuditHtml(data);
+      ? buildCostAuditHtml(data, logoBase64)
+      : buildOpportunityAuditHtml(data, logoBase64);
 
     await page.setContent(html, { waitUntil: "domcontentloaded" });
 

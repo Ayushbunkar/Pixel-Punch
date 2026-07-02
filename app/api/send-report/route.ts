@@ -144,18 +144,37 @@ export async function POST(req: NextRequest) {
       submission.contact?.company ||
       submission.company?.name ||
       submission.answers?.company ||
+      submission.costAnalysis?.normalizedData?.provider ||
       "your company";
     const recipientName =
       `${submission.contact?.firstname ?? ""} ${submission.contact?.lastname ?? ""}`.trim() ||
       undefined;
     const reportTitle = isCost ? "AI Cost Architecture Audit" : "AI Opportunity Audit & Roadmap";
+    const companySize = submission.answers?.company_size || submission.company?.size || "small-to-midsize";
+    const businessType = submission.answers?.business_type || submission.company?.type || "technology";
 
     // ── 3. Build RAG scorecard badges ─────────────────────────────────────────
     let scorecardHtml = "";
+    let costDetailsHtml = "";
     if (isCost) {
       const spend = submission.scorecard?.spend || submission.score?.spend || "unknown";
       const arch  = submission.scorecard?.architecture || submission.score?.architecture || "unknown";
       const pain  = submission.scorecard?.pain || submission.score?.pain || "unknown";
+      const provider = submission.costAnalysis?.normalizedData?.provider || "N/A";
+      const monthlySpend = submission.costAnalysis?.normalizedData?.monthlySpend || "N/A";
+      costDetailsHtml = `
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
+          <tr>
+            <td style="padding:12px 16px;background:#eff6ff;border-radius:8px;width:48%;">
+              <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">.Provider</div>
+              <div style="font-size:13px;font-weight:600;color:#0f172a;">${provider}</div>
+            </td>
+            <td style="padding:12px 16px;background:#eff6ff;border-radius:8px;width:48%;">
+              <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">_Monthly Spend</div>
+              <div style="font-size:13px;font-weight:600;color:#0f172a;">${monthlySpend}</div>
+            </td>
+          </tr>
+        </table>`;
       scorecardHtml = `
         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
           <tr>
@@ -225,10 +244,15 @@ export async function POST(req: NextRequest) {
           <tr>
             <td style="background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);padding:32px 32px 28px 32px;text-align:center;">
               <div style="display:inline-block;background:rgba(255,255,255,0.1);border-radius:10px;padding:6px 16px;margin-bottom:16px;">
-                <span style="color:#a5b4fc;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">⚡ Pixel Punch AI</span>
+                <img src="https://pixelpunch.org/logo.jpg" alt="Pixel Punch" style="height:18px;width:auto;object-fit:contain;vertical-align:middle;margin-right:6px;" />
+                <span style="color:#a5b4fc;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Pixel Punch AI</span>
               </div>
               <h1 style="margin:0;font-size:24px;font-weight:800;color:#ffffff;line-height:1.3;">Your ${reportTitle}<br>Report is Ready</h1>
               <p style="margin:12px 0 0 0;color:#94a3b8;font-size:13px;">Compiled exclusively for <strong style="color:#c7d2fe;">${companyName}</strong></p>
+              ${costDetailsHtml ? `
+              <div style="margin-top:16px;">
+                ${costDetailsHtml}
+              </div>` : ""}
             </td>
           </tr>
 
@@ -238,7 +262,10 @@ export async function POST(req: NextRequest) {
               <p style="margin:0;font-size:15px;color:#334155;line-height:1.7;">
                 Hello${recipientName ? ` <strong>${recipientName}</strong>` : ""},
               </p>
-              <p style="margin:10px 0 0 0;font-size:14px;color:#64748b;line-height:1.7;">
+              <p style="margin:10px 0 8px 0;font-size:14px;color:#64748b;line-height:1.7;">
+                <strong style="color:#1e293b">${companyName}</strong> (${companySize}, ${businessType} sector)
+              </p>
+              <p style="margin:0 0 0 0;font-size:14px;color:#64748b;line-height:1.7;">
                 Your AI scan is complete. We've compiled your personalised scorecard and a full consultative audit report below.
                 Use the results to benchmark your current AI position and identify the highest-impact improvements.
               </p>
