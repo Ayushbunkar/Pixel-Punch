@@ -9,25 +9,25 @@ const OPTIONS: { value: AiDependence; label: string; sublabel: string; icon: Rea
     value:    "core_revenue",
     label:    "Core revenue features",
     sublabel: "AI directly powers or enables your product's primary value proposition.",
-    icon:     <Rocket className="w-5 h-5 text-indigo-400" />,
+    icon:     <Rocket className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "key_workflows",
     label:    "Key internal workflows (support/ops)",
     sublabel: "AI handles significant internal operations support triage, ops automation, etc.",
-    icon:     <Settings className="w-5 h-5 text-indigo-400" />,
+    icon:     <Settings className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "limited_pilots",
     label:    "Limited pilots / experiments",
     sublabel: "AI is in trial stages not yet in critical production paths.",
-    icon:     <Beaker className="w-5 h-5 text-indigo-400" />,
+    icon:     <Beaker className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "no_production",
     label:    "No production AI yet",
     sublabel: "Evaluating or pre production only.",
-    icon:     <Sprout className="w-5 h-5 text-indigo-400" />,
+    icon:     <Sprout className="w-5 h-5 text-blue-400" />,
   },
 ];
 

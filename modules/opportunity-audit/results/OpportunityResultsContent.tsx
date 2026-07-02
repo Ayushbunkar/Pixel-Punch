@@ -194,7 +194,7 @@ function getStepDetails(stepItem: string, idx: number) {
 
   
 
-  let icon = <BrainCircuit className="w-4 h-4 text-indigo-600" />;
+  let icon = <BrainCircuit className="w-4 h-4 text-blue-600" />;
 
   let categoryBadge = "System Prep";
 
@@ -208,7 +208,7 @@ function getStepDetails(stepItem: string, idx: number) {
 
   if (lowercase.includes("map") || lowercase.includes("logic") || lowercase.includes("workflow") || lowercase.includes("sop") || lowercase.includes("process")) {
 
-    icon = <BrainCircuit className="w-4 h-4 text-indigo-600" />;
+    icon = <BrainCircuit className="w-4 h-4 text-blue-600" />;
 
     categoryBadge = "Process Mapping";
 
@@ -220,7 +220,7 @@ function getStepDetails(stepItem: string, idx: number) {
 
   } else if (lowercase.includes("centralize") || lowercase.includes("crm") || lowercase.includes("erp") || lowercase.includes("data") || lowercase.includes("pipeline") || lowercase.includes("database")) {
 
-    icon = <Network className="w-4 h-4 text-indigo-600" />;
+    icon = <Network className="w-4 h-4 text-blue-600" />;
 
     categoryBadge = "Data Integration";
 
@@ -232,7 +232,7 @@ function getStepDetails(stepItem: string, idx: number) {
 
   } else if (lowercase.includes("schedule") || lowercase.includes("review") || lowercase.includes("consult") || lowercase.includes("scoping") || lowercase.includes("architect")) {
 
-    icon = <Calendar className="w-4 h-4 text-indigo-600" />;
+    icon = <Calendar className="w-4 h-4 text-blue-600" />;
 
     categoryBadge = "Technical Scoping";
 
@@ -244,7 +244,7 @@ function getStepDetails(stepItem: string, idx: number) {
 
   } else if (idx === 0) {
 
-    icon = <BrainCircuit className="w-4 h-4 text-indigo-600" />;
+    icon = <BrainCircuit className="w-4 h-4 text-blue-600" />;
 
     categoryBadge = "Process Audit";
 
@@ -256,7 +256,7 @@ function getStepDetails(stepItem: string, idx: number) {
 
   } else if (idx === 1) {
 
-    icon = <Network className="w-4 h-4 text-indigo-600" />;
+    icon = <Network className="w-4 h-4 text-blue-600" />;
 
     categoryBadge = "Data Consolidation";
 
@@ -268,7 +268,7 @@ function getStepDetails(stepItem: string, idx: number) {
 
   } else if (idx === 2) {
 
-    icon = <Calendar className="w-4 h-4 text-indigo-600" />;
+    icon = <Calendar className="w-4 h-4 text-blue-600" />;
 
     categoryBadge = "Review Call";
 
@@ -329,7 +329,7 @@ function UnlockModal({ isOpen, onClose, onEmail }: { isOpen: boolean; onClose: (
 
         <div className="text-center space-y-4">
 
-          <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center mx-auto shadow-sm">
+          <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center mx-auto shadow-sm">
 
             <Lock className="w-6 h-6" />
 
@@ -383,7 +383,7 @@ function UnlockModal({ isOpen, onClose, onEmail }: { isOpen: boolean; onClose: (
 
               onClick={onEmail}
 
-              className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
+              className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2"
 
             >
 
@@ -805,7 +805,7 @@ export default function OpportunityResultsContent() {
 
       <div className="min-h-screen bg-[#fafbff] flex flex-col items-center justify-center p-6">
 
-        <div className="w-10 h-10 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin mb-3" />
+        <div className="w-10 h-10 rounded-full border-4 border-blue-600 border-t-transparent animate-spin mb-3" />
 
         <p className="text-xs font-semibold text-slate-600 animate-pulse">Analyzing company details & compiling Roadmap...</p>
 
@@ -1142,7 +1142,7 @@ export default function OpportunityResultsContent() {
 
             <h2 className="text-xs font-bold text-slate-900 mb-2 flex items-center gap-2">
 
-              <LineChart className="w-3.5 h-3.5 text-indigo-500" />
+              <LineChart className="w-3.5 h-3.5 text-blue-500" />
 
               Dimension Performance Breakdown
 
@@ -1170,7 +1170,7 @@ export default function OpportunityResultsContent() {
 
                       <span className="font-semibold text-slate-800">{cat.name}</span>
 
-                      <span className="text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded-full">
+                      <span className="text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-100 px-1.5 py-0.5 rounded-full">
 
                         {cat.score} / {cat.maxScore}
 
@@ -1182,7 +1182,7 @@ export default function OpportunityResultsContent() {
 
                       <div 
 
-                        className="h-full bg-indigo-600 rounded-full" 
+                        className="h-full bg-blue-600 rounded-full" 
 
                         style={{ width: `${(cat.score / cat.maxScore) * 100}%` }}
 
@@ -1224,7 +1224,7 @@ export default function OpportunityResultsContent() {
 
                         <span className="font-semibold text-slate-800">{cat.name}</span>
 
-                        <span className="text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded-full">
+                        <span className="text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-100 px-1.5 py-0.5 rounded-full">
 
                           {cat.score} / {cat.maxScore}
 
@@ -1236,7 +1236,7 @@ export default function OpportunityResultsContent() {
 
                         <div 
 
-                          className="h-full bg-indigo-600 rounded-full" 
+                          className="h-full bg-blue-600 rounded-full" 
 
                           style={{ width: `${(cat.score / cat.maxScore) * 100}%` }}
 
@@ -1266,7 +1266,7 @@ export default function OpportunityResultsContent() {
 
                     <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
 
-                      <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100 text-indigo-600">
+                      <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 text-blue-600">
 
                         <Lock className="w-5 h-5" />
 
@@ -1288,7 +1288,7 @@ export default function OpportunityResultsContent() {
 
                         onClick={() => setEmailModalOpen(true)}
 
-                        className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
+                        className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
 
                       >
 
@@ -1326,7 +1326,7 @@ export default function OpportunityResultsContent() {
 
             <h2 className="text-xs font-bold text-slate-900 mb-2 flex items-center gap-2">
 
-              <BrainCircuit className="w-3.5 h-3.5 text-indigo-500" />
+              <BrainCircuit className="w-3.5 h-3.5 text-blue-500" />
 
               Recommended AI Opportunities
 
@@ -1368,7 +1368,7 @@ export default function OpportunityResultsContent() {
 
                         <h3 className="font-bold text-slate-900 text-xs flex items-center gap-2">
 
-                          <span className="w-5 h-5 rounded bg-indigo-100 text-indigo-700 font-extrabold text-[9px] flex items-center justify-center">
+                          <span className="w-5 h-5 rounded bg-blue-100 text-blue-700 font-extrabold text-[9px] flex items-center justify-center">
 
                             {idx + 1}
 
@@ -1440,7 +1440,7 @@ export default function OpportunityResultsContent() {
 
                   <div className="text-center p-4">
 
-                    <Lock className="w-5 h-5 text-indigo-600 mx-auto mb-1.5" />
+                    <Lock className="w-5 h-5 text-blue-600 mx-auto mb-1.5" />
 
                     <h3 className="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-0.5">
 
@@ -1464,7 +1464,7 @@ export default function OpportunityResultsContent() {
 
                       }}
 
-                      className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
+                      className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
 
                     >
 
@@ -1500,7 +1500,7 @@ export default function OpportunityResultsContent() {
 
               <h2 className="text-xs font-bold text-slate-900 flex items-center gap-2">
 
-                <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
 
                 Priority Actions & Next Steps
 
@@ -1510,7 +1510,7 @@ export default function OpportunityResultsContent() {
 
                 onClick={() => setEmailModalOpen(true)}
 
-                className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+                className="flex items-center gap-1 text-[10px] font-bold text-blue-600 hover:text-blue-700 transition-colors"
 
               >
 
@@ -1560,7 +1560,7 @@ export default function OpportunityResultsContent() {
 
                       {/* Icon Circle */}
 
-                      <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-sm flex-shrink-0 mt-0.5">
+                      <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100 shadow-sm flex-shrink-0 mt-0.5">
 
                         {details.icon}
 
@@ -1572,7 +1572,7 @@ export default function OpportunityResultsContent() {
 
                         <div className="flex items-center gap-2">
 
-                          <span className="text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                          <span className="text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-100 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
 
                             {details.categoryBadge}
 
@@ -1614,7 +1614,7 @@ export default function OpportunityResultsContent() {
 
                       <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Milestone {idx + 1}</span>
 
-                      <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50/50 px-2 py-0.5 rounded border border-indigo-100/30">
+                      <span className="text-[10px] font-bold text-blue-600 bg-blue-50/50 px-2 py-0.5 rounded border border-blue-100/30">
 
                         {details.impactBadge}
 
@@ -1642,7 +1642,7 @@ export default function OpportunityResultsContent() {
 
                     <div className="text-center p-3">
 
-                      <Lock className="w-5 h-5 text-indigo-600 mx-auto mb-1" />
+                      <Lock className="w-5 h-5 text-blue-600 mx-auto mb-1" />
 
                       <p className="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-0.5">
 
@@ -1666,7 +1666,7 @@ export default function OpportunityResultsContent() {
 
                         }}
 
-                        className="px-3.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
+                        className="px-3.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
 
                       >
 
@@ -1700,7 +1700,7 @@ export default function OpportunityResultsContent() {
 
                           <div className="flex items-start gap-3 flex-1">
 
-                            <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center border border-indigo-100 shadow-sm flex-shrink-0 mt-0.5">
+                            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100 shadow-sm flex-shrink-0 mt-0.5">
 
                               {details.icon}
 
@@ -1710,7 +1710,7 @@ export default function OpportunityResultsContent() {
 
                               <div className="flex items-center gap-2">
 
-                                <span className="text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                                <span className="text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-100 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
 
                                   {details.categoryBadge}
 
@@ -1746,7 +1746,7 @@ export default function OpportunityResultsContent() {
 
                             <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500">Milestone {actualIdx + 1}</span>
 
-                            <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50/50 px-2 py-0.5 rounded border border-indigo-100/30">
+                            <span className="text-[10px] font-bold text-blue-600 bg-blue-50/50 px-2 py-0.5 rounded border border-blue-100/30">
 
                               {details.impactBadge}
 
@@ -1786,7 +1786,7 @@ export default function OpportunityResultsContent() {
 
             <h2 className="text-xs font-bold text-slate-900 flex items-center gap-2">
 
-              <Network className="w-3.5 h-3.5 text-indigo-500" />
+              <Network className="w-3.5 h-3.5 text-blue-500" />
 
               Phased AI Adoption Roadmap
 
@@ -1797,7 +1797,7 @@ export default function OpportunityResultsContent() {
                   e.stopPropagation();
                   setEmailModalOpen(true);
                 }}
-                className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
+                className="flex items-center gap-1 text-[10px] font-bold text-blue-600 hover:text-blue-700 transition-colors"
               >
                 <Unlock className="w-3 h-3" />
                 Unlock Full Report
@@ -1811,7 +1811,7 @@ export default function OpportunityResultsContent() {
 
           </p>
 
-          <div className="relative border-l border-indigo-100 pl-4 ml-3 space-y-4">
+          <div className="relative border-l border-blue-100 pl-4 ml-3 space-y-4">
 
             {/* Phase 1 - Visible */}
 
@@ -1823,7 +1823,7 @@ export default function OpportunityResultsContent() {
 
             >
 
-              <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-[9px] font-bold text-indigo-600">
+              <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-blue-500 bg-white flex items-center justify-center text-[9px] font-bold text-blue-600">
 
                 1
 
@@ -1861,7 +1861,7 @@ export default function OpportunityResultsContent() {
 
                   <div className="text-center p-4">
 
-                    <Lock className="w-5 h-5 text-indigo-600 mx-auto mb-1.5" />
+                    <Lock className="w-5 h-5 text-blue-600 mx-auto mb-1.5" />
 
                     <h3 className="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-0.5">
 
@@ -1885,7 +1885,7 @@ export default function OpportunityResultsContent() {
 
                       }}
 
-                      className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
+                      className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
 
                     >
 
@@ -1907,7 +1907,7 @@ export default function OpportunityResultsContent() {
 
                 <div className="relative z-0">
 
-                  <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-[9px] font-bold text-indigo-600">
+                  <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-blue-500 bg-white flex items-center justify-center text-[9px] font-bold text-blue-600">
 
                     2
 
@@ -1933,7 +1933,7 @@ export default function OpportunityResultsContent() {
 
                 <div className="relative z-0">
 
-                  <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center text-[9px] font-bold text-indigo-600">
+                  <span className="absolute -left-[22px] top-0 w-5 h-5 rounded-full border-2 border-blue-500 bg-white flex items-center justify-center text-[9px] font-bold text-blue-600">
 
                     3
 
@@ -1943,7 +1943,7 @@ export default function OpportunityResultsContent() {
 
                     Phase 3: Strategic Scaling (6 to 12+ Months)
 
-                    <span className="text-[9px] font-bold bg-violet-50 text-violet-700 border border-violet-100 px-1.5 py-0.5 rounded">Agentic Automation</span>
+                    <span className="text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-100 px-1.5 py-0.5 rounded">Agentic Automation</span>
 
                   </h3>
 
@@ -1973,7 +1973,7 @@ export default function OpportunityResultsContent() {
 
         >
 
-          <ShieldCheck className="w-10 h-10 text-indigo-400 mx-auto" />
+          <ShieldCheck className="w-10 h-10 text-blue-400 mx-auto" />
 
           <div className="max-w-xl mx-auto">
 
@@ -1997,7 +1997,7 @@ export default function OpportunityResultsContent() {
 
               rel="noopener noreferrer"
 
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 transition-colors rounded-lg font-bold text-xs flex items-center justify-center gap-2"
+              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 transition-colors rounded-lg font-bold text-xs flex items-center justify-center gap-2"
 
             >
 

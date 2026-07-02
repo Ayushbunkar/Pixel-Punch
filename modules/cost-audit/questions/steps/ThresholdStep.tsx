@@ -9,25 +9,25 @@ const OPTIONS: { value: SavingsThreshold; label: string; sublabel: string; icon:
     value:    "gte_10",
     label:    "≥ 10% reduction",
     sublabel: "Any meaningful reduction justifies the investment.",
-    icon:     <BarChart3 className="w-5 h-5 text-indigo-400" />,
+    icon:     <BarChart3 className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "gte_25",
     label:    "≥ 25% reduction",
     sublabel: "A quarter reduction in AI spend would be a clear win.",
-    icon:     <Target className="w-5 h-5 text-indigo-400" />,
+    icon:     <Target className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "gte_40",
     label:    "≥ 40%+ reduction",
     sublabel: "Only a major reduction makes a full audit obviously worthwhile.",
-    icon:     <Rocket className="w-5 h-5 text-indigo-400" />,
+    icon:     <Rocket className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "need_visibility_first",
     label:    "Need visibility first before deciding",
     sublabel: "Without a clear picture of current spend, it's hard to commit to a number.",
-    icon:     <Search className="w-5 h-5 text-indigo-400" />,
+    icon:     <Search className="w-5 h-5 text-blue-400" />,
   },
 ];
 

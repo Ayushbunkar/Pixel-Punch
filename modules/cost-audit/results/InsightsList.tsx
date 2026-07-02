@@ -46,7 +46,7 @@ export function InsightsList({ insights, onUnlock, isUnlocked }: InsightsListPro
             className="absolute inset-0 bg-white/85 backdrop-blur-[2.5px] rounded-xl flex items-center justify-center z-10 cursor-pointer hover:bg-white/90 border border-slate-200/50 shadow-sm transition-all duration-300 min-h-[140px]"
           >
             <div className="text-center p-4">
-              <Lock className="w-5 h-5 text-indigo-600 mx-auto mb-1.5" />
+                <Lock className="w-5 h-5 text-blue-600 mx-auto mb-1.5" />
               <h3 className="text-[10px] font-bold text-slate-800 uppercase tracking-wider mb-0.5">
                 Key Insights Locked
               </h3>
@@ -58,7 +58,7 @@ export function InsightsList({ insights, onUnlock, isUnlocked }: InsightsListPro
                   e.stopPropagation();
                   onUnlock?.();
                 }}
-                className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
+                className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
               >
                 Unlock Insights
               </button>

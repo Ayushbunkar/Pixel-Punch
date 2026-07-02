@@ -16,7 +16,7 @@ export function StepStrategy({ state, errors, onChange }: StepStrategyProps) {
       {/* Q14 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-indigo-500" />
+          <Sparkles className="w-5 h-5 text-blue-500" />
           Which AI use case would create the most value right now?
         </h3>
         <p className="text-xs text-slate-500 mb-4">
@@ -45,7 +45,7 @@ export function StepStrategy({ state, errors, onChange }: StepStrategyProps) {
       {/* Q15 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <Ban className="w-5 h-5 text-indigo-500" />
+          <Ban className="w-5 h-5 text-blue-500" />
           What has prevented you from adopting AI faster?
         </h3>
         <p className="text-xs text-slate-500 mb-4">

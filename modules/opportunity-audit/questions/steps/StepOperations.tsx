@@ -16,7 +16,7 @@ export function StepOperations({ state, errors, onChange }: StepOperationsProps)
       {/* Q11 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <UserCheck className="w-5 h-5 text-indigo-500" />
+          <UserCheck className="w-5 h-5 text-blue-500" />
           How do you currently handle customer or internal inquiries?
         </h3>
         <p className="text-xs text-slate-500 mb-4">
@@ -45,7 +45,7 @@ export function StepOperations({ state, errors, onChange }: StepOperationsProps)
       {/* Q12 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-indigo-500" />
+          <MessageSquare className="w-5 h-5 text-blue-500" />
           What is the most common support or communication request?
         </h3>
         <p className="text-xs text-slate-500 mb-4">
@@ -74,7 +74,7 @@ export function StepOperations({ state, errors, onChange }: StepOperationsProps)
       {/* Q13 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <ClipboardCheck className="w-5 h-5 text-indigo-500" />
+          <ClipboardCheck className="w-5 h-5 text-blue-500" />
           How are leads currently qualified?
         </h3>
         <p className="text-xs text-slate-500 mb-4">

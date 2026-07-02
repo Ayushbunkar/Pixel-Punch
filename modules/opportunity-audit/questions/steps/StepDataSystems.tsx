@@ -17,7 +17,7 @@ export function StepDataSystems({ state, errors, onChange, onToggleArray }: Step
       {/* Q4 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <Database className="w-5 h-5 text-indigo-500" />
+          <Database className="w-5 h-5 text-blue-500" />
           Where does your core customer or operational data live?
         </h3>
         <MultiSelectHint note="Select all systems currently holding critical data." />
@@ -45,7 +45,7 @@ export function StepDataSystems({ state, errors, onChange, onToggleArray }: Step
       {/* Q5 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <ShieldAlert className="w-5 h-5 text-indigo-500" />
+          <ShieldAlert className="w-5 h-5 text-blue-500" />
           What is currently preventing workflows from becoming more automated?
         </h3>
         <p className="text-xs text-slate-500 mb-4">
@@ -74,7 +74,7 @@ export function StepDataSystems({ state, errors, onChange, onToggleArray }: Step
       {/* Q6 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <GitBranch className="w-5 h-5 text-indigo-500" />
+          <GitBranch className="w-5 h-5 text-blue-500" />
           How standardized are your core workflows?
         </h3>
         <p className="text-xs text-slate-500 mb-4">

@@ -85,7 +85,7 @@ export default function ResultsPageContent() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
           <div className="text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center mx-auto shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center mx-auto shadow-sm">
               <Lock className="w-6 h-6" />
             </div>
             <div className="space-y-1">
@@ -98,7 +98,7 @@ export default function ResultsPageContent() {
               <div className="flex items-start gap-2 text-xs text-slate-600"><CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" /><span>Executive summary for stakeholders</span></div>
             </div>
             <div className="space-y-2">
-              <button onClick={onEmail} className="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2">
+              <button onClick={onEmail} className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-2">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>Email Full Report to My Inbox
               </button>
               <button onClick={onClose} className="w-full px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-bold text-xs transition-colors">Continue Browsing</button>
@@ -548,9 +548,9 @@ export default function ResultsPageContent() {
   // If coming from email PDF link — show dedicated download screen
   if (autoDownload && result) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
           <img src="/logo.jpg" alt="Pixel Punch" className="h-8 w-auto object-contain mx-auto mb-6 opacity-90" />
           {dlState === "done" ? (
@@ -570,17 +570,17 @@ export default function ResultsPageContent() {
           ) : (
             <>
               <div className="relative w-16 h-16 mx-auto mb-5">
-                <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20" />
-                <div className="absolute inset-0 rounded-full border-4 border-t-indigo-400 animate-spin" />
-                <div className="absolute inset-2 rounded-full bg-indigo-500/10 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="absolute inset-0 rounded-full border-4 border-blue-500/20" />
+                <div className="absolute inset-0 rounded-full border-4 border-t-blue-400 animate-spin" />
+                <div className="absolute inset-2 rounded-full bg-blue-500/10 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                   </svg>
                 </div>
               </div>
               <h1 className="text-xl font-bold text-white mb-2">{dlState === "generating" ? "Generating your PDF…" : "Preparing your report…"}</h1>
               <p className="text-slate-400 text-sm">{dlState === "generating" ? "Your AI Cost Audit is being compiled. It will download automatically." : "Loading your Cost Audit data…"}</p>
-              {dlState === "generating" && (<div className="mt-4 w-full bg-white/5 rounded-full h-1.5"><div className="bg-indigo-400 h-1.5 rounded-full animate-pulse w-3/4" /></div>)}
+              {dlState === "generating" && (<div className="mt-4 w-full bg-white/5 rounded-full h-1.5"><div className="bg-blue-400 h-1.5 rounded-full animate-pulse w-3/4" /></div>)}
             </>
           )}
         </div>
@@ -789,7 +789,7 @@ export default function ResultsPageContent() {
 
         variants={fadeIn} 
 
-        initial="hidden" 
+        initial="hidden"
 
         animate="show"
 
@@ -897,7 +897,7 @@ export default function ResultsPageContent() {
 
             <h2 className="text-[10px] font-bold text-slate-950 uppercase tracking-wider mb-2 flex flex-wrap items-center gap-2">
 
-              <Activity className="w-3 h-3 text-indigo-600 animate-pulse" />
+                <Activity className="w-3 h-3 text-blue-600 animate-pulse" />
 
               AI Infrastructure Audit Evidence Verification
 
@@ -911,9 +911,9 @@ export default function ResultsPageContent() {
 
                 <span className="text-[9px] text-slate-500 font-semibold mb-0.5 uppercase tracking-wider">Audit Confidence</span>
 
-                <span className="text-lg font-black text-indigo-600">{result.confidenceScore}</span>
+                <span className="text-lg font-black text-blue-600">{result.confidenceScore}</span>
 
-                <span className="text-[8px] uppercase font-bold mt-1 px-1.5 py-0.5 rounded bg-indigo-50 border border-indigo-100 text-indigo-600">
+                <span className="text-[8px] uppercase font-bold mt-1 px-1.5 py-0.5 rounded bg-blue-50 border border-blue-100 text-blue-600">
 
                   {Number(result.confidenceScore.replace("%", "")) >= 70 
 
@@ -949,7 +949,7 @@ export default function ResultsPageContent() {
 
                 <div className="grid grid-cols-2 gap-1 border-b border-slate-100 pb-1">
                   <span className="text-slate-500 font-medium">Audited Spend Run:</span>
-                  <span className={`font-extrabold text-right truncate ${isUnlocked ? "text-indigo-600" : "text-rose-600 animate-pulse"}`}>
+                  <span className={`font-extrabold text-right truncate ${isUnlocked ? "text-blue-600" : "text-rose-600 animate-pulse"}`}>
                     {isUnlocked ? (result.costAnalysis?.normalizedData?.monthlySpend || "No direct billing data") : "High Leakage Risk"}
                   </span>
                 </div>
@@ -999,7 +999,7 @@ export default function ResultsPageContent() {
 
                   <h2 className="text-base font-bold text-slate-950 flex items-center gap-2">
 
-                    <Cpu className="w-4 h-4 text-indigo-600 animate-pulse" />
+                    <Cpu className="w-4 h-4 text-blue-600 animate-pulse" />
 
                     AI Cost Audit & Technical Report
 
@@ -1013,9 +1013,9 @@ export default function ResultsPageContent() {
 
                 </div>
 
-                <span className="text-[9px] font-bold px-2 py-1 bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-full uppercase tracking-wider">
+                <span className="text-[9px] font-bold px-2 py-1 bg-blue-50 text-blue-600 border border-blue-100 rounded-full uppercase tracking-wider">
 
-                  AI Generated
+                   AI Generated
 
                 </span>
 
@@ -1133,8 +1133,8 @@ export default function ResultsPageContent() {
                 {!isUnlocked && (
                   <div className="absolute inset-0 bg-slate-50/10 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center rounded-lg border border-slate-200/50 shadow-inner">
                     <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
-                      <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100 text-indigo-600">
-                        <Lock className="w-5 h-5" />
+                      <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 text-blue-600">
+                   <Lock className="w-5 h-5" />
                       </div>
                       <div>
                         <h3 className="text-sm font-bold text-slate-900">Unlock Full Technical Audit Report</h3>
@@ -1144,9 +1144,9 @@ export default function ResultsPageContent() {
                       </div>
                       <button
                         onClick={() => setUnlockModalOpen(true)}
-                        className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
+                     className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
                       >
-                        <Unlock className="w-3.5 h-3.5" />
+                     <Unlock className="w-3.5 h-3.5" />
                         Unlock Report
                       </button>
                     </div>
@@ -1175,11 +1175,11 @@ export default function ResultsPageContent() {
 
                   <ShareResults />
 
-                  <button
+                   <button
 
                     onClick={() => setEmailModalOpen(true)}
 
-                    className="inline-flex items-center justify-center px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
+                     className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
 
                   >
 
@@ -1197,7 +1197,7 @@ export default function ResultsPageContent() {
                   <div className="fixed bottom-6 right-6 z-50">
                     <button
                       onClick={() => triggerPdfDownload(result.submissionId, result)}
-                      className="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl flex items-center gap-2"
+                       className="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl flex items-center gap-2"
                       title="Download PDF Report"
                     >
                       <Download className="w-5 h-5" />
@@ -1229,7 +1229,7 @@ export default function ResultsPageContent() {
 
       {/* Hidden PDF Report Content */}
       <div id="cost-pdf-report-content" data-json-data={JSON.stringify(result)} style={{ position: "absolute", left: "-9999px", top: 0, width: "794px", backgroundColor: "#fff", padding: "32px", fontFamily: "system-ui, sans-serif", display: "none" }}>
-        <div style={{ borderBottom: "2px solid #4f46e5", paddingBottom: "16px", marginBottom: "24px" }}>
+           <div style={{ borderBottom: "2px solid #2563eb", paddingBottom: "16px", marginBottom: "24px" }}>
           <div style={{ fontSize: "20px", fontWeight: "800", color: "#0f172a" }}>Pixel Punch AI — Cost Audit Report</div>
           <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>ID: {result.submissionId}</div>
         </div>

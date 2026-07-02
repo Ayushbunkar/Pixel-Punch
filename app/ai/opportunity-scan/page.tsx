@@ -69,7 +69,7 @@ export default async function AiOpportunityScanPage({ searchParams }: PageProps)
 
           <motion.h1 variants={slideUp} className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-4">
             Find where AI can create{" "}
-            <span className="bg-clip-text text-transparent bg-indigo-gradient bg-gradient-to-r from-indigo-600 to-violet-600">
+            <span className="bg-clip-text text-transparent bg-blue-gradient bg-gradient-to-r from-blue-600 to-cyan-600">
               business value
             </span>
             <br className="hidden md:block" />in 3 minutes
@@ -82,9 +82,9 @@ export default async function AiOpportunityScanPage({ searchParams }: PageProps)
           {/* Value props */}
           <motion.div variants={slideUp} className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-600">
             {[
-              { icon: <Target className="w-4 h-4 text-indigo-600" />, text: "AI Readiness score across 3 dimensions" },
-              { icon: <Lightbulb className="w-4 h-4 text-indigo-600" />, text: "Tailored AI use case recommendations" },
-              { icon: <ClipboardList className="w-4 h-4 text-indigo-600" />, text: "Phased AI adoption roadmap" },
+               { icon: <Target className="w-4 h-4 text-blue-600" />, text: "AI Readiness score across 3 dimensions" },
+               { icon: <Lightbulb className="w-4 h-4 text-blue-600" />, text: "Tailored AI use case recommendations" },
+               { icon: <ClipboardList className="w-4 h-4 text-blue-600" />, text: "Phased AI adoption roadmap" },
             ].map(({ icon, text }) => (
               <span key={text} className="flex items-center gap-2">
                 <span className="flex items-center justify-center">{icon}</span>
@@ -98,7 +98,7 @@ export default async function AiOpportunityScanPage({ searchParams }: PageProps)
         <Suspense
           fallback={
             <div className="flex items-center justify-center py-24">
-              <div className="w-8 h-8 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+            <div className="w-8 h-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
             </div>
           }
         >

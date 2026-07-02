@@ -248,7 +248,7 @@ export function OpportunityWizard({ initialRef }: OpportunityWizardProps) {
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
       </div>
     );
   }

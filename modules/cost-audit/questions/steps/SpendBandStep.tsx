@@ -5,10 +5,10 @@ import { OptionCard, FieldError } from "./WizardUI";
 import { Lightbulb, TrendingUp, BarChart3, Zap, Target, Search, HelpCircle, EyeOff } from "lucide-react";
 
 const SPEND_OPTIONS: { value: SpendBand; label: string; icon: React.ReactNode }[] = [
-  { value: "lt_5k",     label: "Less than $5k / month",  icon: <Lightbulb className="w-5 h-5 text-indigo-400" /> },
-  { value: "5k_25k",    label: "$5k – $25k / month",     icon: <TrendingUp className="w-5 h-5 text-indigo-400" /> },
-  { value: "25k_100k",  label: "$25k – $100k / month",   icon: <BarChart3 className="w-5 h-5 text-indigo-400" /> },
-  { value: "100k_plus", label: "$100k+ / month",         icon: <Zap className="w-5 h-5 text-indigo-400" /> },
+  { value: "lt_5k",     label: "Less than $5k / month",  icon: <Lightbulb className="w-5 h-5 text-blue-400" /> },
+  { value: "5k_25k",    label: "$5k – $25k / month",     icon: <TrendingUp className="w-5 h-5 text-blue-400" /> },
+  { value: "25k_100k",  label: "$25k – $100k / month",   icon: <BarChart3 className="w-5 h-5 text-blue-400" /> },
+  { value: "100k_plus", label: "$100k+ / month",         icon: <Zap className="w-5 h-5 text-blue-400" /> },
 ];
 
 const VISIBILITY_OPTIONS: { value: SpendVisibility; label: string; sublabel: string; icon: React.ReactNode }[] = [
@@ -16,25 +16,25 @@ const VISIBILITY_OPTIONS: { value: SpendVisibility; label: string; sublabel: str
     value:    "very_clear",
     label:    "Very clear",
     sublabel: "Exact figures in a dashboard or monthly report.",
-    icon:     <Target className="w-5 h-5 text-indigo-400" />,
+    icon:     <Target className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "somewhat_clear",
     label:    "Somewhat clear",
     sublabel: "Rough totals known but not broken down by service/team.",
-    icon:     <Search className="w-5 h-5 text-indigo-400" />,
+    icon:     <Search className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "rough_guess",
     label:    "Rough guess",
     sublabel: "Approximation from invoices no consolidated view.",
-    icon:     <HelpCircle className="w-5 h-5 text-indigo-400" />,
+    icon:     <HelpCircle className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "no_view",
     label:    "No consolidated view",
     sublabel: "Costs are scattered we genuinely don't know the total.",
-    icon:     <EyeOff className="w-5 h-5 text-indigo-400" />,
+    icon:     <EyeOff className="w-5 h-5 text-blue-400" />,
   },
 ];
 

@@ -14,7 +14,7 @@ export default function OpportunityResultsPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#fafbff] flex items-center justify-center">
-          <div className="w-10 h-10 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
+          <div className="w-10 h-10 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
         </div>
       }
     >

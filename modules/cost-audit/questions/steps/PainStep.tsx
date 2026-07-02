@@ -9,25 +9,25 @@ const OPTIONS: { value: MainPain; label: string; sublabel: string; icon: React.R
     value:    "bills_growing",
     label:    "Bills growing faster than usage",
     sublabel: "Spend is rising even though the volume of AI work hasn't changed proportionally.",
-    icon:     <TrendingUp className="w-5 h-5 text-indigo-400" />,
+    icon:     <TrendingUp className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "margin_pressure",
     label:    "Margin pressure on AI features",
     sublabel: "AI costs are squeezing the unit economics of AI powered features or products.",
-    icon:     <TrendingDown className="w-5 h-5 text-indigo-400" />,
+    icon:     <TrendingDown className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "budget_scrutiny",
     label:    "Budget scrutiny / CFO questions",
     sublabel: "Finance or leadership is asking hard questions about AI ROI and cost justification.",
-    icon:     <Search className="w-5 h-5 text-indigo-400" />,
+    icon:     <Search className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "lack_visibility",
     label:    "Lack of visibility",
     sublabel: "We can't see where the spend is going attribution across teams or features is unclear.",
-    icon:     <EyeOff className="w-5 h-5 text-indigo-400" />,
+    icon:     <EyeOff className="w-5 h-5 text-blue-400" />,
   },
 ];
 

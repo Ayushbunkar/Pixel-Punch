@@ -16,7 +16,7 @@ export function StepContext({ state, errors, onChange }: StepContextProps) {
       {/* Q1 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-indigo-500" />
+          <Building2 className="w-5 h-5 text-blue-500" />
           What best describes your business?
         </h3>
         <p className="text-xs text-slate-500 mb-4">
@@ -45,7 +45,7 @@ export function StepContext({ state, errors, onChange }: StepContextProps) {
       {/* Q2 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <Target className="w-5 h-5 text-indigo-500" />
+          <Target className="w-5 h-5 text-blue-500" />
           What is the main outcome you want to improve right now?
         </h3>
         <p className="text-xs text-slate-500 mb-4">
@@ -74,7 +74,7 @@ export function StepContext({ state, errors, onChange }: StepContextProps) {
       {/* Q3 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5 text-indigo-500" />
+          <AlertTriangle className="w-5 h-5 text-blue-500" />
           What is the biggest operational challenge you are facing today?
         </h3>
         <p className="text-xs text-slate-500 mb-4">

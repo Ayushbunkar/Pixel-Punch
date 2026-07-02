@@ -17,7 +17,7 @@ export function StepWorkflows({ state, errors, onChange, onToggleArray }: StepWo
       {/* Q7 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <ListTodo className="w-5 h-5 text-indigo-500" />
+          <ListTodo className="w-5 h-5 text-blue-500" />
           Which processes still require significant manual effort?
         </h3>
         <MultiSelectHint note="Select all tasks where employees spend the most time copying, writing, or sorting." />
@@ -45,7 +45,7 @@ export function StepWorkflows({ state, errors, onChange, onToggleArray }: StepWo
       {/* Q8 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <HelpCircle className="w-5 h-5 text-indigo-500" />
+          <HelpCircle className="w-5 h-5 text-blue-500" />
           How do employees find information needed to do their jobs?
         </h3>
         <p className="text-xs text-slate-500 mb-4">
@@ -74,7 +74,7 @@ export function StepWorkflows({ state, errors, onChange, onToggleArray }: StepWo
       {/* Q9 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <Network className="w-5 h-5 text-indigo-500" />
+          <Network className="w-5 h-5 text-blue-500" />
           How connected are your systems today?
         </h3>
         <p className="text-xs text-slate-500 mb-4">
@@ -103,7 +103,7 @@ export function StepWorkflows({ state, errors, onChange, onToggleArray }: StepWo
       {/* Q10 */}
       <div>
         <h3 className="text-lg font-semibold text-slate-900 mb-1 flex items-center gap-2">
-          <DatabaseBackup className="w-5 h-5 text-indigo-500" />
+          <DatabaseBackup className="w-5 h-5 text-blue-500" />
           How would you describe the quality of your data?
         </h3>
         <p className="text-xs text-slate-500 mb-4">

@@ -40,7 +40,7 @@ export function StepContact({ state, errors, onChange, loading }: StepContactPro
               onChange={(e) => onChange("firstname", e.target.value)}
               placeholder="Jane Doe"
               className={`pl-9 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400
-                ${errors.firstname ? "border-red-400 focus:ring-1 focus:ring-red-400" : "border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"}`}
+                ${errors.firstname ? "border-red-400 focus:ring-1 focus:ring-red-400" : "border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"}`}
             />
           </div>
           <FieldError message={errors.firstname} />
@@ -62,7 +62,7 @@ export function StepContact({ state, errors, onChange, loading }: StepContactPro
               onChange={(e) => onChange("email", e.target.value)}
               placeholder="jane@company.com"
               className={`pl-9 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400
-                ${errors.email ? "border-red-400 focus:ring-1 focus:ring-red-400" : "border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"}`}
+                ${errors.email ? "border-red-400 focus:ring-1 focus:ring-red-400" : "border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"}`}
             />
           </div>
           <FieldError message={errors.email} />

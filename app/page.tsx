@@ -261,8 +261,8 @@ function ResultsPreview() {
               ))}
             </div>
 
-            <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
-              <p className="text-[10px] text-indigo-700 font-semibold">
+            <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+              <p className="text-[10px] text-blue-700 font-semibold">
                 This is the type of output you'll receive after completing your audit
               </p>
             </div>
@@ -321,8 +321,8 @@ function HowItWorks() {
               className="relative"
             >
               <div className="bg-white rounded-2xl border border-slate-200 p-6 text-center hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-indigo-50 flex items-center justify-center border border-indigo-100">
-                  <span className="text-lg font-bold text-indigo-600">{item.step}</span>
+                <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100">
+                  <span className="text-lg font-bold text-blue-600">{item.step}</span>
                 </div>
                 <h3 className="text-sm font-bold text-slate-900 mb-2">{item.title}</h3>
                 <p className="text-[10px] text-slate-600 leading-relaxed">{item.desc}</p>
@@ -460,11 +460,11 @@ function AuditCards() {
             href="/ai/opportunity-scan"
             className="group block bg-white rounded-2xl border border-slate-200 p-8 shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden text-left"
           >
-            <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110" />
-            <div className="w-14 h-14 rounded-xl bg-indigo-50 flex items-center justify-center mb-6 border border-indigo-100">
-              <Sparkles className="w-7 h-7 text-indigo-600" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110" />
+            <div className="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center mb-6 border border-blue-100">
+              <Sparkles className="w-7 h-7 text-blue-600" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-indigo-600 transition-colors">
+            <h2 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors">
               AI Opportunity Audit
             </h2>
             <p className="text-slate-600 text-sm leading-relaxed mb-6">
@@ -473,20 +473,20 @@ function AuditCards() {
 
             <ul className="space-y-3 text-xs font-semibold text-slate-500 mb-8">
               <li className="flex items-center gap-2">
-                <Cpu className="w-4 h-4 text-indigo-500" />
+                <Cpu className="w-4 h-4 text-blue-500" />
                 <span>Finds where AI can be applied</span>
               </li>
               <li className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-indigo-500" />
+                <TrendingUp className="w-4 h-4 text-blue-500" />
                 <span>Scores readiness & business value</span>
               </li>
               <li className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-indigo-500" />
+                <FileText className="w-4 h-4 text-blue-500" />
                 <span>Creates phased AI adoption roadmap</span>
               </li>
             </ul>
 
-            <span className="inline-flex items-center gap-2 text-sm font-bold text-indigo-600 group-hover:gap-3 transition-all">
+            <span className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 group-hover:gap-3 transition-all">
               Run Opportunity Audit
               <ArrowRight className="w-4 h-4" />
             </span>
@@ -503,7 +503,7 @@ function Hero() {
     <section className="relative py-20 md:py-28 bg-gradient-to-b from-[#fafbff] to-white overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
         <div className="absolute top-20 right-1/4 w-64 h-64 bg-rose-500/5 rounded-full blur-3xl" />
       </div>
 
@@ -518,9 +518,9 @@ function Hero() {
           >
             <motion.div 
               variants={slideUp}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-50/50 text-indigo-700 text-xs font-semibold"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-50/50 text-blue-700 text-xs font-semibold"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
               PixelPunch AI Assessment Suite
             </motion.div>
 
@@ -529,7 +529,7 @@ function Hero() {
               className="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 leading-tight"
             >
               Identify AI Waste or Uncover{" "}
-              <span className="text-indigo-600">
+              <span className="text-blue-600">
                 New Opportunities
               </span>
             </motion.h1>
@@ -547,7 +547,7 @@ function Hero() {
             >
               <a
                 href="/ai/cost-scan"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all duration-300 shadow-lg shadow-indigo-200 hover:shadow-xl hover:-translate-y-1"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-all duration-300 shadow-lg shadow-blue-200 hover:shadow-xl hover:-translate-y-1"
               >
                 <ShieldAlert className="w-5 h-5" />
                 Start Cost Audit
@@ -630,15 +630,15 @@ function Hero() {
             <motion.div 
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -bottom-6 -right-6 md:-right-12 bg-white rounded-xl border border-indigo-100 shadow-xl p-4 z-20"
+              className="absolute -bottom-6 -right-6 md:-right-12 bg-white rounded-xl border border-blue-100 shadow-xl p-4 z-20"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-indigo-600" />
+                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
                   <div className="text-[9px] font-bold text-slate-900">Overall Score</div>
-                  <div className="text-xl font-bold text-indigo-600">72/100</div>
+                  <div className="text-xl font-bold text-blue-600">72/100</div>
                 </div>
               </div>
             </motion.div>
@@ -668,7 +668,7 @@ function Header() {
           <div className="hidden md:flex items-center gap-4">
             <a
               href="/ai/cost-scan"
-              className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg transition-colors"
+              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors"
             >
               Start Audit
             </a>
@@ -694,7 +694,7 @@ function Header() {
             <nav className="flex flex-col gap-4">
               <a
                 href="/ai/cost-scan"
-                className="px-5 py-3 bg-indigo-600 text-white text-center rounded-lg font-bold"
+                className="px-5 py-3 bg-blue-600 text-white text-center rounded-lg font-bold"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Start Audit

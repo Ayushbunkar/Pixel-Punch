@@ -9,25 +9,25 @@ const OPTIONS: { value: UnitEconomic; label: string; sublabel: string; icon: Rea
     value:    "cost_per_request",
     label:    "Cost per request / inference",
     sublabel: "Average token or API cost for a single model call.",
-    icon:     <Zap className="w-5 h-5 text-indigo-400" />,
+    icon:     <Zap className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "cost_per_task",
     label:    "Cost per successful task / ticket / user action",
     sublabel: "End-to-end cost including retries and orchestration for a business outcome.",
-    icon:     <CheckCircle className="w-5 h-5 text-indigo-400" />,
+    icon:     <CheckCircle className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "cost_per_customer",
     label:    "Cost per customer or per feature",
     sublabel: "AI spend allocated to a customer segment or specific product feature.",
-    icon:     <Users className="w-5 h-5 text-indigo-400" />,
+    icon:     <Users className="w-5 h-5 text-blue-400" />,
   },
   {
     value:    "none",
     label:    "We don't measure unit economics",
     sublabel: "No per-unit cost tracking in place today.",
-    icon:     <Ban className="w-5 h-5 text-indigo-400" />,
+    icon:     <Ban className="w-5 h-5 text-blue-400" />,
   },
 ];
 
