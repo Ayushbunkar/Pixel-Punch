@@ -5,6 +5,7 @@ import { ArrowRight, ShieldAlert, Sparkles, Zap, TrendingUp, Cpu, FileText, BarC
 import * as motion from "framer-motion/client";
 import { slideUp, staggerContainer, fadeIn } from "@/shared/components/animations";
 import { ContactBar } from "@/shared/components/ContactBar";
+import { Footer } from "@/shared/components/Footer";
 import { useState } from "react";
 
 
