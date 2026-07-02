@@ -76,7 +76,7 @@ export default async function AiOpportunityScanPage({ searchParams }: PageProps)
           </motion.h1>
 
           <motion.p variants={slideUp} className="max-w-2xl mx-auto text-lg text-slate-600 mb-8">
-            Assess your data quality, standardize your workflows, and map out a custom AI Roadmap targeting high-impact operational wins.
+            Assess your data quality, standardize your workflows, and map out a custom AI Roadmap targeting high impact operational wins.
           </motion.p>
 
           {/* Value props */}

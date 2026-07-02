@@ -104,7 +104,7 @@ The current report pages display all insights freely, with only an "Email Report
 ---
 
 ### ✅ Section 2: Key Insights (Partial - 2 of 3 visible)
-**Why**: Show enough value to build trust, but leave one high-impact insight for the full report.
+**Why**: Show enough value to build trust, but leave one high impact insight for the full report.
 
 **Components**:
 - **2 insights fully visible** (the most actionable ones)

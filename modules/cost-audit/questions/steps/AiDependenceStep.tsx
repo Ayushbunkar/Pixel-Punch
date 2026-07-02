@@ -14,13 +14,13 @@ const OPTIONS: { value: AiDependence; label: string; sublabel: string; icon: Rea
   {
     value:    "key_workflows",
     label:    "Key internal workflows (support/ops)",
-    sublabel: "AI handles significant internal operations — support triage, ops automation, etc.",
+    sublabel: "AI handles significant internal operations support triage, ops automation, etc.",
     icon:     <Settings className="w-5 h-5 text-indigo-400" />,
   },
   {
     value:    "limited_pilots",
     label:    "Limited pilots / experiments",
-    sublabel: "AI is in trial stages — not yet in critical production paths.",
+    sublabel: "AI is in trial stages not yet in critical production paths.",
     icon:     <Beaker className="w-5 h-5 text-indigo-400" />,
   },
   {

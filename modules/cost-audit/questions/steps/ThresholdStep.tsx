@@ -44,7 +44,7 @@ export function ThresholdStep({ value, onChange, error }: ThresholdStepProps) {
         What level of savings makes a deeper audit an obvious &ldquo;yes&rdquo;?
       </h2>
       <p className="text-sm text-slate-600 mb-6">
-        If we can reduce AI spend without hurting performance — what&apos;s the bar?
+        If we can reduce AI spend without hurting performance what&apos;s the bar?
       </p>
 
       <div className="grid gap-3">

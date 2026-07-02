@@ -8,7 +8,7 @@ const OPTIONS: { value: OptimizationDone; label: string; sublabel: string; icon:
   {
     value:    "formal_audit",
     label:    "Formal AI cost audit",
-    sublabel: "Structured review of tokens, inference, infra, and routing — in the last 12 months.",
+    sublabel: "Structured review of tokens, inference, infra, and routing in the last 12 months.",
     icon:     <ClipboardList className="w-5 h-5 text-indigo-400" />,
   },
   {
@@ -32,7 +32,7 @@ const OPTIONS: { value: OptimizationDone; label: string; sublabel: string; icon:
   {
     value:    "none_adhoc",
     label:    "None / only ad hoc changes",
-    sublabel: "No structured optimization program — changes have been reactive or informal.",
+    sublabel: "No structured optimization program changes have been reactive or informal.",
     icon:     <Ban className="w-5 h-5 text-indigo-400" />,
   },
 ];

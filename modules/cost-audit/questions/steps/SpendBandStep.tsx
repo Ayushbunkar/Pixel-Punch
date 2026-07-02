@@ -27,13 +27,13 @@ const VISIBILITY_OPTIONS: { value: SpendVisibility; label: string; sublabel: str
   {
     value:    "rough_guess",
     label:    "Rough guess",
-    sublabel: "Approximation from invoices — no consolidated view.",
+    sublabel: "Approximation from invoices no consolidated view.",
     icon:     <HelpCircle className="w-5 h-5 text-indigo-400" />,
   },
   {
     value:    "no_view",
     label:    "No consolidated view",
-    sublabel: "Costs are scattered — we genuinely don't know the total.",
+    sublabel: "Costs are scattered we genuinely don't know the total.",
     icon:     <EyeOff className="w-5 h-5 text-indigo-400" />,
   },
 ];

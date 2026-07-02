@@ -26,7 +26,7 @@ const OPTIONS: { value: MainPain; label: string; sublabel: string; icon: React.R
   {
     value:    "lack_visibility",
     label:    "Lack of visibility",
-    sublabel: "We can't see where the spend is going — attribution across teams or features is unclear.",
+    sublabel: "We can't see where the spend is going attribution across teams or features is unclear.",
     icon:     <EyeOff className="w-5 h-5 text-indigo-400" />,
   },
 ];

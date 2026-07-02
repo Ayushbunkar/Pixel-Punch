@@ -78,7 +78,7 @@ export default async function AiCostScanPage({ searchParams }: PageProps) {
 
           <motion.p variants={slideUp} className="max-w-2xl mx-auto text-lg text-slate-600 mb-8">
             Answer 7 questions. Get a personalised scorecard across spend visibility,
-            architecture risk, and business urgency — plus 2 to 3 targeted insights and
+            architecture risk, and business urgency plus 2 to 3 targeted insights and
             a clear recommendation.
           </motion.p>
 

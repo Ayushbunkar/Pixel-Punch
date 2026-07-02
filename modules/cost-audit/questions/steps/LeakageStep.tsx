@@ -8,7 +8,7 @@ const OPTIONS: { value: LeakagePattern; label: string; sublabel: string; icon: R
   {
     value:    "large_prompts",
     label:    "Large prompts / context windows",
-    sublabel: "Context windows are bigger than needed — token waste is likely significant.",
+    sublabel: "Context windows are bigger than needed token waste is likely significant.",
     icon:     <FileText className="w-5 h-5 text-indigo-400" />,
   },
   {
@@ -32,7 +32,7 @@ const OPTIONS: { value: LeakagePattern; label: string; sublabel: string; icon: R
   {
     value:    "unattributed",
     label:    "Unattributed usage across teams / features",
-    sublabel: "No tagging or attribution — impossible to see which team or feature drives cost.",
+    sublabel: "No tagging or attribution impossible to see which team or feature drives cost.",
     icon:     <Search className="w-5 h-5 text-indigo-400" />,
   },
   {
