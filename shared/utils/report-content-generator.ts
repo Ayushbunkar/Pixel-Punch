@@ -53,7 +53,7 @@ export const RAG_COLORS = {
 
 export function getColorConfig(value: "red" | "amber" | "green" | "unknown") {
   const config = RAG_COLORS[value as keyof typeof RAG_COLORS]; // Correctly use RAG_COLORS
-  if (!config) return { bg: "#f8fafc", text: "#64748b", border: "#e2e8f0", dot: "#94a3b8", label: "Unknown" };
+  if (!config) return { bgColor: "#f8fafc", textColor: "#64748b", borderColor: "#e2e8f0", dotColor: "#94a3b8", labelColor: "Unknown" }; // Ensure consistent property names and types
   return {
     bgColor: config.bg,
     textColor: config.text,
