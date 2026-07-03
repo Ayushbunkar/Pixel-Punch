@@ -170,7 +170,7 @@ export function mdToHtml(markdown: string, options: { pdfMode?: boolean; emailMo
 
 // ── Scorecard HTML matching web UI cards ──────────────────────────────────────
 function renderScorecardHtml(
-  dimensions: ReportData["scorecard"]["dimensions"],
+  dimensions: NonNullable<ReportData["scorecard"]>["dimensions"],
   mode: "email" | "pdf" | "web",
   reportType: string
 ): string {
