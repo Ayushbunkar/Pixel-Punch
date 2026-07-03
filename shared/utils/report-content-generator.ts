@@ -24,11 +24,11 @@ export interface ReportData {
     dimensions: Array<{
       label: string; // e.g., "Spend"
       value: "red" | "amber" | "green" | "unknown"; // e.g., "red"
-      bg: string;
-      text: string;
-      border: string;
-      dot: string;
-      colorLabel: string; // Renamed to avoid conflict with 'label' above
+      bgColor: string;
+      textColor: string;
+      borderColor: string;
+      dotColor: string;
+      labelColor: string;
     }>;
   };
   tier?: 1 | 2 | 3 | 4;
@@ -61,7 +61,15 @@ export const RAG_COLORS = {
 };
 
 export function getColorConfig(value: "red" | "amber" | "green" | "unknown") {
-  return RAG_COLORS[value as keyof typeof RAG_COLORS] || { bg: "#f8fafc", text: "#64748b", border: "#e2e8f0", dot: "#94a3b8", label: "Unknown" };
+  const config = RAG_COLORS[value as keyof typeof RAG_COLORS];
+  if (!config) return { bg: "#f8fafc", text: "#64748b", border: "#e2e8f0", dot: "#94a3b8", label: "Unknown" };
+  return {
+    bgColor: config.bg,
+    textColor: config.text,
+    borderColor: config.border,
+    dotColor: config.dot,
+    labelColor: config.label,
+  };
 }
 
 // ── Markdown to HTML conversion ────────────────────────────────────────────

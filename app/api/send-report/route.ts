@@ -217,42 +217,60 @@ export async function POST(req: NextRequest) {
               {
                 label: "Spend",
                 value: mapScoreToRAGStatus(submission.scorecard?.spend),
-                ...getColorConfig(mapScoreToRAGStatus(submission.scorecard?.spend)),
-                colorLabel: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.spend)).label
+                bgColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.spend)).bgColor || "",
+                textColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.spend)).textColor || "",
+                borderColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.spend)).borderColor || "",
+                dotColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.spend)).dotColor || "",
+                labelColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.spend)).labelColor || "",
               },
               {
                 label: "Architecture",
                 value: mapScoreToRAGStatus(submission.scorecard?.architecture),
-                ...getColorConfig(mapScoreToRAGStatus(submission.scorecard?.architecture)),
-                colorLabel: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.architecture)).label
+                bgColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.architecture)).bgColor || "",
+                textColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.architecture)).textColor || "",
+                borderColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.architecture)).borderColor || "",
+                dotColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.architecture)).dotColor || "",
+                labelColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.architecture)).labelColor || "",
               },
               {
                 label: "Pain",
                 value: mapScoreToRAGStatus(submission.scorecard?.pain),
-                ...getColorConfig(mapScoreToRAGStatus(submission.scorecard?.pain)),
-                colorLabel: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.pain)).label
+                bgColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.pain)).bgColor || "",
+                textColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.pain)).textColor || "",
+                borderColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.pain)).borderColor || "",
+                dotColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.pain)).dotColor || "",
+                labelColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.pain)).labelColor || "",
               },
             ]
           : [
               {
                 label: "AI Readiness",
                 value: mapScoreToRAGStatus(submission.scorecard?.readiness),
-                ...getColorConfig(mapScoreToRAGStatus(submission.scorecard?.readiness)),
-                colorLabel: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.readiness)).label
+                bgColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.readiness)).bgColor || "",
+                textColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.readiness)).textColor || "",
+                borderColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.readiness)).borderColor || "",
+                dotColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.readiness)).dotColor || "",
+                labelColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.readiness)).labelColor || "",
               },
               {
                 label: "Business Value",
                 value: mapScoreToRAGStatus(submission.scorecard?.value),
-                ...getColorConfig(mapScoreToRAGStatus(submission.scorecard?.value)),
-                colorLabel: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.value)).label
+                bgColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.value)).bgColor || "",
+                textColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.value)).textColor || "",
+                borderColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.value)).borderColor || "",
+                dotColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.value)).dotColor || "",
+                labelColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.value)).labelColor || "",
               },
               {
                 label: "Opportunity",
                 value: mapScoreToRAGStatus(submission.scorecard?.opportunity),
-                ...getColorConfig(mapScoreToRAGStatus(submission.scorecard?.opportunity)),
-                colorLabel: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.opportunity)).label
+                bgColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.opportunity)).bgColor || "",
+                textColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.opportunity)).textColor || "",
+                borderColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.opportunity)).borderColor || "",
+                dotColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.opportunity)).dotColor || "",
+                labelColor: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.opportunity)).labelColor || "",
               },
-            ],
+            ]
       },
       tier: submission.tier,
       confidenceScore: submission.confidenceScore,
