@@ -16,14 +16,14 @@ export interface ReportData {
   timestamp: string;
   metadata: { [key: string]: string };
   sections: ReportSection[];
-  
+
   // Fields moved from PdfReportData for unified model
   submissionId?: string;
   reportType?: "cost" | "opportunity";
   scorecard?: {
     dimensions: Array<{
       label: string;
-      value: "red" | "amber" | "green";
+      value: "red" | "amber" | "green" | "unknown";
       bgColor: string;
       textColor: string;
       borderColor: string;
@@ -34,6 +34,34 @@ export interface ReportData {
   tier?: 1 | 2 | 3 | 4;
   confidenceScore?: string;
   logoBase64?: string;
+}
+
+// ── Unified Brand Colors & Typography ───────────────────────────────────────────
+export const BRAND_COLORS = {
+  primary: { bg: "#eff6ff", border: "#bfdbfe", text: "#1d4ed8" },
+  accent: { bg: "#f8fafc", border: "#e2e8f0", text: "#334155" },
+  success: { bg: "#f0fdf4", border: "#bbf7d0", text: "#16a34a" },
+  warning: { bg: "#fffbeb", border: "#fcd34d", text: "#d97706" },
+  danger: { bg: "#fff1f2", border: "#fca5a5", text: "#dc2626" },
+};
+
+export const TYPOGRAPHY = {
+  h1: { fontSize: "20px", fontWeight: "800", color: "#0f172a", marginBottom: "16px" },
+  h2: { fontSize: "15px", fontWeight: "700", color: "#1e293b", marginBottom: "12px", borderBottom: "1px solid #e2e8f0", paddingBottom: "4px" },
+  h3: { fontSize: "13px", fontWeight: "700", color: "#334155", marginBottom: "8px" },
+  h4: { fontSize: "11px", fontWeight: "700", color: "#64748b", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" },
+  body: { fontSize: "14px", color: "#475569", lineHeight: "1.6" },
+  small: { fontSize: "10px", color: "#94a3b8" },
+};
+
+export const RAG_COLORS = {
+  red:   { bg: "#fee2e2",  text: "#dc2626",  border: "#fca5a5", dot: "#dc2626",  label: "Action Needed" },
+  amber: { bg: "#fffbeb",  text: "#d97706",  border: "#fcd34d", dot: "#d97706",  label: "Needs Attention" },
+  green: { bg: "#f0fdf4",  text: "#16a34a",  border: "#86efac", dot: "#16a34a",  label: "Looking Good" },
+};
+
+export function getColorConfig(value: "red" | "amber" | "green" | "unknown") {
+  return RAG_COLORS[value as keyof typeof RAG_COLORS] || { bg: "#f8fafc", text: "#64748b", border: "#e2e8f0", dot: "#94a3b8", label: "Unknown" };
 }
 
 // ── Markdown to HTML conversion ────────────────────────────────────────────
@@ -86,7 +114,7 @@ export function mdToHtml(markdown: string, options: { pdfMode?: boolean; emailMo
   return result.join("\n");
 }
 
-export function renderReport(report: ReportData, options: { mode: 'web' | 'email' | 'pdf', locked?: boolean }): string {
+export function renderReportToHtml(report: ReportData, options: { mode: 'web' | 'email' | 'pdf', locked?: boolean }): string {
   const { mode, locked } = options;
 
   // Base styles for email and PDF compatibility
@@ -131,24 +159,17 @@ export function renderReport(report: ReportData, options: { mode: 'web' | 'email
 
   // Scorecard Section (moved from send-report/route.ts)
   if (report.scorecard && report.scorecard.dimensions && report.scorecard.dimensions.length > 0) {
-    const ragBadge = (label: string, value: "red" | "amber" | "green", colorConfig: any) => `
+    const ragBadge = (label: string, value: "red" | "amber" | "green" | "unknown", colorConfig: any) => `
       <td style="width:33%;padding:12px 16px;background:${colorConfig.bg};border-radius:8px;border:1px solid ${colorConfig.border};">
-        <div style="font-size:10px;font-weight:700;color:${colorConfig.text};text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${label}</div>
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${label}</div>
         <div style="font-size:13px;font-weight:600;color:#0f172a;">${colorConfig.label}</div>
       </td>
     `;
     
-    // RAG Color Config - needs to be imported or defined here
-    const RAG_COLORS = {
-      red:   { bg: "#fee2e2",  text: "#dc2626",  border: "#fca5a5", dot: "#dc2626",  label: "Action Needed" },
-      amber: { bg: "#fffbeb",  text: "#d97706",  border: "#fcd34d", dot: "#d97706",  label: "Needs Attention" },
-      green: { bg: "#f0fdf4",  text: "#16a34a",  border: "#86efac", dot: "#16a34a",  label: "Looking Good" },
-    };
-
     const scorecardHtml = `
       <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
         <tr>
-          ${report.scorecard.dimensions.map(dim => ragBadge(dim.label, dim.value as any, (RAG_COLORS as any)[dim.value])).join('')}
+          ${report.scorecard.dimensions.map(dim => ragBadge(dim.label, dim.value, (RAG_COLORS as any)[dim.value])).join('')}
         </tr>
       </table>`;
 
@@ -171,7 +192,7 @@ export function renderReport(report: ReportData, options: { mode: 'web' | 'email
       const markdownOptions = { pdfMode: mode === 'pdf', emailMode: mode === 'email' };
 
       // Handle markdown content for paragraphs (and potentially other types if they contain markdown)
-      if (item.type === 'paragraph' && item.content.includes('*') || item.content.includes('#') || item.content.includes('-')) { // Simple check for potential markdown
+      if (item.type === 'paragraph' && (item.content.includes('*') || item.content.includes('#') || item.content.includes('-'))) { // Simple check for potential markdown
           itemHtml = mdToHtml(item.content, markdownOptions);
       } else {
           switch (item.type) {
@@ -207,21 +228,3 @@ export function renderReport(report: ReportData, options: { mode: 'web' | 'email
 
   return html;
 }
-
-// ── Unified Brand Colors & Typography ───────────────────────────────────────────
-export const BRAND_COLORS = {
-  primary: { bg: "#eff6ff", border: "#bfdbfe", text: "#1d4ed8" },
-  accent: { bg: "#f8fafc", border: "#e2e8f0", text: "#334155" },
-  success: { bg: "#f0fdf4", border: "#bbf7d0", text: "#16a34a" },
-  warning: { bg: "#fffbeb", border: "#fcd34d", text: "#d97706" },
-  danger: { bg: "#fff1f2", border: "#fca5a5", text: "#dc2626" },
-};
-
-export const TYPOGRAPHY = {
-  h1: { fontSize: "20px", fontWeight: "800", color: "#0f172a", marginBottom: "16px" },
-  h2: { fontSize: "15px", fontWeight: "700", color: "#1e293b", marginBottom: "12px", borderBottom: "1px solid #e2e8f0", paddingBottom: "4px" },
-  h3: { fontSize: "13px", fontWeight: "700", color: "#334155", marginBottom: "8px" },
-  h4: { fontSize: "11px", fontWeight: "700", color: "#64748b", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.5px" },
-  body: { fontSize: "14px", color: "#475569", lineHeight: "1.6" },
-  small: { fontSize: "10px", color: "#94a3b8" },
-};

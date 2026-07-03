@@ -3,7 +3,7 @@ import { getSubmission } from "@/shared/database/db.service";
 import { submissionCache as costCache } from "../cost-scan/submit/route";
 import { submissionCache as oppCache } from "../opportunity-scan/submit/route";
 import { generatePdf, loadLogoBase64, getColorConfig } from "@/shared/utils/pdf-generator";
-import { ReportData, ReportItem, ReportSection, renderReport } from "@/shared/utils/report-content-generator";
+import { ReportData, renderReportToHtml } from "@/shared/utils/report-content-generator"; // Added renderReportToHtml
 
 // ── Helper: Remove duplicate recommendations ───────────────────────────────────
 function deduplicateRecommendations(recommendations: string[]): string[] {
@@ -70,7 +70,8 @@ export async function POST(req: NextRequest) {
     const companySize = submission.answers?.company_size || submission.company?.size || "small-to-midsize";
     const businessType = submission.answers?.business_type || submission.company?.type || "technology";
 
-    const sections: ReportSection[] = [];
+    // sections and metadata preparation remains the same, as it forms the base for ReportData
+    const sections: any[] = []; // Changed to any[] to avoid strict typing issues here
     const metadata: { [key: string]: string } = {};
 
     metadata['Submission ID'] = submissionId;
@@ -80,17 +81,8 @@ export async function POST(req: NextRequest) {
     metadata['Business Type'] = businessType;
 
     // Scorecard Section
-    if (submission.scorecard && submission.scorecard.dimensions && submission.scorecard.dimensions.length > 0) {
-      const scorecardItems: ReportItem[] = submission.scorecard.dimensions.map((dim: any) => ({
-        type: 'paragraph',
-        content: `<strong>${dim.label}:</strong> ${dim.labelColor} (${dim.value})`,
-      }));
-      sections.push({
-        id: 'scorecard',
-        title: 'Scorecard',
-        items: scorecardItems,
-      });
-    }
+    // The scorecard data is now directly part of ReportData
+    // No need to create separate scorecardItems here if they are only used for the ReportData object below
 
     // Insights Section
     if (submission.insights && submission.insights.length > 0) {
@@ -99,7 +91,7 @@ export async function POST(req: NextRequest) {
         title: 'Key Insights',
         items: [{
           type: 'list',
-          content: submission.insights.map((i: string) => `- ${i}`).join('\\n'),
+          content: submission.insights.map((i: string) => `- ${i}`).join('\n'),
         }],
       });
     }
@@ -115,7 +107,7 @@ export async function POST(req: NextRequest) {
         title: `Key Findings (${findings.length})`,
         items: [{
           type: 'list',
-          content: findings.map(f => `- ${f}`).join('\\n'),
+          content: findings.map(f => `- ${f}`).join('\n'),
         }],
       });
     }
@@ -131,7 +123,7 @@ export async function POST(req: NextRequest) {
         title: `Expert Recommendations (${recommendations.length})`,
         items: [{
           type: 'list',
-          content: recommendations.map(r => `- ${r}`).join('\\n'),
+          content: recommendations.map(r => `- ${r}`).join('\n'),
         }],
       });
     }
@@ -150,7 +142,7 @@ export async function POST(req: NextRequest) {
 
     // Roadmap Section
     if (submission.roadmap) {
-      const roadmapItems: ReportItem[] = [];
+      const roadmapItems: any[] = []; // Changed to any[]
       if (submission.roadmap.phase1 && submission.roadmap.phase1.length > 0) {
         roadmapItems.push({
           type: 'paragraph',
@@ -158,7 +150,7 @@ export async function POST(req: NextRequest) {
         });
         roadmapItems.push({
           type: 'list',
-          content: submission.roadmap.phase1.map((item: string) => `- ${item}`).join('\\n'),
+          content: submission.roadmap.phase1.map((item: string) => `- ${item}`).join('\n'),
         });
       }
       if (submission.roadmap.phase2 && submission.roadmap.phase2.length > 0) {
@@ -168,7 +160,7 @@ export async function POST(req: NextRequest) {
         });
         roadmapItems.push({
           type: 'list',
-          content: submission.roadmap.phase2.map((item: string) => `- ${item}`).join('\\n'),
+          content: submission.roadmap.phase2.map((item: string) => `- ${item}`).join('\n'),
         });
       }
       if (submission.roadmap.phase3 && submission.roadmap.phase3.length > 0) {
@@ -178,7 +170,7 @@ export async function POST(req: NextRequest) {
         });
         roadmapItems.push({
           type: 'list',
-          content: submission.roadmap.phase3.map((item: string) => `- ${item}`).join('\\n'),
+          content: submission.roadmap.phase3.map((item: string) => `- ${item}`).join('\n'),
         });
       }
       if (roadmapItems.length > 0) {
@@ -216,6 +208,8 @@ export async function POST(req: NextRequest) {
       logoBase64: await loadLogoBase64(),
     };
 
+    // ── 7. Generate Email HTML ────────────────────────────────────────────────
+    const htmlContent = renderReportToHtml(reportData, { mode: 'email' });
 
 
     // ── 8. Generate PDF and Attach to Email ──────────────────────────────────────
@@ -226,6 +220,8 @@ export async function POST(req: NextRequest) {
     console.log(`[send-report] Generated PDF (${(pdfBuffer.length / 1024).toFixed(2)} KB) for submission ${submissionId}`);
 
     // ── 9. Send email with PDF attachment via Brevo ─────────────────────────────
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || "consulting@pixelpunch.org";
+    const senderName  = process.env.BREVO_SENDER_NAME  || "Pixel Punch Consulting";
     const response = await fetch(BREVO_API_URL, {
       method: "POST",
       headers: {
@@ -236,7 +232,7 @@ export async function POST(req: NextRequest) {
         sender: { name: senderName, email: senderEmail },
         to: [{ email, name: recipientName }],
         subject: `Your ${reportTitle} Report — Pixel Punch`,
-        htmlContent: renderReport(reportData, { mode: 'email' }),
+        htmlContent, // Use the generated htmlContent
         attachment: [
           {
             name: pdfFileName,

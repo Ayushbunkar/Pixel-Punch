@@ -5,11 +5,6 @@ import fs from "fs";
 import path from "path";
 
 // ── RAG Color Config ───────────────────────────────────────────────────────────────
-export const RAG_COLORS = {
-  red:   { bg: "#fee2e2",  text: "#dc2626",  border: "#fca5a5", dot: "#dc2626",  label: "Action Needed" },
-  amber: { bg: "#fffbeb",  text: "#d97706",  border: "#fcd34d", dot: "#d97706",  label: "Needs Attention" },
-  green: { bg: "#f0fdf4",  text: "#16a34a",  border: "#86efac", dot: "#16a34a",  label: "Looking Good" },
-};
 
 // ── Tier Styles ─────────────────────────────────────────────────────────────────────
 const TIER_STYLES = {
@@ -22,6 +17,7 @@ const TIER_STYLES = {
 function getTierStyles(tier: number) {
   return TIER_STYLES[tier as keyof typeof TIER_STYLES] || TIER_STYLES[4];
 }
+
 
 export async function loadLogoBase64(): Promise<string> {
   try {
