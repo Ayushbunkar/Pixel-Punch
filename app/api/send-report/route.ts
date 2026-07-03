@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
         title: 'Key Insights',
         items: [{
           type: 'list',
-          content: submission.insights.map((i: string) => `- ${i}`).join('\n'),
+          content: submission.insights.map((i: string) => `* ${i}`).join('\n'),
         }],
       });
     }
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
         title: `Key Findings (${findings.length})`,
         items: [{
           type: 'list',
-          content: findings.map(f => `- ${f}`).join('\n'),
+          content: findings.map(f => `* ${f}`).join('\n'),
         }],
       });
     }
@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
         title: `Expert Recommendations (${recommendations.length})`,
         items: [{
           type: 'list',
-          content: recommendations.map(r => `- ${r}`).join('\n'),
+          content: recommendations.map(r => `* ${r}`).join('\n'),
         }],
       });
     }
@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
         });
         roadmapItems.push({
           type: 'list',
-          content: submission.roadmap.phase1.map((item: string) => `- ${item}`).join('\n'),
+          content: submission.roadmap.phase1.map((item: string) => `* ${item}`).join('\n'),
         });
       }
       if (submission.roadmap.phase2 && submission.roadmap.phase2.length > 0) {
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
         });
         roadmapItems.push({
           type: 'list',
-          content: submission.roadmap.phase2.map((item: string) => `- ${item}`).join('\n'),
+          content: submission.roadmap.phase2.map((item: string) => `* ${item}`).join('\n'),
         });
       }
       if (submission.roadmap.phase3 && submission.roadmap.phase3.length > 0) {
@@ -191,7 +191,7 @@ export async function POST(req: NextRequest) {
         });
         roadmapItems.push({
           type: 'list',
-          content: submission.roadmap.phase3.map((item: string) => `- ${item}`).join('\n'),
+          content: submission.roadmap.phase3.map((item: string) => `* ${item}`).join('\n'),
         });
       }
       if (roadmapItems.length > 0) {
