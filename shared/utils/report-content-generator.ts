@@ -22,13 +22,13 @@ export interface ReportData {
   reportType?: "cost" | "opportunity";
   scorecard?: {
     dimensions: Array<{
-      label: string;
-      value: "red" | "amber" | "green" | "unknown";
-      bgColor: string;
-      textColor: string;
-      borderColor: string;
-      dotColor: string;
-      labelColor: string;
+      label: string; // e.g., "Spend"
+      value: "red" | "amber" | "green" | "unknown"; // e.g., "red"
+      bg: string;
+      text: string;
+      border: string;
+      dot: string;
+      colorLabel: string; // Renamed to avoid conflict with 'label' above
     }>;
   };
   tier?: 1 | 2 | 3 | 4;

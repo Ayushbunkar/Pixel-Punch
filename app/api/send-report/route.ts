@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSubmission } from "@/shared/database/db.service";
 import { submissionCache as costCache } from "../cost-scan/submit/route";
 import { submissionCache as oppCache } from "../opportunity-scan/submit/route";
-import { generatePdf, loadLogoBase64, getTierStyles } from "@/shared/utils/pdf-generator";
-import { ReportData, renderReportToHtml } from "@/shared/utils/report-content-generator"; // Added renderReportToHtml
+import { generatePdf, loadLogoBase64 } from "@/shared/utils/pdf-generator";
+import { ReportData, renderReportToHtml, getColorConfig } from "@/shared/utils/report-content-generator"; // Added renderReportToHtml and getColorConfig
 
 // ── Helper: Remove duplicate recommendations ───────────────────────────────────
 function deduplicateRecommendations(recommendations: string[]): string[] {
@@ -16,17 +16,25 @@ function deduplicateRecommendations(recommendations: string[]): string[] {
   });
 }
 
-function getScorecardTier(score: string | number | undefined): number {
+function mapScoreToRAGStatus(score: string | number | undefined): "red" | "amber" | "green" | "unknown" {
   if (typeof score === 'number') {
-    return score;
+    if (score <= 2) return "red";
+    if (score === 3) return "amber";
+    if (score >= 4) return "green";
   }
   if (typeof score === 'string') {
-    const parsed = parseInt(score, 10);
+    const lowerCaseScore = score.toLowerCase();
+    if (lowerCaseScore === "red" || lowerCaseScore === "amber" || lowerCaseScore === "green") {
+      return lowerCaseScore;
+    }
+    const parsed = parseInt(lowerCaseScore, 10);
     if (!isNaN(parsed)) {
-      return parsed;
+      if (parsed <= 2) return "red";
+      if (parsed === 3) return "amber";
+      if (parsed >= 4) return "green";
     }
   }
-  return 4; // Default to tier 4 for unknown or unparseable values
+  return "unknown";
 }
 
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
@@ -206,14 +214,44 @@ export async function POST(req: NextRequest) {
       scorecard: {
         dimensions: isCost
           ? [
-              { label: "Spend", value: submission.scorecard?.spend || "unknown", ...getTierStyles(getScorecardTier(submission.scorecard?.spend)) },
-              { label: "Architecture", value: submission.scorecard?.architecture || "unknown", ...getTierStyles(getScorecardTier(submission.scorecard?.architecture)) },
-              { label: "Pain", value: submission.scorecard?.pain || "unknown", ...getTierStyles(getScorecardTier(submission.scorecard?.pain)) },
+              {
+                label: "Spend",
+                value: mapScoreToRAGStatus(submission.scorecard?.spend),
+                ...getColorConfig(mapScoreToRAGStatus(submission.scorecard?.spend)),
+                colorLabel: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.spend)).label
+              },
+              {
+                label: "Architecture",
+                value: mapScoreToRAGStatus(submission.scorecard?.architecture),
+                ...getColorConfig(mapScoreToRAGStatus(submission.scorecard?.architecture)),
+                colorLabel: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.architecture)).label
+              },
+              {
+                label: "Pain",
+                value: mapScoreToRAGStatus(submission.scorecard?.pain),
+                ...getColorConfig(mapScoreToRAGStatus(submission.scorecard?.pain)),
+                colorLabel: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.pain)).label
+              },
             ]
           : [
-              { label: "AI Readiness", value: submission.scorecard?.readiness || "unknown", ...getTierStyles(getScorecardTier(submission.scorecard?.readiness)) },
-              { label: "Business Value", value: submission.scorecard?.value || "unknown", ...getTierStyles(getScorecardTier(submission.scorecard?.value)) },
-              { label: "Opportunity", value: submission.scorecard?.opportunity || "unknown", ...getTierStyles(getScorecardTier(submission.scorecard?.opportunity)) },
+              {
+                label: "AI Readiness",
+                value: mapScoreToRAGStatus(submission.scorecard?.readiness),
+                ...getColorConfig(mapScoreToRAGStatus(submission.scorecard?.readiness)),
+                colorLabel: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.readiness)).label
+              },
+              {
+                label: "Business Value",
+                value: mapScoreToRAGStatus(submission.scorecard?.value),
+                ...getColorConfig(mapScoreToRAGStatus(submission.scorecard?.value)),
+                colorLabel: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.value)).label
+              },
+              {
+                label: "Opportunity",
+                value: mapScoreToRAGStatus(submission.scorecard?.opportunity),
+                ...getColorConfig(mapScoreToRAGStatus(submission.scorecard?.opportunity)),
+                colorLabel: getColorConfig(mapScoreToRAGStatus(submission.scorecard?.opportunity)).label
+              },
             ],
       },
       tier: submission.tier,
