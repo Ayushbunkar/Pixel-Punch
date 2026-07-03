@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSubmission } from "@/shared/database/db.service";
 import { submissionCache as costCache } from "../cost-scan/submit/route";
 import { submissionCache as oppCache } from "../opportunity-scan/submit/route";
-import { generatePdf, loadLogoBase64 } from "@/shared/utils/pdf-generator";
+import { generatePdf, loadLogoBase64, getColorConfig } from "@/shared/utils/pdf-generator";
+import { ReportData, ReportItem, ReportSection, renderReport } from "@/shared/utils/report-content-generator";
 
 // ── Helper: Remove duplicate recommendations ───────────────────────────────────
 function deduplicateRecommendations(recommendations: string[]): string[] {
@@ -17,90 +18,6 @@ function deduplicateRecommendations(recommendations: string[]): string[] {
 
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Markdowdfdf s  jbkj n → clean HTML (proper list wrapping, no stray <br> inside <li>)
-// ─────────────────────────────────────────────────────────────────────────────
-function mdToHtml(markdown: string): string {
-  if (!markdown) return "";
-
-  const lines = markdown.split(/\r?\n/);
-  const result: string[] = [];
-  let inList = false;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    // Headings
-    if (/^### (.+)/.test(line)) {
-      if (inList) { result.push("</ul>"); inList = false; }
-      result.push(`<h3 style="color:#312e81;font-size:15px;margin:20px 0 6px 0;font-weight:700;">${line.replace(/^### /, "")}</h3>`);
-    } else if (/^## (.+)/.test(line)) {
-      if (inList) { result.push("</ul>"); inList = false; }
-      result.push(`<h2 style="color:#1e1b4b;font-size:18px;margin:24px 0 8px 0;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">${line.replace(/^## /, "")}</h2>`);
-    } else if (/^# (.+)/.test(line)) {
-      if (inList) { result.push("</ul>"); inList = false; }
-      result.push(`<h1 style="color:#0f172a;font-size:22px;margin:28px 0 10px 0;font-weight:800;">${line.replace(/^# /, "")}</h1>`);
-
-    // Bullet points
-    } else if (/^[\*\-] (.+)/.test(line)) {
-      if (!inList) { result.push('<ul style="margin:8px 0 8px 0;padding-left:20px;">'); inList = true; }
-      const content = line.replace(/^[\*\-] /, "").replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\*(.*?)\*/g, "<em>$1</em>");
-      result.push(`<li style="margin-bottom:5px;color:#475569;font-size:14px;line-height:1.6;">${content}</li>`);
-
-    // Empty line
-    } else if (line.trim() === "") {
-      if (inList) { result.push("</ul>"); inList = false; }
-      result.push('<br style="line-height:0;display:block;margin:4px 0;">');
-
-    // Normal paragraph
-    } else {
-      if (inList) { result.push("</ul>"); inList = false; }
-      const content = line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\*(.*?)\*/g, "<em>$1</em>");
-      result.push(`<p style="margin:6px 0;font-size:14px;line-height:1.7;color:#475569;">${content}</p>`);
-    }
-  }
-
-  if (inList) result.push("</ul>");
-  return result.join("\n");
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// RAG badge colour helper
-// ─────────────────────────────────────────────────────────────────────────────
-function ragColor(rag: string): { bg: string; text: string; label: string } {
-  switch (rag?.toLowerCase()) {
-    case "red":   return { bg: "#fee2e2", text: "#dc2626", label: "Action Needed" };
-    case "amber": return { bg: "#fffbeb", text: "#d97706", label: "Needs Attention" };
-    case "green": return { bg: "#f0fdf4", text: "#16a34a", label: "Looking Good" };
-    default:      return { bg: "#f1f5f9", text: "#64748b", label: rag?.toUpperCase() || "N/A" };
-  }
-}
-
-function ragBadge(label: string, rag: string): string {
-  const c = ragColor(rag);
-  return `
-    <td style="padding:12px 8px;text-align:center;width:33%;">
-      <div style="border-radius:10px;padding:10px 8px;background:${c.bg};border:1px solid ${c.text}22;">
-        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${label}</div>
-        <div style="font-size:15px;font-weight:800;color:${c.text};">${c.label}</div>
-        <div style="font-size:11px;font-weight:500;color:${c.text};margin-top:2px;">● ${rag?.toUpperCase() || "N/A"}</div>
-      </div>
-    </td>`;
-}
-
-// ── Helper: Get color config for PDF report ──────────────────────────────────
-function getColorConfig(rag: string): { bgColor: string; textColor: string; borderColor: string; dotColor: string; labelColor: string } {
-  switch (rag?.toLowerCase()) {
-    case "red":
-      return { bgColor: "#fee2e2", textColor: "#dc2626", borderColor: "#fca5a5", dotColor: "#dc2626", labelColor: "Action Needed" };
-    case "amber":
-      return { bgColor: "#fffbeb", textColor: "#d97706", borderColor: "#fcd34d", dotColor: "#d97706", labelColor: "Needs Attention" };
-    case "green":
-      return { bgColor: "#f0fdf4", textColor: "#16a34a", borderColor: "#86efac", dotColor: "#16a34a", labelColor: "Looking Good" };
-    default:
-      return { bgColor: "#f1f5f9", textColor: "#64748b", borderColor: "#e2e8f0", dotColor: "#64748b", labelColor: rag?.toUpperCase() || "N/A" };
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Route handler
@@ -153,233 +70,134 @@ export async function POST(req: NextRequest) {
     const companySize = submission.answers?.company_size || submission.company?.size || "small-to-midsize";
     const businessType = submission.answers?.business_type || submission.company?.type || "technology";
 
-    // ── 3. Build RAG scorecard badges ─────────────────────────────────────────
-    let scorecardHtml = "";
-    let costDetailsHtml = "";
-    if (isCost) {
-      const spend = submission.scorecard?.spend || submission.score?.spend || "unknown";
-      const arch  = submission.scorecard?.architecture || submission.score?.architecture || "unknown";
-      const pain  = submission.scorecard?.pain || submission.score?.pain || "unknown";
-      const provider = submission.costAnalysis?.normalizedData?.provider || "N/A";
-      const monthlySpend = submission.costAnalysis?.normalizedData?.monthlySpend || "N/A";
-      costDetailsHtml = `
-        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
-          <tr>
-            <td style="padding:12px 16px;background:#eff6ff;border-radius:8px;width:48%;">
-              <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">.Provider</div>
-              <div style="font-size:13px;font-weight:600;color:#0f172a;">${provider}</div>
-            </td>
-            <td style="padding:12px 16px;background:#eff6ff;border-radius:8px;width:48%;">
-              <div style="font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">_Monthly Spend</div>
-              <div style="font-size:13px;font-weight:600;color:#0f172a;">${monthlySpend}</div>
-            </td>
-          </tr>
-        </table>`;
-      scorecardHtml = `
-        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
-          <tr>
-            ${ragBadge("Spend & Visibility", spend)}
-            ${ragBadge("Architecture & Leakage", arch)}
-            ${ragBadge("Business Pain", pain)}
-          </tr>
-        </table>`;
-    } else {
-      const readiness   = submission.scorecard?.readiness   || submission.score?.readiness   || "unknown";
-      const value       = submission.scorecard?.value       || submission.score?.value       || "unknown";
-      const opportunity = submission.scorecard?.opportunity || submission.score?.opportunity || "unknown";
-      scorecardHtml = `
-        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
-          <tr>
-            ${ragBadge("AI Readiness", readiness)}
-            ${ragBadge("Business Value", value)}
-            ${ragBadge("Automation Opportunity", opportunity)}
-          </tr>
-        </table>`;
+    const sections: ReportSection[] = [];
+    const metadata: { [key: string]: string } = {};
+
+    metadata['Submission ID'] = submissionId;
+    if (companyName) metadata['Company'] = companyName;
+    if (recipientName) metadata['Contact'] = recipientName;
+    metadata['Company Size'] = companySize;
+    metadata['Business Type'] = businessType;
+
+    // Scorecard Section
+    if (submission.scorecard && submission.scorecard.dimensions && submission.scorecard.dimensions.length > 0) {
+      const scorecardItems: ReportItem[] = submission.scorecard.dimensions.map((dim: any) => ({
+        type: 'paragraph',
+        content: `<strong>${dim.label}:</strong> ${dim.labelColor} (${dim.value})`,
+      }));
+      sections.push({
+        id: 'scorecard',
+        title: 'Scorecard',
+        items: scorecardItems,
+      });
     }
 
-    // ── 4. Build audit report body ────────────────────────────────────────────
-    const reportHtml = submission.auditReport
-      ? mdToHtml(submission.auditReport)
-      : `<p style="color:#475569;font-size:14px;line-height:1.6;">Your detailed audit analysis is being compiled. A follow-up report will be sent once complete.</p>`;
+    // Insights Section
+    if (submission.insights && submission.insights.length > 0) {
+      sections.push({
+        id: 'insights',
+        title: 'Key Insights',
+        items: [{
+          type: 'list',
+          content: submission.insights.map((i: string) => `- ${i}`).join('\\n'),
+        }],
+      });
+    }
 
-    // ── 5. Findings list ────────────────────────────────────────────────
+    // Findings Section
     const findings: string[] =
       submission.findings
         ?.filter((f: any) => typeof f === "string")
         .slice(0, 5) || [];
-    const findingsHtml = findings.length > 0
-      ? `<div style="background:#fff5f5;border-radius:12px;padding:20px;border:1px solid #fee2e2;margin-bottom:16px;"><p style="margin:0 0 12px 0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#b91c1c;">⚠ Key Findings (${findings.length})</p><ul style="margin:0;padding-left:20px;">
-          ${findings.map((f: string) =>
-            `<li style="margin-bottom:8px;font-size:14px;color:#475569;line-height:1.6;">${f}</li>`
-          ).join("")}
-        </ul></div>`
-      : "";
+    if (findings.length > 0) {
+      sections.push({
+        id: 'findings',
+        title: `Key Findings (${findings.length})`,
+        items: [{
+          type: 'list',
+          content: findings.map(f => `- ${f}`).join('\\n'),
+        }],
+      });
+    }
 
-    // ── 6. Recommendations list ───────────────────────────────────────────────
+    // Recommendations Section
     const recommendations: string[] =
       submission.recommendations
         ?.filter((r: any) => typeof r === "string")
         .slice(0, 5) || [];
-    const recsHtml = recommendations.length > 0
-      ? `<ul style="margin:8px 0;padding-left:20px;">
-          ${recommendations.map((r: string) =>
-            `<li style="margin-bottom:8px;font-size:14px;color:#475569;line-height:1.6;">${r}</li>`
-          ).join("")}
-        </ul>`
-      : "";
+    if (recommendations.length > 0) {
+      sections.push({
+        id: 'recommendations',
+        title: `Expert Recommendations (${recommendations.length})`,
+        items: [{
+          type: 'list',
+          content: recommendations.map(r => `- ${r}`).join('\\n'),
+        }],
+      });
+    }
 
-    // ── 6. Results page URL ───────────────────────────────────────────────────
-    const host = req.headers.get("host") || "pixelpunch.org";
-    const protocol = host.includes("localhost") ? "http" : "https";
-    const origin = `${protocol}://${host}`;
-    const resultsPageUrl = isCost
-      ? `${origin}/ai/cost-scan/results?id=${submissionId}`
-      : `${origin}/ai/opportunity-scan/results?id=${submissionId}`;
+    // Audit Report Section
+    if (submission.auditReport) {
+      sections.push({
+        id: 'auditReport',
+        title: 'Full Technical Audit',
+        items: [{
+          type: 'paragraph',
+          content: submission.auditReport,
+        }],
+      });
+    }
 
-    // ── 7. Full HTML email template ───────────────────────────────────────────
-    const senderEmail = process.env.BREVO_SENDER_EMAIL || "consulting@pixelpunch.org";
-    const senderName  = process.env.BREVO_SENDER_NAME  || "Pixel Punch Consulting";
+    // Roadmap Section
+    if (submission.roadmap) {
+      const roadmapItems: ReportItem[] = [];
+      if (submission.roadmap.phase1 && submission.roadmap.phase1.length > 0) {
+        roadmapItems.push({
+          type: 'paragraph',
+          content: '<strong>Phase 1: Quick Wins (0 to 3 Months)</strong>',
+        });
+        roadmapItems.push({
+          type: 'list',
+          content: submission.roadmap.phase1.map((item: string) => `- ${item}`).join('\\n'),
+        });
+      }
+      if (submission.roadmap.phase2 && submission.roadmap.phase2.length > 0) {
+        roadmapItems.push({
+          type: 'paragraph',
+          content: '<strong>Phase 2: Strategic Expansion (3 to 6 Months)</strong>',
+        });
+        roadmapItems.push({
+          type: 'list',
+          content: submission.roadmap.phase2.map((item: string) => `- ${item}`).join('\\n'),
+        });
+      }
+      if (submission.roadmap.phase3 && submission.roadmap.phase3.length > 0) {
+        roadmapItems.push({
+          type: 'paragraph',
+          content: '<strong>Phase 3: Long-term Scale (6 to 12 Months)</strong>',
+        });
+        roadmapItems.push({
+          type: 'list',
+          content: submission.roadmap.phase3.map((item: string) => `- ${item}`).join('\\n'),
+        });
+      }
+      if (roadmapItems.length > 0) {
+        sections.push({
+          id: 'roadmap',
+          title: 'AI Roadmap & Phased Adoption',
+          items: roadmapItems,
+        });
+      }
+    }
 
-    const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your ${reportTitle} — Pixel Punch</title>
-</head>
-<body style="margin:0;padding:0;background-color:#f8fafc;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
-  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background:#f8fafc;padding:32px 16px;">
-    <tr>
-      <td align="center">
-        <table border="0" cellpadding="0" cellspacing="0" width="640" style="max-width:640px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(2,6,23,0.08);">
-
-          <!-- ░░ HEADER ░░ -->
-          <tr>
-            <td style="background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);padding:32px 32px 28px 32px;text-align:center;">
-              <div style="display:inline-block;background:rgba(255,255,255,0.1);border-radius:10px;padding:6px 16px;margin-bottom:16px;">
-                <img src="https://pixelpunch.org/logo.jpg" alt="Pixel Punch" style="height:18px;width:auto;object-fit:contain;vertical-align:middle;margin-right:6px;" />
-                <span style="color:#a5b4fc;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">Pixel Punch AI</span>
-              </div>
-              <h1 style="margin:0;font-size:24px;font-weight:800;color:#ffffff;line-height:1.3;">Your ${reportTitle}<br>Report is Ready</h1>
-              <p style="margin:12px 0 0 0;color:#94a3b8;font-size:13px;">Compiled exclusively for <strong style="color:#c7d2fe;">${companyName}</strong></p>
-              ${costDetailsHtml ? `
-              <div style="margin-top:16px;">
-                ${costDetailsHtml}
-              </div>` : ""}
-            </td>
-          </tr>
-
-          <!-- ░░ GREETING ░░ -->
-          <tr>
-            <td style="padding:28px 32px 0 32px;">
-              <p style="margin:0;font-size:15px;color:#334155;line-height:1.7;">
-                Hello${recipientName ? ` <strong>${recipientName}</strong>` : ""},
-              </p>
-              <p style="margin:10px 0 8px 0;font-size:14px;color:#64748b;line-height:1.7;">
-                <strong style="color:#1e293b">${companyName}</strong> (${companySize}, ${businessType} sector)
-              </p>
-              <p style="margin:0 0 0 0;font-size:14px;color:#64748b;line-height:1.7;">
-                Your AI scan is complete. We've compiled your personalized scorecard and a full consultative audit report below.
-                Use the results to benchmark your current AI position and identify the highest-impact improvements.
-              </p>
-            </td>
-          </tr>
-
-          <!-- ░░ RAG SCORECARD ░░ -->
-          <tr>
-            <td style="padding:24px 32px 0 32px;">
-              <div style="background:#f8fafc;border-radius:12px;padding:20px;border:1px solid #e2e8f0;">
-                <p style="margin:0 0 14px 0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94a3b8;">📊 RAG Dashboard Overview</p>
-                ${scorecardHtml}
-              </div>
-            </td>
-          </tr>
-
-          <!-- ░░ DIVIDER ░░ -->
-          <tr>
-            <td style="padding:28px 32px 0 32px;">
-              <div style="border-top:1px solid #e2e8f0;"></div>
-              <p style="margin:20px 0 8px 0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94a3b8;">📋 Full Technical Audit</p>
-            </td>
-          </tr>
-
-          <!-- ░░ FULL AUDIT REPORT BODY ░░ -->
-          <tr>
-            <td style="padding:28px 32px 0 32px;">
-              <div style="background:#f8fafc;border-radius:12px;padding:24px;border:1px solid #e2e8f0;">
-                <p style="margin:0 0 16px 0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94a3b8;">📋 Full Technical Audit</p>
-                <div style="font-size:14px;color:#475569;line-height:1.7;">
-                  ${reportHtml}
-                </div>
-              </div>
-            </td>
-          </tr>
-
-          ${findingsHtml ? `
-          <!-- ░░ KEY FINDINGS ░░ -->
-          <tr>
-            <td style="padding:28px 32px 0 32px;">
-              ${findingsHtml}
-            </td>
-          </tr>` : ""}
-
-          ${recsHtml ? `
-          <!-- ░░ RECOMMENDATIONS ░░ -->
-          <tr>
-            <td style="padding:24px 32px 0 32px;">
-              <div style="background:#f0fdf4;border-radius:12px;padding:20px;border:1px solid #bbf7d0;">
-                <p style="margin:0 0 12px 0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#15803d;">✅ Expert Recommendations</p>
-                ${recsHtml}
-              </div>
-            </td>
-          </tr>` : ""}
-
-          <!-- ░░ CTA BUTTONS ░░ -->
-          <tr>
-            <td style="padding:28px 32px 0 32px;">
-              <div style="background:#f8fafc;border-radius:12px;padding:24px;border:1px solid #e2e8f0;text-align:center;">
-                <p style="margin:0 0 16px 0;font-size:14px;font-weight:600;color:#0f172a;">Ready to review your full roadmap with an AI Architect?</p>
-                <table border="0" cellpadding="0" cellspacing="0" style="margin:0 auto;">
-                  <tr>
-                    <td style="padding:0 6px;">
-                      <a href="https://pixelpunch.org/services/consulting" target="_blank"
-                         style="display:inline-block;padding:12px 22px;background:#4f46e5;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:700;font-size:13px;letter-spacing:0.3px;">
-                        Book Free Scoping Call
-                      </a>
-                    </td>
-                  </tr>
-                </table>
-              </div>
-            </td>
-          </tr>
-
-          <!-- ░░ FOOTER ░░ -->
-          <tr>
-            <td style="padding:24px 32px 32px 32px;text-align:center;">
-              <p style="margin:0;font-size:12px;color:#94a3b8;line-height:1.6;">
-                This report was automatically compiled by <strong>Pixel Punch AI</strong>.<br>
-                © 2026 Pixel Punch. All rights reserved.<br>
-                <a href="https://pixelpunch.org" style="color:#6366f1;text-decoration:none;">pixelpunch.org</a>
-              </p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
-
-    // ── 8. Generate PDF and Attach to Email ──────────────────────────────────────
-    // Build PDF data for both report types
-    const reportType: "cost" | "opportunity" = isCost ? "cost" : "opportunity";
-    const pdfData = {
+    const reportData: ReportData = {
+      title: reportTitle,
+      timestamp: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" }),
+      metadata,
+      sections,
+      // New fields from PdfReportData for unified model
       submissionId,
-      companyName,
-      contactName: recipientName,
-      reportTitle,
-      reportType,
+      reportType: isCost ? "cost" : "opportunity",
       scorecard: {
         dimensions: isCost
           ? [
@@ -394,17 +212,14 @@ export async function POST(req: NextRequest) {
             ],
       },
       tier: submission.tier,
-      insights: submission.insights,
-      findings: submission.findings,
-      recommendations: submission.recommendations,
-      auditReport: submission.auditReport,
       confidenceScore: submission.confidenceScore,
-      roadmap: submission.roadmap,
       logoBase64: await loadLogoBase64(),
     };
 
-    // Generate the PDF
-    const pdfBuffer = await generatePdf(pdfData);
+
+
+    // ── 8. Generate PDF and Attach to Email ──────────────────────────────────────
+    const pdfBuffer = await generatePdf(reportData);
     const pdfBase64 = pdfBuffer.toString("base64");
     const pdfFileName = isCost ? "audit-cost-scan.pdf" : "opportunity-audit.pdf";
 
@@ -421,7 +236,7 @@ export async function POST(req: NextRequest) {
         sender: { name: senderName, email: senderEmail },
         to: [{ email, name: recipientName }],
         subject: `Your ${reportTitle} Report — Pixel Punch`,
-        htmlContent,
+        htmlContent: renderReport(reportData, { mode: 'email' }),
         attachment: [
           {
             name: pdfFileName,
