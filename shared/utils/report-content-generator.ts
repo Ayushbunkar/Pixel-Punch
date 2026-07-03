@@ -262,7 +262,7 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
       <tr>
         <td style="padding:0;width:50%;text-align:left;vertical-align:middle;">
           ${report.logoBase64
-            ? `<img src="${report.logoBase64}" alt="Pixel Punch" style="height:32px;width:auto;object-fit:contain;display:block;">`
+            ? `<img src="${report.logoBase64}" alt="Pixel Punch" width="auto" height="32" style="height:32px;display:block;">`
             : `<span style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Pixel Punch</span>`
           }
         </td>
@@ -538,7 +538,7 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;max-width:860px;background:#ffffff;mso-table-lspace:0pt;mso-table-rspace:0pt;">
       <tr>
         <td style="padding:0;" align="center">
-          <div style="max-width:860px;margin:0 auto;background:#ffffff;border-radius:0;overflow:hidden;">
+          <div style="max-width:860px;margin:0 auto;background:#ffffff;border-radius:0;">
             ${bodyContent}
             ${footer}
           </div>
