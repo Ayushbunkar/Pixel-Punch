@@ -862,11 +862,8 @@ export default function ResultsPageContent() {
           </h1>
 
           <p className="text-slate-600 text-sm">
-
-            Here is where your AI cost profile currently stands.
-
+            Customized for <strong className="text-slate-800">{result.contact?.company || "Your Company"}</strong> · {(result.costAnalysis?.normalizedData?.provider || "Cloud Infrastructure").toUpperCase()}
           </p>
-
         </motion.div>
 
         {/* ── RAG scorecard ────────────────────────────────────────── */}

@@ -81,6 +81,16 @@ export function ContactStep({ state, errors, onChange, loading, submitError }: C
           autoComplete="work email"
           required={false}
         />
+        <InputField
+          id="company"
+          label="Company Name"
+          value={state.company}
+          onChange={(v) => onChange("company", v)}
+          error={errors.company}
+          placeholder="Acme Corp"
+          autoComplete="organization"
+          required={false}
+        />
       </div>
 
       {/* Submit-level error */}
