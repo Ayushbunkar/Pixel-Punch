@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSubmission } from "@/shared/database/db.service";
 import { submissionCache as costCache } from "../cost-scan/submit/route";
 import { submissionCache as oppCache } from "../opportunity-scan/submit/route";
-import { generatePdf, loadLogoBase64, getColorConfig } from "@/shared/utils/pdf-generator";
+import { generatePdf, loadLogoBase64, getTierStyles } from "@/shared/utils/pdf-generator";
 import { ReportData, renderReportToHtml } from "@/shared/utils/report-content-generator"; // Added renderReportToHtml
 
 // ── Helper: Remove duplicate recommendations ───────────────────────────────────
@@ -14,6 +14,19 @@ function deduplicateRecommendations(recommendations: string[]): string[] {
     seen.add(normalized);
     return true;
   });
+}
+
+function getScorecardTier(score: string | number | undefined): number {
+  if (typeof score === 'number') {
+    return score;
+  }
+  if (typeof score === 'string') {
+    const parsed = parseInt(score, 10);
+    if (!isNaN(parsed)) {
+      return parsed;
+    }
+  }
+  return 4; // Default to tier 4 for unknown or unparseable values
 }
 
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
@@ -193,14 +206,14 @@ export async function POST(req: NextRequest) {
       scorecard: {
         dimensions: isCost
           ? [
-              { label: "Spend", value: submission.scorecard?.spend || "unknown", ...getColorConfig(submission.scorecard?.spend || "unknown") },
-              { label: "Architecture", value: submission.scorecard?.architecture || "unknown", ...getColorConfig(submission.scorecard?.architecture || "unknown") },
-              { label: "Pain", value: submission.scorecard?.pain || "unknown", ...getColorConfig(submission.scorecard?.pain || "unknown") },
+              { label: "Spend", value: submission.scorecard?.spend || "unknown", ...getTierStyles(getScorecardTier(submission.scorecard?.spend)) },
+              { label: "Architecture", value: submission.scorecard?.architecture || "unknown", ...getTierStyles(getScorecardTier(submission.scorecard?.architecture)) },
+              { label: "Pain", value: submission.scorecard?.pain || "unknown", ...getTierStyles(getScorecardTier(submission.scorecard?.pain)) },
             ]
           : [
-              { label: "AI Readiness", value: submission.scorecard?.readiness || "unknown", ...getColorConfig(submission.scorecard?.readiness || "unknown") },
-              { label: "Business Value", value: submission.scorecard?.value || "unknown", ...getColorConfig(submission.scorecard?.value || "unknown") },
-              { label: "Opportunity", value: submission.scorecard?.opportunity || "unknown", ...getColorConfig(submission.scorecard?.opportunity || "unknown") },
+              { label: "AI Readiness", value: submission.scorecard?.readiness || "unknown", ...getTierStyles(getScorecardTier(submission.scorecard?.readiness)) },
+              { label: "Business Value", value: submission.scorecard?.value || "unknown", ...getTierStyles(getScorecardTier(submission.scorecard?.value)) },
+              { label: "Opportunity", value: submission.scorecard?.opportunity || "unknown", ...getTierStyles(getScorecardTier(submission.scorecard?.opportunity)) },
             ],
       },
       tier: submission.tier,
