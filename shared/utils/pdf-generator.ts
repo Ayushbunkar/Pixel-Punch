@@ -1,4 +1,4 @@
-import { ReportData, renderReport } from "./report-content-generator";
+import { ReportData, renderReportToHtml } from "./report-content-generator";
 import puppeteer from "puppeteer-core";
 import chromium from "@sparticuz/chromium-min";
 import fs from "fs";
@@ -67,7 +67,7 @@ export async function generatePdf(data: ReportData): Promise<Buffer> {
     const page = await browser.newPage();
     
     // The previous line 'const genericReportData = convertPdfReportToGenericReportData(data);' is removed
-    const html = renderReport(data, { mode: 'pdf' }); // Directly use 'data' (which is ReportData)
+        const html = renderReportToHtml(data, { mode: 'pdf' }); // Directly use 'data' (which is ReportData)
 
     await page.setContent(html, { waitUntil: "domcontentloaded" });
 
