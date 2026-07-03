@@ -181,9 +181,25 @@ function renderScorecardHtml(
     ? { 0: "Spend & Visibility", 1: "Architecture Risk", 2: "Business Pain & Urgency" }
     : { 0: "Technical AI Readiness", 1: "Business Value Potential", 2: "Automation Opportunity" };
 
+  // Sub-text descriptions for each card dimension (matching web UI)
+  const subtextMap: Record<string, Record<string, string>> = {
+    cost: {
+      0: "Measures your cloud & AI spend efficiency and visibility gaps across providers.",
+      1: "Evaluates architectural decisions that drive unnecessary cost or technical debt.",
+      2: "Assesses operational pain, urgency, and business impact of current inefficiencies."
+    },
+    opportunity: {
+      0: "Evaluates your data infrastructure, tooling, and team capability for AI adoption.",
+      1: "Measures the ROI potential and strategic alignment of AI across your operations.",
+      2: "Identifies how much workflow automation can realistically be implemented today."
+    }
+  };
+  const subtextGroup = subtextMap[isCost ? "cost" : "opportunity"];
+
   const cardsHtml = dimensions.map((dim, idx) => {
     const val = dim.value;
     const displayLabel = labelMap[idx] ?? dim.label;
+    const subtext = subtextGroup?.[idx] ?? "";
     const bg    = ragBg(val);
     const color = ragColor(val);
     const txt   = ragText(val);
@@ -193,16 +209,17 @@ function renderScorecardHtml(
 
     return `
     <td style="width:${Math.floor(100 / dimensions.length)}%;padding:0 6px;vertical-align:top;">
-      <div style="background:${bg};border:1.5px solid ${bord};border-radius:12px;padding:16px 14px;height:100%;box-sizing:border-box;">
-        <div style="font-size:${mode === "pdf" ? "8px" : "10px"};font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">${displayLabel}</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+      <div style="background:${bg};border:1.5px solid ${bord};border-radius:12px;padding:16px 14px;box-sizing:border-box;">
+        <div style="font-size:${mode === "pdf" ? "8px" : "10px"};font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">${displayLabel}</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
           <span style="font-size:14px;line-height:1;">${flag}</span>
           <span style="font-size:${mode === "pdf" ? "10px" : "11px"};font-weight:700;color:${color};">${badge}</span>
         </div>
-        <div style="font-size:${mode === "pdf" ? "22px" : "28px"};font-weight:900;color:${color};letter-spacing:-0.5px;line-height:1;">${val.toUpperCase()}</div>
-        <div style="margin-top:8px;display:inline-block;background:${txt === "#991b1b" ? "#fef2f2" : txt === "#b45309" ? "#fffbeb" : "#f0fdf4"};border:1px solid ${bord};border-radius:4px;padding:2px 8px;">
+        <div style="font-size:${mode === "pdf" ? "22px" : "28px"};font-weight:900;color:${color};letter-spacing:-0.5px;line-height:1;margin-bottom:8px;">${val.toUpperCase()}</div>
+        <div style="margin-bottom:10px;display:inline-block;background:${txt === "#991b1b" ? "#fef2f2" : txt === "#b45309" ? "#fffbeb" : "#f0fdf4"};border:1px solid ${bord};border-radius:4px;padding:2px 8px;">
           <span style="font-size:${mode === "pdf" ? "8px" : "9px"};font-weight:700;color:${txt};text-transform:uppercase;letter-spacing:0.5px;">${val.toUpperCase()}</span>
         </div>
+        ${subtext ? `<div style="font-size:${mode === "pdf" ? "8px" : "10px"};color:#64748b;line-height:1.5;margin-top:8px;padding-top:8px;border-top:1px solid ${bord}80;">${subtext}</div>` : ""}
       </div>
     </td>`;
   }).join("");
@@ -232,7 +249,7 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
   <div style="background:#0d6efd;padding:10px 32px;">
     <div style="display:flex;align-items:center;justify-content:space-between;">
       ${report.logoBase64
-        ? `<img src="${report.logoBase64}" alt="Pixel Punch" style="height:28px;width:auto;object-fit:contain;filter:brightness(0) invert(1);">`
+        ? `<img src="${report.logoBase64}" alt="Pixel Punch" style="height:32px;width:auto;object-fit:contain;">`
         : `<span style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Pixel Punch</span>`
       }
       <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.85);">
@@ -379,10 +396,12 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
     bodyContent += `
     <div style="padding:20px 32px;margin-bottom:24px;border-bottom:1px solid #e2e8f0;">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#64748b;margin-bottom:16px;">Analysis Summary</div>
-      <table border="0" cellpadding="0" cellspacing="0" width="100%">
-        <tr>
-          ${findingsHtml ? `<td style="width:${recsHtml ? "48%" : "100%"};vertical-align:top;padding-right:${recsHtml ? "8px" : "0"};">${findingsHtml}</td>` : ""}
-          ${recsHtml ? `<td style="width:${findingsHtml ? "48%" : "100%"};vertical-align:top;padding-left:${findingsHtml ? "8px" : "0"};">${recsHtml}</td>` : ""}
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout:fixed;">
+        <tr style="vertical-align:top;">
+          ${findingsHtml && recsHtml ? `
+            <td style="width:50%;vertical-align:top;padding-right:8px;">${findingsHtml}</td>
+            <td style="width:50%;vertical-align:top;padding-left:8px;">${recsHtml}</td>
+          ` : findingsHtml ? `<td style="width:100%;vertical-align:top;">${findingsHtml}</td>` : `<td style="width:100%;vertical-align:top;">${recsHtml}</td>`}
         </tr>
       </table>
     </div>`;

@@ -79,11 +79,13 @@ export async function POST(req: NextRequest) {
     // ── 2. Determine scan type and metadata ───────────────────────────────────
     const isCost = scanType === "cost" || !!submission.scorecard?.spend || !!submission.score?.spend;
     const companyName =
-      submission.contact?.company ||
       submission.company?.name ||
+      submission.contact?.company ||
       submission.answers?.company ||
+      submission.answers?.company_name ||
       submission.costAnalysis?.normalizedData?.provider ||
-      "your company";
+      (submission.contact?.firstname ? undefined : undefined) ||
+      "N/A";
     const recipientName =
       `${submission.contact?.firstname ?? ""} ${submission.contact?.lastname ?? ""}`.trim() ||
       undefined;
