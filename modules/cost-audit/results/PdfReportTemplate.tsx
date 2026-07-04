@@ -94,7 +94,7 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
       );
     });
   };
-
+//sdfffdsfdsdfs
   return (
     <div id="pdf-report-content" style={{ width: "794px", backgroundColor: "#f8fafc", fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", color: "#0f172a", boxSizing: "border-box" }}>
       
