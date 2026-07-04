@@ -115,24 +115,6 @@ export default function OpportunityResultsContent() {
     if (!submissionId) {
       setLoading(false);
       console.log("No submission ID found, setting loading to false.");
-      // Temporarily set a mock result for testing if no submissionId is present
-      setResult({
-        submissionId: "mock-id-123",
-        scorecard: {
-          spend: "red",
-          architecture: "amber",
-          pain: "green",
-        },
-        insights: ["Insight 1", "Insight 2"],
-        recommendations: ["Recommendation 1", "Recommendation 2"],
-        auditReport: "This is a mock audit report content.",
-        contact: {
-          firstname: "John",
-          lastname: "Doe",
-          email: "john.doe@example.com",
-        },
-        tier: 2,
-      });
       return;
     }
 
@@ -193,14 +175,11 @@ export default function OpportunityResultsContent() {
     return <ResultsSkeleton />;
   }
 
-  // If submissionId is present but result is null, it means data fetching failed or is still in progress.
-  // In this case, we should still show the loading skeleton or an error message based on the `loading` state.
-  // The mock data will only be used if `submissionId` is NOT present.
-  if (!result) {
+  if (!submissionId || !result) {
     console.log("Rendering 'We couldn't find that report' - submissionId:", submissionId, "result:", result);
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center text-center p-6 gap-2">
-        <h2 className="text-lg font-bold text-slate-900">We couldn\'t find that report</h2>
+        <h2 className="text-lg font-bold text-slate-900">We couldn't find that report</h2>
         <p className="text-sm text-slate-500 max-w-sm">
           The scan ID in your link may be invalid or expired. Please re-run the audit to get a new report.
         </p>
@@ -309,15 +288,7 @@ export default function OpportunityResultsContent() {
 
            {!isUnlocked && <LockOverlay onUnlock={() => setUnlockModalOpen(true)} />}
          </div>
-         <div className="mt-6 text-center">
-           <button
-             onClick={() => setEmailModalOpen(true)}
-             className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
-           >
-             <Cpu className="w-3.5 h-3.5" />
-             View Report
-           </button>
-         </div>
+
 
          <div>
            <TierRecommendation tier={result.tier ?? 4} ctaUrl={ctaUrl} />
