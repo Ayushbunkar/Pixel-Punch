@@ -204,6 +204,7 @@ export default function ResultsPageContent() {
           throw new Error(errorBody.message || `Failed to load results (${res.status})`);
         }
         const data: StoredScanResult = await res.json();
+        console.log("Cost Audit Results Data:", data);
         if (!cancelled) setResult(data);
       } catch (err: any) {
         if (!cancelled) {
