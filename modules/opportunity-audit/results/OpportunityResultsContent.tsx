@@ -4,6 +4,7 @@ import { Fragment, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import { useSearchParams, useRouter } from "next/navigation";
+import html2pdf from "html2pdf.js";
 
 import Image from "next/image";
 
@@ -108,12 +109,32 @@ export default function OpportunityResultsContent() {
   const [isUnlocked, setIsUnlocked] = useState(false);
 
   console.log("[Opportunity Frontend] Loading");
+  console.log("Submission ID from searchParams:", submissionId);
 
   const ctaUrl = ""; // TODO: wire up real CTA destination
 
   useEffect(() => {
     if (!submissionId) {
       setLoading(false);
+      console.log("No submission ID found, setting loading to false.");
+      // Temporarily set a mock result for testing if no submissionId is present
+      setResult({
+        submissionId: "mock-id-123",
+        scorecard: {
+          spend: "red",
+          architecture: "amber",
+          pain: "green",
+        },
+        insights: ["Insight 1", "Insight 2"],
+        recommendations: ["Recommendation 1", "Recommendation 2"],
+        auditReport: "This is a mock audit report content.",
+        contact: {
+          firstname: "John",
+          lastname: "Doe",
+          email: "john.doe@example.com",
+        },
+        tier: 2,
+      });
       return;
     }
 
@@ -148,15 +169,34 @@ export default function OpportunityResultsContent() {
   }, [submissionId]);
 
   const triggerPdfDownload = (id: string, data: StoredOpportunityResult) => {
-    // TODO: implement actual PDF generation/download using #opportunity-pdf-report-content
-    console.log(`Downloading PDF for ${id}`, data);
+    const element = document.getElementById("opportunity-pdf-report-content");
+    if (element) {
+      // Make the hidden content visible for PDF generation
+      element.style.display = "block";
+      html2pdf().from(element).set({
+        margin: 10,
+        filename: `opportunity-audit-report-${id}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).save().then(() => {
+        // Hide the content again after PDF generation
+        element.style.display = "none";
+      });
+    } else {
+      toast.error("Could not find report content for PDF generation.");
+    }
   };
 
   if (loading) {
     return <ResultsSkeleton />;
   }
 
-  if (!submissionId || !result) {
+  // If submissionId is present but result is null, it means data fetching failed or is still in progress.
+  // In this case, we should still show the loading skeleton or an error message based on the `loading` state.
+  // The mock data will only be used if `submissionId` is NOT present.
+  if (!result) {
+    console.log("Rendering 'We couldn't find that report' - submissionId:", submissionId, "result:", result);
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center text-center p-6 gap-2">
         <h2 className="text-lg font-bold text-slate-900">We couldn\'t find that report</h2>
@@ -347,7 +387,7 @@ export default function OpportunityResultsContent() {
        >
          <div style={{ borderBottom: "2px solid #2563eb", paddingBottom: "16px", marginBottom: "24px" }}>
            <div style={{ display: "flex", alignItems: "center" }}>
-             <img src="/Pixelpunch_logo2.png" alt="Pixel Punch" style={{ height: "30px", width: "auto", marginRight: "10px", filter: "brightness(0) invert(1)" }} />
+              <img src="/Pixelpunch_logo2.png" alt="Pixel Punch" style={{ height: "30px", width: "auto", marginRight: "10px" }} />
              <div style={{ fontSize: "20px", fontWeight: 800, color: "#0f172a" }}>Pixel Punch AI — Opportunity Audit Report</div>
            </div>
            <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>ID: {result.submissionId}</div>
