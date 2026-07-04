@@ -218,9 +218,13 @@ export default function ResultsPageContent() {
            </div>
 
          {result.insights && result.insights.length > 0 && (
-           <div>
-             <InsightsList insights={result.insights} />
-           </div>
+             <div>
+               <InsightsList
+                 insights={result.insights}
+                 submissionId={submissionId as string}
+                 scanType="cost"
+               />
+             </div>
          )}
 
          {result.recommendations && result.recommendations.length > 0 && (

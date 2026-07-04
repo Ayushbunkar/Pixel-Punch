@@ -44,9 +44,7 @@ export function StatCard({ title, description, ragStatus }: StatCardProps) {
         <p className="text-sm font-bold text-slate-900 leading-tight mb-3">
           {title}
         </p>
-        <div className="flex items-center justify-center mb-4">
-          <p className={`text-5xl font-extrabold ${meta.textColor}`}>{ragStatus.toUpperCase()}</p>
-        </div>
+
       </div>
       <p className="text-[10px] text-slate-600 leading-relaxed mt-4">{description}</p>
     </motion.div>

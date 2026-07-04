@@ -2,18 +2,24 @@
 
 import { CheckCircle2, Lightbulb, Lock } from "lucide-react";
 import * as motion from "framer-motion/client";
-//jgh
+import { useState } from "react";
+import { EmailModal } from "@/shared/components/EmailModal";
+
 interface InsightsListProps {
   insights: string[];
   onUnlock?: () => void;
   isUnlocked?: boolean;
+  submissionId: string; // Add submissionId prop
+  scanType: "cost" | "opportunity"; // Add scanType prop
 }
 
-export function InsightsList({ insights, onUnlock, isUnlocked }: InsightsListProps) {
+export function InsightsList({ insights, onUnlock, isUnlocked, submissionId, scanType }: InsightsListProps) {
+  const [showEmailModal, setShowEmailModal] = useState(false);
   if (!insights || insights.length === 0) return null;
 
   return (
-    <section className="mb-6" aria-label="Insights">
+    <>
+      <section className="mb-6" aria-label="Insights">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
           <Lightbulb className="w-4 h-4 text-blue-500" />
@@ -56,7 +62,7 @@ export function InsightsList({ insights, onUnlock, isUnlocked }: InsightsListPro
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onUnlock?.();
+                  setShowEmailModal(true);
                 }}
                 className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
               >
@@ -67,5 +73,13 @@ export function InsightsList({ insights, onUnlock, isUnlocked }: InsightsListPro
         )}
       </div>
     </section>
+
+    <EmailModal
+      isOpen={showEmailModal}
+      onClose={() => setShowEmailModal(false)}
+      submissionId={submissionId}
+      scanType={scanType}
+    />
+    </>
   );
 }
