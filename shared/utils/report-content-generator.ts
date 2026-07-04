@@ -180,7 +180,7 @@ function renderScorecardHtml(
 ): string {
   const isCost = reportType === "cost";
 
-  // Label mapping to match web UI
+  // Label mapping to match web UI dfsfds
   const labelMap: Record<string, string> = isCost
     ? { 0: "Spend & Visibility", 1: "Architecture Risk", 2: "Business Pain & Urgency" }
     : { 0: "Technical AI Readiness", 1: "Business Value Potential", 2: "Automation Opportunity" };
