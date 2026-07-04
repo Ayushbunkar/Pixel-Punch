@@ -2,7 +2,7 @@
 
 import { CheckCircle2, Lightbulb, Lock } from "lucide-react";
 import * as motion from "framer-motion/client";
-
+//jgh
 interface InsightsListProps {
   insights: string[];
   onUnlock?: () => void;
