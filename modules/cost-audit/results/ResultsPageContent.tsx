@@ -105,11 +105,11 @@ export default function ResultsPageContent() {
                   </div>
 
                 {/* Lock Overlay */}
-1130:                 {!isUnlocked && (
-1131:                   <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center rounded-lg border border-slate-200/50 shadow-inner">
-1132:                     <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
-1133:                       <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 text-blue-600">
-1134:                    <Lock className="w-5 h-5" />
+                {!isUnlocked && (
+                  <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center rounded-lg border border-slate-200/50 shadow-inner">
+                    <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
+                      <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 text-blue-600">
+                   <Lock className="w-5 h-5" />
 1135:                       </div>
 1136:                       <div>
 1137:                         <h3 className="text-sm font-bold text-slate-900">Unlock Full Technical Audit Report</h3>
