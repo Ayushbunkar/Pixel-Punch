@@ -2,46 +2,41 @@
 
 import { Rag } from "@/modules/cost-audit/types";
 import scoreDescriptions from "@/config/score-descriptions.json";
-import * as motion from "framer-motion/client";
+import { AlertTriangle, Lightbulb, CheckCircle2 } from "lucide-react";
 
 const RAG_META: Record<
   Rag,
-  { label: string; badgeClass: string; bgClass: string; icon: React.ReactNode }
+  { label: string; badgeClass: string; bgClass: string; icon: React.ReactNode; iconClass: string; textColor: string; buttonClass: string }
 > = {
   red: {
-    label:       "Action needed",
+    label:       "HIGH RISK",
     badgeClass:  "rag-red",
-    bgClass:     "border-rag-red/20 bg-rag-red-bg",
-    icon: (
-      <span className="relative flex h-2.5 w-2.5">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-90 shadow-[0_0_8px_#f43f5e]"></span>
-        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 shadow-[0_0_6px_#f43f5e]"></span>
-      </span>
-    ),
+    bgClass:     "bg-[#FFEAEA] border-[#FFC2C2]",
+    icon:        <AlertTriangle className="w-4 h-4" />,
+    iconClass:   "text-red-500",
+    textColor:   "text-red-700",
+    buttonClass: "bg-red-500 hover:bg-red-600",
   },
   amber: {
-    label:       "Room to improve",
+    label:       "NEEDS ATTENTION",
     badgeClass:  "rag-amber",
-    bgClass:     "border-rag-amber/20 bg-rag-amber-bg",
-    icon: (
-      <span className="relative flex h-2.5 w-2.5">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-90 shadow-[0_0_8px_#f59e0b]"></span>
-        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500 shadow-[0_0_6px_#f59e0b]"></span>
-      </span>
-    ),
+    bgClass:     "bg-[#FFFBEB] border-[#FFECB2]",
+    icon:        <Lightbulb className="w-4 h-4" />,
+    iconClass:   "text-amber-500",
+    textColor:   "text-amber-700",
+    buttonClass: "bg-amber-500 hover:bg-amber-600",
   },
   green: {
-    label:       "Looking good",
+    label:       "LOW RISK",
     badgeClass:  "rag-green",
-    bgClass:     "border-rag-green/20 bg-rag-green-bg",
-    icon: (
-      <span className="relative flex h-2.5 w-2.5">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90 shadow-[0_0_8px_#10b981]"></span>
-        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_6px_#10b981]"></span>
-      </span>
-    ),
+    bgClass:     "bg-[#EAFFE2] border-[#C2FFC2]",
+    icon:        <CheckCircle2 className="w-4 h-4" />,
+    iconClass:   "text-green-500",
+    textColor:   "text-green-700",
+    buttonClass: "bg-green-500 hover:bg-green-600",
   },
 };
+
 
 type DimensionType = "spend" | "architecture" | "pain";
 
@@ -58,25 +53,28 @@ export function ScoreCard({ title, dimension, score }: ScoreCardProps) {
   const description = descriptions?.[score] ?? "Analysis complete.";
 
   return (
-    <motion.div 
-      whileHover={{ 
-        y: -2, 
-        boxShadow: "0 8px 12px -4px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.06)",
-        borderColor: "#cbd5e1"
-      }}
-      className={`rounded-lg border p-3 transition-all duration-300 ${meta.bgClass}`}
+    <motion.div
+      whileHover={{ y: -2, boxShadow: "0 8px 12px -4px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.06)", borderColor: "#cbd5e1" }}
+      className={`rounded-xl border p-4 transition-all duration-300 flex flex-col justify-between ${meta.bgClass}`}
     >
-      <div className="flex flex-col gap-1.5 mb-2">
-        <div>
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${meta.badgeClass}`}>
-            {meta.icon} <span>{meta.label}</span>
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <span className={meta.iconClass}>{meta.icon}</span>
+          <span className={`text-[11px] font-bold ${meta.textColor}`}>
+            {meta.label}
           </span>
         </div>
-        <p className="text-xs font-bold text-slate-900 leading-tight">
+        <p className="text-sm font-bold text-slate-900 leading-tight mb-3">
           {title}
         </p>
+        <p className={`text-5xl font-black mb-4 ${meta.textColor}`}>
+          {score.toUpperCase()}
+        </p>
+        <button className={`inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-bold text-white ${meta.buttonClass}`}>
+          {score.toUpperCase()}
+        </button>
       </div>
-      <p className="text-[10px] text-slate-600 leading-relaxed">{description}</p>
+      <p className="text-[10px] text-slate-600 leading-relaxed mt-4">{description}</p>
     </motion.div>
   );
 }
