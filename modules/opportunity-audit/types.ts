@@ -252,3 +252,56 @@ export function isValidEnum<T extends readonly string[]>(
 ): value is T[number] {
   return (allowed as readonly string[]).includes(value);
 }
+
+// Existing ResultsData from the original types.ts
+export interface ResultsData {
+  submissionId: string;
+  scorecard: {
+    readiness: Rag;
+    value:     Rag;
+    opportunity: Rag;
+  };
+  tier: 1 | 2 | 3 | 4;
+  recommendations: string[];
+  aiRecommendations?: {
+    opportunity: string;
+    problem: string;
+    impact: string;
+    complexity: "Low" | "Medium" | "High";
+    priority: "Low" | "Medium" | "High";
+  }[];
+  roadmap: {
+    phase1: string[];
+    phase2: string[];
+    phase3: string[];
+  };
+  createdDate: string;
+  auditStatus: string;
+  company: {
+    name: string;
+    industry: string;
+    size: string;
+    businessType: string;
+  };
+  contact: {
+    firstname: string;
+    lastname: string;
+    email: string;
+    job_title: string;
+  };
+  score?: {
+    readiness?: Rag;
+    value?:     Rag;
+    opportunity?: Rag;
+    categories?: Record<string, {
+      name: string;
+      score: number;
+      maxScore: number;
+      classification: "low" | "medium" | "high";
+      description: string;
+    }>;
+  };
+  auditReport?: string;
+  findings?: string[];
+  nextSteps?: string[];
+}
