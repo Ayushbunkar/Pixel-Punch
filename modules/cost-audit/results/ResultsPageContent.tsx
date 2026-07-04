@@ -138,7 +138,7 @@ export default function ResultsPageContent() {
 
               </div>
 
-            </div>}
+            </div>
 
 
                     {result.recommendations && result.recommendations.length > 0 && (
