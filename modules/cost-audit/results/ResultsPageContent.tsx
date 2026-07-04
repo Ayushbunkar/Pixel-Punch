@@ -328,77 +328,69 @@ export default function ResultsPageContent() {
          </div>
        )}
 
-        {result.recommendations && result.recommendations.length > 0 && (
-          <motion.div
-            variants={slideUp}
-            whileHover={{
-              y: -2,
-              borderColor: "rgba(34, 197, 94, 0.2)",
-              boxShadow: "0 8px 12px -3px rgba(34, 197, 94, 0.03)",
-            }}
-            className="bg-green-50/30 rounded-lg border border-green-500/10 p-3 shadow-sm transition-all duration-300"
-          >
-            <h3 className="text-[10px] font-bold text-green-700 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
-              <CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Expert Recommendations
-            </h3>
-            <ul className="space-y-1">
-              {result.recommendations.map((r, i) => (
-                <motion.li
-                  key={i}
-                  whileHover={{ x: 3 }}
-                  className="text-xs text-slate-600 flex items-start gap-1.5 leading-normal transition-all duration-200 cursor-default"
-                >
-                  <span className="text-green-500 font-bold">•</span>
-                  <span>{r}</span>
-                </motion.li>
-              ))}
-            </ul>
-          </motion.div>
-        )}
+         {result.recommendations && result.recommendations.length > 0 && (
+           <div
+             className="bg-green-50/30 rounded-lg border border-green-500/10 p-3 shadow-sm transition-all duration-300"
+           >
+             <h3 className="text-[10px] font-bold text-green-700 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
+               <CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Expert Recommendations
+             </h3>
+             <ul className="space-y-1">
+               {result.recommendations.map((r, i) => (
+                 <li
+                   key={i}
+                   className="text-xs text-slate-600 flex items-start gap-1.5 leading-normal transition-all duration-200 cursor-default"
+                 >
+                   <span className="text-green-500 font-bold">•</span>
+                   <span>{r}</span>
+                 </li>
+               ))}
+             </ul>
+           </div>
+         )}
 
-        <motion.div variants={slideUp} className="border border-slate-200 rounded-lg overflow-hidden relative">
-          <div className="bg-white p-3 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[150px]">
-            <MarkdownBody markdown={result.auditReport ?? ""} />
-          </div>
+         <div className="border border-slate-200 rounded-lg overflow-hidden relative">
+           <div className="bg-white p-3 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[150px]">
+             <MarkdownBody markdown={result.auditReport ?? ""} />
+           </div>
 
-          {!isUnlocked && <LockOverlay onUnlock={() => setUnlockModalOpen(true)} />}
-        </motion.div>
+           {!isUnlocked && <LockOverlay onUnlock={() => setUnlockModalOpen(true)} />}
+         </div>
 
-        <motion.div variants={slideUp}>
-          <TierRecommendation tier={result.tier ?? 4} ctaUrl={ctaUrl} />
-        </motion.div>
+         <div>
+           <TierRecommendation tier={result.tier ?? 4} ctaUrl={ctaUrl} />
+         </div>
 
-        <motion.div
-          variants={slideUp}
-          className="flex flex-wrap items-center justify-center gap-3 mt-8 pt-6 border-t border-slate-200"
-        >
-          <ShareResults />
+         <div
+           className="flex flex-wrap items-center justify-center gap-3 mt-8 pt-6 border-t border-slate-200"
+         >
+           <ShareResults />
 
-          <button
-            onClick={() => setEmailModalOpen(true)}
-            className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
-          >
-            <Cpu className="w-3.5 h-3.5" />
-            Email Audit Report
-          </button>
-        </motion.div>
+           <button
+             onClick={() => setEmailModalOpen(true)}
+             className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
+           >
+             <Cpu className="w-3.5 h-3.5" />
+             Email Audit Report
+           </button>
+         </div>
 
-        <motion.p variants={fadeIn} className="text-center text-[10px] text-slate-400 mt-8">
-          Scan ID: {result.submissionId}
-        </motion.p>
-      </motion.div>
+         <p className="text-center text-[10px] text-slate-400 mt-8">
+           Scan ID: {result.submissionId}
+         </p>
+       </div>
 
-      {isUnlocked && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <button
-            onClick={() => triggerPdfDownload(result.submissionId, result)}
-            className="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl flex items-center gap-2"
-            title="Download PDF Report"
-          >
-            <Download className="w-5 h-5" />
-          </button>
-        </div>
-      )}
+       {isUnlocked && (
+         <div className="fixed bottom-6 right-6 z-50">
+           <button
+             onClick={() => triggerPdfDownload(result.submissionId, result)}
+             className="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl flex items-center gap-2"
+             title="Download PDF Report"
+           >
+             <Download className="w-5 h-5" />
+           </button>
+         </div>
+       )}
 
       <UnlockModal
         isOpen={unlockModalOpen}
