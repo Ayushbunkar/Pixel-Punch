@@ -195,26 +195,28 @@ export default function ResultsPageContent() {
 
                 {/* Lock Overlay */}
                 {!isUnlocked && (
-                  <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center rounded-lg border border-slate-200/50 shadow-inner">
-                    <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
-                      <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 text-blue-600">
-                   <Lock className="w-5 h-5" />
+                  <>
+                    <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center rounded-lg border border-slate-200/50 shadow-inner">
+                      <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 text-blue-600">
+                     <Lock className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-900">Unlock Full Technical Audit Report</h3>
+                          <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                            Enter your email below to receive the full AI Cost Audit report, key findings, and expert recommendations directly in your inbox.
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setUnlockModalOpen(true)}
+                       className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
+                        >
+                       <Unlock className="w-3.5 h-3.5" />
+                          Unlock Report
+                        </button>
                       </div>
-                      <div>
-                        <h3 className="text-sm font-bold text-slate-900">Unlock Full Technical Audit Report</h3>
-                        <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
-                          Enter your email below to receive the full AI Cost Audit report, key findings, and expert recommendations directly in your inbox.
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => setUnlockModalOpen(true)}
-                     className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
-                      >
-                     <Unlock className="w-3.5 h-3.5" />
-                        Unlock Report
-                      </button>
                     </div>
-                  </div>
+                  </>
                 )}
 
 
