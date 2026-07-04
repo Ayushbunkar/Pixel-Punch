@@ -3,10 +3,6 @@ import { getSubmission } from "@/shared/database/db.service";
 import { submissionCache as costCache } from "../../cost-scan/submit/route";
 import { StoredScanResult, Rag } from "@/modules/cost-audit/types";
 
-import { NextRequest, NextResponse } from "next/server";
-import { getSubmission } from "@/shared/database/db.service";
-import { submissionCache as costCache } from "../../cost-scan/submit/route";
-import { StoredScanResult, Rag } from "@/modules/cost-audit/types";
 
 const mockSubmission: StoredScanResult = {
   submissionId: "mock-id-123",
