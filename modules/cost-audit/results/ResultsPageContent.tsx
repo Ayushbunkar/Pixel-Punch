@@ -141,6 +141,7 @@ export default function ResultsPageContent() {
             </div>
 
 
+<>
                     {result.recommendations && result.recommendations.length > 0 && (
 
                       <motion.div 
@@ -163,17 +164,17 @@ export default function ResultsPageContent() {
 
                             <motion.li 
 
-                              key={i} 
+                               key={i} 
 
-                              whileHover={{ x: 3 }}
+                               whileHover={{ x: 3 }}
 
-                              className="text-xs text-slate-600 flex items-start gap-1.5 leading-normal transition-all duration-200 cursor-default"
+                               className="text-xs text-slate-600 flex items-start gap-1.5 leading-normal transition-all duration-200 cursor-default"
 
                             >
 
-                              <span className="text-green-500 font-bold">•</span>
+                               <span className="text-green-500 font-bold">•</span>
 
-                              <span>{r}</span>
+                               <span>{r}</span>
 
                             </motion.li>
 
@@ -184,8 +185,6 @@ export default function ResultsPageContent() {
                       </motion.div>
 
                     )}
-
-                  </div>
 
                   <div className="border border-slate-200 rounded-lg overflow-hidden relative">
 
@@ -199,7 +198,7 @@ export default function ResultsPageContent() {
                   <div className="absolute inset-0 bg-slate-50/10 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center rounded-lg border border-slate-200/50 shadow-inner">
                     <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
                       <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 text-blue-600">
-                   <Lock className="w-5 h-5" />
+                    <Lock className="w-5 h-5" />
                       </div>
                       <div>
                         <h3 className="text-sm font-bold text-slate-900">Unlock Full Technical Audit Report</h3>
@@ -219,6 +218,7 @@ export default function ResultsPageContent() {
                 )}
 
                   </div>
+</>
 
                 </motion.div>
 
@@ -364,8 +364,5 @@ export default function ResultsPageContent() {
           />
         )}
 
-      </div>
-    </div>
   );
-
 }
