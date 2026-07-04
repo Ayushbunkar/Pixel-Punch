@@ -6,5 +6,5 @@
 - Environments: .env
 
   Creating an optimized production build ...
-Γ£ô Compiled successfully in 48s
+Γ£ô Compiled successfully in 36.0s
   Running TypeScript ...
