@@ -1,4 +1,4 @@
-type Rag = "red" | "amber" | "green";
+export type Rag = "red" | "amber" | "green";
 
 interface RagMeta {
   label: string;

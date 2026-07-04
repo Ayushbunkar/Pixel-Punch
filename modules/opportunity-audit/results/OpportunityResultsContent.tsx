@@ -7,8 +7,8 @@ import toast from "react-hot-toast";
 import { useSearchParams, useRouter } from "next/navigation";
 
 import Image from "next/image";
-import { Cpu, Download, CheckCircle2 } from "lucide-react";
-import { RAG_META } from "@/shared/utils/rag-styles";
+ import { Cpu, Download, CheckCircle2 } from "lucide-react";
+import { RAG_META, Rag } from "@/shared/utils/rag-styles";
 
 import { ContactBar } from "@/shared/components/ContactBar";
 
@@ -48,6 +48,12 @@ interface StoredOpportunityResult {
   };
   tier?: 2 | 1 | 3 | 4;
 }
+
+const getRagStatusFromTier = (tier: number): Rag => {
+  if (tier === 1) return "green";
+  if (tier === 2) return "amber";
+  return "red"; // For tier 3 and 4, or any other unexpected value
+};
 
 // Strips markdown syntax down to plain text (used for the plain-text PDF body).
 const cleanMarkdownForPdf = (md: string) => {
@@ -191,148 +197,16 @@ export default function OpportunityResultsContent() {
 
    return (
      <Fragment>
-       <main className="min-h-screen bg-[#fafbff] pb-12 overflow-x-hidden">
-       {/* Contact Bar */}
-       <ContactBar containerClassName="max-w-4xl" />
-
-        {/* Nav Strip */}
-        <motion.nav 
-          variants={fadeIn} 
-          initial="hidden" 
-          animate="show"
-          className="px-4 py-3"
-        >
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-              <Image src="/logo.jpg" alt="Pixel Punch" width={100} height={30} className="h-7 w-auto object-contain" />
-            </a>
-            <button
-              onClick={() => router.push("/ai/opportunity-scan")}
-              className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
-            >
-              New Scan
-            </button>
-          </div>
-        </motion.nav>
-
-        <motion.div 
-          variants={staggerContainer}
-          initial="hidden"
-          animate="show"
-          className="max-w-4xl mx-auto px-4 py-8 md:py-10 space-y-6 md:[zoom:1.06]"
-        >
-          {/* Header Block */}
-          <motion.div 
-            variants={slideUp}
-            className="text-center mb-6"
-          >
-           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-xs font-bold mb-3 shadow-sm animate-pulse">
-             <span className="relative flex h-3 w-3">
-               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90 shadow-[0_0_12px_#10b981]"></span>
-               <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-600 shadow-[0_0_10px_#10b981]"></span>
-             </span>
-             Audit Status: Live & Completed
-           </div>
-           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2">
-             AI Opportunity Audit Results
-           </h1>
-           <p className="text-slate-600 text-sm">
-             Customized for <strong className="text-slate-800">{result.contact?.firstname} {result.contact?.lastname}</strong>
-     </p>
-   </motion.div>
-
-         <div className="grid gap-4 md:grid-cols-3">
-             {([ 
-               { title: "Spend & Visibility", dimension: "spend", score: result.scorecard?.spend },
-               { title: "Architecture Risk", dimension: "architecture", score: result.scorecard?.architecture },
-               { title: "Business Pain", dimension: "pain", score: result.scorecard?.pain },
-             ] as const).map((card, idx) => (
-               <StatCard
-                 key={idx}
-                 title={card.title}
-                 description={(scoreDescriptions as Record<string, Record<string, string>>)[card.dimension][card.score || "green"]}
-                 ragStatus={card.score || "green"}
-               />
-             ))}
-           </div>
-
-         {result.insights && result.insights.length > 0 && (
-             <div>
-               <InsightsList
-                 insights={result.insights}
-                 submissionId={submissionId as string}
-                 scanType="opportunity"
-               />
-             </div>
-         )}
-
-         {result.recommendations && result.recommendations.length > 0 && (
-           <div
-             className="bg-green-500/30 rounded-lg border border-green-500/10 p-3 shadow-sm transition-all duration-300"
-           >
-             <h3 className="text-[10px] font-bold text-green-700 mb-1 flex items-center gap-1.5 uppercase tracking-wider">
-               <CheckCircle2 className="w-3.5 h-3.5 text-green-500" /> Expert Recommendations
-             </h3>
-             <ul className="space-y-1">
-               {result.recommendations.map((r, i) => (
-                 <li
-                   key={i}
-                   className="text-xs text-slate-600 flex items-start gap-1.5 leading-normal transition-all duration-200 cursor-default"
-                 >
-                   <span className="text-green-500 font-bold">•</span>
-                   <span>{r}</span>
-                 </li>
-               ))}
-             </ul>
-           </div>
-         )}
-
-         <div className="border border-slate-200 rounded-lg overflow-hidden relative">
-           <div className="bg-white p-3 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[150px]">
-             {/* Using MarkdownBody here if it was extracted to a shared utility or if a simple raw string display is fine */}
-             {result.auditReport}
-           </div>
-
-           {!isUnlocked && <LockOverlay onUnlock={() => setUnlockModalOpen(true)} />}
-         </div>
-
-
-         <div>
-           <TierRecommendation tier={result.tier ?? 4} ctaUrl={ctaUrl} />
-         </div>
-
-         <div
-           className="flex flex-wrap items-center justify-center gap-3 mt-8 pt-6 border-t border-slate-200"
-         >
-           <ShareResults />
-
-           <button
-             onClick={() => setEmailModalOpen(true)}
-             className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
-           >
-             <Cpu className="w-3.5 h-3.5" />
-             Email Audit Report
-           </button>
-         </div>
-
-         <p className="text-center text-[10px] text-slate-400 mt-8">
-           Scan ID: {result.submissionId}
-         </p>
-       </motion.div>
-     </main>
-
-       {isUnlocked && (
-         <div className="fixed bottom-6 right-6 z-50">
-           <button
-             onClick={() => triggerPdfDownload(result.submissionId, result)}
-             className="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl flex items-center gap-2"
-             title="Download PDF Report"
-           >
-             <Download className="w-5 h-5" />
-           </button>
-         </div>
-       )}
-
+       <EmailModal
+         isOpen={emailModalOpen}
+         onClose={() => setEmailModalOpen(false)}
+         onSuccess={() => {
+           setEmailModalOpen(false);
+           toast.success("Thank you! Your report has been sent.");
+         }}
+         submissionId={submissionId}
+         scanType="opportunity"
+       />
        <UnlockModal
          isOpen={unlockModalOpen}
          onClose={() => setUnlockModalOpen(false)}
@@ -342,106 +216,193 @@ export default function OpportunityResultsContent() {
            setIsUnlocked(true);
          }}
        />
-
-       {/* Hidden PDF report content, used as the source for PDF generation */}
-       <div
-         id="opportunity-pdf-report-content"
-         data-json-data={JSON.stringify(result)}
-         style={{
-           position: "absolute",
-           left: "-9999px",
-           top: 0,
-           width: "794px",
-           backgroundColor: "#fff",
-           padding: "32px",
-           fontFamily: "system-ui, sans-serif",
-           display: "none",
-         }}
+       <motion.nav
+         variants={fadeIn}
+         initial="hidden"
+         animate="show"
+         className="w-full flex items-center py-6"
        >
-         <div style={{ borderBottom: "2px solid #2563eb", paddingBottom: "16px", marginBottom: "24px" }}>
-           <div style={{ display: "flex", alignItems: "center" }}>
-              <img src="/Pixelpunch_logo2.png" alt="Pixel Punch" style={{ height: "30px", width: "auto", marginRight: "10px" }} />
-             <div style={{ fontSize: "20px", fontWeight: 800, color: "#0f172a" }}>Pixel Punch AI — Opportunity Audit Report</div>
+         <div className="w-full flex justify-between items-center max-w-6xl mx-auto">
+           <Image
+             src="/Pixelpunch_logo2.png"
+             alt="PixelPunch Logo"
+             width={150}
+             height={30}
+             className="h-auto"
+             priority
+           />
+           <ContactBar />
+         </div>
+       </motion.nav>
+
+       <motion.div
+         variants={staggerContainer}
+         initial="hidden"
+         animate="show"
+         className="relative z-0 max-w-6xl mx-auto min-h-[80vh] bg-white shadow-lg rounded-lg p-6 mb-10"
+       >
+         {!isUnlocked && <LockOverlay onUnlock={() => setUnlockModalOpen(true)} />}
+
+         <motion.div variants={slideUp} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+           <div>
+             <h1 className="text-2xl font-bold text-slate-800">RAG Scorecard Overview</h1>
+             <p className="text-slate-500">
+               A summary of your current cloud and AI spend efficiency.
+             </p>
            </div>
-           <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>ID: {result.submissionId}</div>
+           <button
+             onClick={() => triggerPdfDownload(submissionId, result)}
+             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+           >
+             <Download size={16} /> Download Report
+           </button>
+         </motion.div>
+
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+           <StatCard
+             title="Spend & Visibility"
+             ragStatus={result.scorecard.spend}
+             description="Measures your cloud & AI spend efficiency and visibility gaps across providers."
+           />
+           <StatCard
+             title="Architecture Risk"
+             ragStatus={result.scorecard.architecture}
+             description="Evaluates architectural decisions that drive unnecessary cost or technical debt."
+           />
+           <StatCard
+             title="Business Pain & Urgency"
+             ragStatus={result.scorecard.pain}
+             description="Assesses operational pain, urgency, and business impact of current inefficiencies."
+           />
          </div>
 
-         <div style={{ marginBottom: "20px" }}>
-           <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e293b", marginBottom: "8px" }}>RAG Scorecard</div>
-           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+         <div className="mb-10">
+           <h2 className="text-xl font-bold text-slate-800 mb-4">Key Insights</h2>
+           <InsightsList insights={result.insights} submissionId={submissionId} scanType="opportunity" />
+         </div>
+
+         <div className="mb-10">
+           <h2 className="text-xl font-bold text-slate-800 mb-4">Recommendations</h2>
+           <TierRecommendation tier={result.tier || 1} ctaUrl={ctaUrl} />
+           <div className="space-y-4 mt-4">
+             {result.recommendations.map((rec, i) => (
+               <div key={i} className="flex items-start gap-3">
+                 <CheckCircle2 size={20} className="text-green-500 flex-shrink-0 mt-1" />
+                 <p className="text-slate-700">{rec}</p>
+               </div>
+             ))}
+           </div>
+         </div>
+
+         <ShareResults />
+       </motion.div>
+
+       {/* Hidden content for PDF generation */}
+       <div id="opportunity-pdf-report-content" className="hidden p-8" style={{ width: "210mm", minHeight: "297mm", fontSize: "10pt", fontFamily: "sans-serif", lineHeight: "1.5" }}>
+         <div className="text-center mb-8">
+           <Image
+             src="/Pixelpunch_logo2.png"
+             alt="PixelPunch Logo"
+             width={150}
+             height={30}
+             style={{ margin: "0 auto", filter: "none" }}
+             priority
+           />
+           <h1 style={{ fontSize: "24pt", fontWeight: "bold", margin: "16pt 0 8pt 0", color: "#334155" }}>RAG Scorecard Audit Report</h1>
+           <p style={{ fontSize: "10pt", color: "#64748b" }}>Report ID: {submissionId}</p>
+         </div>
+
+         <div style={{ marginBottom: "24pt" }}>
+           <h2 style={{ fontSize: "16pt", fontWeight: "bold", marginBottom: "8pt", color: "#334155" }}>Overview</h2>
+           <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "16pt" }}>
              <thead>
                <tr style={{ backgroundColor: "#f1f5f9" }}>
-                 <th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Dimension</th>
-                 <th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Rating</th>
+                 <th style={{ padding: "8px 12px", textAlign: "left", fontWeight: "bold", color: "#334155" }}>Category</th>
+                 <th style={{ padding: "8px 12px", textAlign: "left", fontWeight: "bold", color: "#334155" }}>Risk Level</th>
+                 <th style={{ padding: "8px 12px", textAlign: "left", fontWeight: "bold", color: "#334155" }}>Description</th>
                </tr>
              </thead>
              <tbody>
-               {(
-                 [
-                   ["Spend & Visibility", result.scorecard.spend],
-                   ["Architecture Risk", result.scorecard.architecture],
-                   ["Business Pain", result.scorecard.pain],
-                 ] as [string, "red" | "amber" | "green"][]
-               ).map(([label, val]) => (
-                 <tr key={label} style={{ borderTop: "1px solid #e2e8f0" }}>
-                   <td style={{ padding: "8px 12px", color: "#334155" }}>{label}</td>
-                   <td
-                     style={{
-                       padding: "8px 12px",
-                       fontWeight: 600,
-                       color: RAG_META[val].dotColor, // Using dotColor for text color
-                     }}
-                   >
-                     {RAG_META[val].label}
-                   </td>
-                 </tr>
-               ))}
+               <tr>
+                 <td style={{ padding: "8px 12px", fontWeight: 600, color: "#334155" }}>Spend & Visibility</td>
+                 <td
+                   style={{
+                     padding: "8px 12px",
+                     fontWeight: 600,
+                     color: RAG_META[result.scorecard.spend].dotColor,
+                   }}
+                 >
+                   {RAG_META[result.scorecard.spend].label}
+                 </td>
+                 <td style={{ padding: "8px 12px", fontSize: "9pt", color: "#475569" }}>
+                   {scoreDescriptions.spend[result.scorecard.spend]}
+                 </td>
+               </tr>
+               <tr>
+                 <td style={{ padding: "8px 12px", fontWeight: 600, color: "#334155" }}>Architecture Risk</td>
+                 <td
+                   style={{
+                     padding: "8px 12px",
+                     fontWeight: 600,
+                     color: RAG_META[result.scorecard.architecture].dotColor,
+                   }}
+                 >
+                   {RAG_META[result.scorecard.architecture].label}
+                 </td>
+                 <td style={{ padding: "8px 12px", fontSize: "9pt", color: "#475569" }}>
+                   {scoreDescriptions.architecture[result.scorecard.architecture]}
+                 </td>
+               </tr>
+               <tr>
+                 <td style={{ padding: "8px 12px", fontWeight: 600, color: "#334155" }}>Business Pain & Urgency</td>
+                 <td
+                   style={{
+                     padding: "8px 12px",
+                     fontWeight: 600,
+                     color: RAG_META[result.scorecard.pain].dotColor,
+                   }}
+                 >
+                   {RAG_META[result.scorecard.pain].label}
+                 </td>
+                 <td style={{ padding: "8px 12px", fontSize: "9pt", color: "#475569" }}>
+                   {scoreDescriptions.pain[result.scorecard.pain]}
+                 </td>
+               </tr>
              </tbody>
            </table>
          </div>
 
-         {result.insights && result.insights.length > 0 && (
-           <div style={{ marginBottom: "20px" }}>
-             <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e293b", marginBottom: "8px" }}>Key Insights</div>
-             {result.insights.slice(0, 8).map((ins: any, i: number) => (
-               <div key={i} style={{ fontSize: "12px", color: "#475569", padding: "4px 0", borderBottom: "1px solid #f1f5f9" }}>
-                 • {typeof ins === "string" ? ins : ins.text || ins.title}
-               </div>
-             ))}
-           </div>
-         )}
-
-         {result.auditReport && (
-           <div style={{ marginBottom: "20px" }}>
-             <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e293b", marginBottom: "8px" }}>
-               Full Technical Audit
+         <div style={{ marginBottom: "24pt" }}>
+           <h2 style={{ fontSize: "16pt", fontWeight: "bold", marginBottom: "8pt", color: "#334155" }}>Key Insights</h2>
+           {result.insights.map((insight: any, i: number) => (
+             <div key={i} style={{ marginBottom: "12pt" }}>
+               <h3 style={{ fontSize: "12pt", fontWeight: "bold", marginBottom: "4pt", color: "#334155" }}>{insight.title}</h3>
+               <MarkdownBody markdown={insight.description} />
              </div>
-             <div style={{ fontSize: "11px", color: "#475569", whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
-               {/* Removed MarkdownBody usage */ result.auditReport}
-             </div>
-           </div>
-         )}
+           ))}
+         </div>
 
-         <div
-           style={{
-             borderTop: "1px solid #e2e8f0",
-             paddingTop: "12px",
-             fontSize: "10px",
-             color: "#94a3b8",
-             textAlign: "center",
-           }}
-         >
-           Generated by Pixel Punch AI · pixelpunch.org · © 2026 Pixel Punch
+         <div style={{ marginBottom: "24pt" }}>
+           <h2 style={{ fontSize: "16pt", fontWeight: "bold", marginBottom: "8pt", color: "#334155" }}>Recommendations</h2>
+             <h3 style={{ fontSize: "12pt", fontWeight: "bold", marginBottom: "4pt", color: "#334155" }}>
+               {RAG_META[getRagStatusFromTier(result.tier || 1)].label} Tier Recommendation
+             </h3>
+             <p style={{ fontSize: "10pt", color: "#475569", marginBottom: "12pt" }}>
+               {/* Removed scoreDescriptions.tier[result.tier || 1] as it's not needed */}
+             </p>
+           {result.recommendations.map((rec: string, i: number) => (
+             <div key={i} style={{ display: "flex", alignItems: "flex-start", marginBottom: "8pt" }}>
+               <span style={{ color: "#22c55e", marginRight: "8pt", fontSize: "12pt" }}>✔</span>
+               <p style={{ fontSize: "10pt", color: "#475569" }}>{rec}</p>
+             </div>
+           ))}
+         </div>
+
+         <div style={{ fontSize: "9pt", color: "#64748b", textAlign: "center", paddingTop: "24pt", borderTop: "1px solid #e2e8f0" }}>
+           <p>Generated by PixelPunch AI Audit</p>
+           <p>Contact us at info@pixelpunch.com</p>
          </div>
        </div>
-
-       <EmailModal
-         isOpen={emailModalOpen}
-         onClose={() => setEmailModalOpen(false)}
-         submissionId={result.submissionId}
-         scanType="opportunity"
-         defaultEmail={result.contact?.email ?? ""}
-       />
      </Fragment>
    );
 }
