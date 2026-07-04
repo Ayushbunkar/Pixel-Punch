@@ -4,7 +4,6 @@ import { Fragment, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import html2pdf from "html2pdf.js";
 
 import Image from "next/image";
 
@@ -167,12 +166,13 @@ export default function OpportunityResultsContent() {
     };
   }, [submissionId]);
 
-  const triggerPdfDownload = (id: string, data: StoredOpportunityResult) => {
+  const triggerPdfDownload = async (id: string, data: StoredOpportunityResult) => {
     const element = document.getElementById("opportunity-pdf-report-content");
     if (element) {
       // Make the hidden content visible for PDF generation
       element.style.display = "block";
       if (typeof window !== 'undefined') {
+        const html2pdf = (await import('html2pdf.js')).default;
         html2pdf().from(element).set({
         margin: 10,
         filename: `opportunity-audit-report-${id}.pdf`,
