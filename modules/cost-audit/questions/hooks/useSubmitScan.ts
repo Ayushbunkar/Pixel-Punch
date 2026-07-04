@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { FormState, ScorecardResult, StoredScanResult, ValidationErrors } from "@/modules/cost-audit/types";
 
 interface SubmitResult {
@@ -8,6 +9,7 @@ interface SubmitResult {
   data?: ScorecardResult;
   errors?: ValidationErrors;
   message?: string;
+  redirectUrl?: string;
 }
 
 interface UseSubmitScanReturn {
@@ -24,6 +26,7 @@ interface UseSubmitScanReturn {
 export function useSubmitScan(): UseSubmitScanReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
+  const router = useRouter();
 
   const submit = useCallback(
     async (state: FormState, validateAll: () => ValidationErrors): Promise<SubmitResult> => {
@@ -126,7 +129,7 @@ export function useSubmitScan(): UseSubmitScanReturn {
         }
 
         // ── Parse scorecard response ──────────────────────────────────────
-        const data: ScorecardResult = await res.json();
+        const data: ScorecardResult & { redirectUrl: string } = await res.json();
 
         // ── Persist to sessionStorage for results page ─────────────────────
         // Results page reads this if direct navigation occurs after redirect.
@@ -145,6 +148,7 @@ export function useSubmitScan(): UseSubmitScanReturn {
           // sessionStorage may be unavailable (incognito quota, etc.) — non-fatal
         }
 
+        router.push(data.redirectUrl);
         return { success: true, data };
       } catch (err) {
         const msg =

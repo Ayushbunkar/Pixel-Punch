@@ -90,9 +90,10 @@ interface NavProps {
   onBack:     () => void;
   onNext:     () => void;
   onSubmit:   () => void;
+  onSkipSubmit: () => void;
 }
 
-function NavButtons({ step, total, loading, onBack, onNext, onSubmit }: NavProps) {
+function NavButtons({ step, total, loading, onBack, onNext, onSubmit, onSkipSubmit }: NavProps) {
   const isLast = step === total;
   return (
     <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-100">
@@ -111,7 +112,7 @@ function NavButtons({ step, total, loading, onBack, onNext, onSubmit }: NavProps
         {step === 9 && (
           <button
             type="button"
-            onClick={onSubmit}
+            onClick={onSkipSubmit}
             disabled={loading}
             className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors text-sm font-medium"
           >
@@ -123,7 +124,7 @@ function NavButtons({ step, total, loading, onBack, onNext, onSubmit }: NavProps
           <button
             type="button"
             id="cost-scan-submit-btn"
-            onClick={onSubmit}
+            onClick={onSkipSubmit}
             disabled={loading}
             className="px-6 py-2 bg-[#0d6efd] text-white rounded-lg hover:bg-blue-700 transition-colors min-w-[180px] flex items-center justify-center gap-2"
             aria-label="Submit and see your results"
@@ -186,8 +187,8 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
   // ── Submit handler ────────────────────────────────────────────────────────
   const handleSubmit = async () => {
     const result = await submit(state, validateAll);
-    if (result.success && result.data) {
-      router.push(`/ai/cost-scan/results?id=${result.data.submissionId}`);
+    if (result.success && result.redirectUrl) {
+      router.push(result.redirectUrl);
     } else if (result.errors && Object.keys(result.errors).length > 0) {
       const FIELD_LABELS: Record<string, string> = {
         firstname: "Name",
@@ -209,6 +210,15 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
       toast.error(`Please complete the required fields: ${missing}`, {
         id: "validation-error",
       });
+    } else if (result.message) {
+      toast.error(result.message);
+    }
+  };
+
+  const handleSkipSubmit = async () => {
+    const result = await submit(state, () => ({})); // Skip validation for contact fields
+    if (result.success && result.redirectUrl) {
+      router.push(result.redirectUrl);
     } else if (result.message) {
       toast.error(result.message);
     }
@@ -328,6 +338,7 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
           onBack={goBack}
           onNext={goNext}
           onSubmit={handleSubmit}
+          onSkipSubmit={handleSkipSubmit}
         />
       </div>
 
