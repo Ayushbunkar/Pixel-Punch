@@ -593,7 +593,7 @@ export default function OpportunityResultsContent() {
                   ${[
                     ["AI Readiness", data.scorecard.readiness],
                     ["Business Value", data.scorecard.value],
-                    ["Automation Opportunity", data.scorecard.opportunity]
+                    ["Automation Opportunity", "green"]
                   ].map(([label, val]) => `
                     <div style="background: #fff; border-radius: 8px; border: 1.5px solid ${ragColor(val as string)}40; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
                       <div>

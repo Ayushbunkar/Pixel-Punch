@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import { useSearchParams } from "next/navigation";
 
@@ -198,11 +199,17 @@ export default function ResultsPageContent() {
       try {
         // TODO: point this at the real endpoint that returns a StoredScanResult
         const res = await fetch(`/api/cost-audit/results?id=${encodeURIComponent(submissionId)}`);
-        if (!res.ok) throw new Error(`Failed to load results (${res.status})`);
+        if (!res.ok) {
+          const errorBody = await res.json().catch(() => ({ message: `Failed to load results (${res.status})` }));
+          throw new Error(errorBody.message || `Failed to load results (${res.status})`);
+        }
         const data: StoredScanResult = await res.json();
         if (!cancelled) setResult(data);
-      } catch (err) {
-        console.error("Failed to load scan result", err);
+      } catch (err: any) {
+        if (!cancelled) {
+          console.error("Failed to load scan result", err);
+          toast.error(err.message || "Failed to load scan results.");
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
