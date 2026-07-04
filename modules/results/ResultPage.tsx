@@ -46,7 +46,6 @@ interface ResultData {
   additionalNotes: string;
 }
 
-
 export default function ResultPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -57,6 +56,8 @@ export default function ResultPage() {
   const [isUnlocked, setIsUnlocked] = useState(false); // Added
   const [unlockModalOpen, setUnlockModalOpen] = useState(false); // Added
 
+  console.log("[Opportunity Frontend] Loading");
+
   useEffect(() => {
     if (!id) {
       toast.error("No result ID found in URL.");
@@ -66,12 +67,14 @@ export default function ResultPage() {
 
     const fetchResult = async () => {
       try {
+        console.log(`[Opportunity Frontend] Fetching data for ID: ${id}`);
         const response = await fetch(`/api/opportunity-scan/result?id=${id}`);
         if (!response.ok) {
           throw new Error("Result not found.");
         }
         const json = await response.json();
         setResultData(json);
+        console.log("[Opportunity Frontend] Success");
       } catch (err: any) {
         toast.error(err.message || "Failed to load result data. Redirecting...");
         router.push("/"); // Redirect to home or a suitable error page
@@ -102,6 +105,8 @@ export default function ResultPage() {
       </div>
     );
   }
+
+  console.log("[Opportunity Frontend] Rendering");
 
   return (
     <main className="min-h-screen bg-[#fafbff] pb-12 overflow-x-hidden">

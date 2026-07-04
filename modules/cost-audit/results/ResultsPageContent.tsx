@@ -87,6 +87,8 @@ export default function ResultsPageContent() {
   const [unlockModalOpen, setUnlockModalOpen] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
 
+  console.log("[Cost Frontend] Loading");
+
   const ctaUrl = ""; // TODO: wire up real CTA destination
 
   useEffect(() => {
@@ -99,8 +101,9 @@ export default function ResultsPageContent() {
 
     (async () => {
       try {
+        console.log(`[Cost Frontend] Fetching data for ID: ${submissionId}`);
         // TODO: point this at the real endpoint that returns a StoredScanResult
-        const res = await fetch(`/api/cost-audit/results?id=${encodeURIComponent(submissionId)}`);
+        const res = await fetch(`/api/cost-scan/result?id=${encodeURIComponent(submissionId)}`);
         if (!res.ok) {
           const errorBody = await res.json().catch(() => ({ message: `Failed to load results (${res.status})` }));
           throw new Error(errorBody.message || `Failed to load results (${res.status})`);
@@ -108,6 +111,7 @@ export default function ResultsPageContent() {
         const data: StoredScanResult = await res.json();
         console.log("Cost Audit Results Data:", data);
         if (!cancelled) setResult(data);
+        console.log("[Cost Frontend] Success");
       } catch (err: any) {
         if (!cancelled) {
           console.error("Failed to load scan result", err);
@@ -135,13 +139,15 @@ export default function ResultsPageContent() {
   if (!submissionId || !result) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center text-center p-6 gap-2">
-        <h2 className="text-lg font-bold text-slate-900">We couldn't find that report</h2>
+        <h2 className="text-lg font-bold text-slate-900">We couldn\'t find that report</h2>
         <p className="text-sm text-slate-500 max-w-sm">
           The scan ID in your link may be invalid or expired. Please re-run the audit to get a new report.
         </p>
       </div>
     );
   }
+
+  console.log("[Cost Frontend] Rendering");
 
    return (
      <>

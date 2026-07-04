@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSubmission } from "@/shared/database/db.service";
-import { submissionCache as costCache } from "../cost-scan/submit/route";
-import { submissionCache as oppCache } from "../opportunity-scan/submit/route";
 import { generatePdf, loadLogoBase64 } from "@/shared/utils/pdf-generator";
 import { ReportData, renderReportToHtml, getColorConfig } from "@/shared/utils/report-content-generator"; // Added renderReportToHtml and getColorConfig
 
@@ -65,9 +63,6 @@ export async function POST(req: NextRequest) {
 
     // ── 1. Fetch submission — DB first, then both memory caches ───────────────
     let submission = await getSubmission(submissionId);
-    if (!submission) {
-      submission = costCache.get(submissionId) ?? oppCache.get(submissionId) ?? null;
-    }
 
     if (!submission) {
       return NextResponse.json(

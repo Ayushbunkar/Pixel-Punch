@@ -20,8 +20,6 @@ function deduplicateRecommendations(recommendations: string[]): string[] {
   });
 }
 
-// ── In-memory submission cache (Fallback for GET /api/cost-scan/result) ──────
-export const submissionCache = new Map<string, any>();
 
 // ── Rate-limit state (in-memory, resets on cold start) ────────────────────────
 // For production, use Redis / Upstash rate-limiting.
@@ -71,6 +69,7 @@ async function verifyHmacIfPresent(req: NextRequest, rawBody: string): Promise<b
 // ── Route handler ──────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  console.log("[Cost Submit API] Received request");
   // ── Rate limiting ──────────────────────────────────────────────────────────
   const ip        = getClientIP(req);
   const rateCheck = checkRateLimit(ip);
@@ -191,6 +190,7 @@ export async function POST(req: NextRequest) {
 
   // ── Submission ID ──────────────────────────────────────────────────────────
   const submissionId = randomUUID();
+  console.log(`[Cost Submit API] Generated ID: ${submissionId}`);
 
   // ── CTA URL ────────────────────────────────────────────────────────────────
   const ctaUrl = getCTAUrl(scores.tier);
@@ -215,6 +215,7 @@ export async function POST(req: NextRequest) {
       usageMetrics: usageAnalysis,
       confidenceScore: confidenceScore,
     });
+    console.log("[Cost Submit API] Generated report");
   } catch (err) {
     console.error("[submit] Error generating audit report:", err);
   }
@@ -284,14 +285,15 @@ export async function POST(req: NextRequest) {
       audit_findings:          auditResult.findings,
     };
     await saveSubmission(submissionId, dbPayload);
-    // Cache memory copy
-    submissionCache.set(submissionId, dbPayload);
+    console.log(`[Cost Submit API] Saved to Supabase: ${submissionId}`);
   } catch (err) {
     console.error("[submit] Failed to save submission to database:", err);
-    submissionCache.set(submissionId, responseBody);
   }
 
-  return NextResponse.json(responseBody, { status: 200 });
+  return NextResponse.redirect(
+    new URL(`/ai/cost-scan/results?id=${submissionId}`, req.url),
+    303, // See Other
+  );
 }
 
 // ── Only POST is allowed ───────────────────────────────────────────────────────

@@ -19,7 +19,6 @@ function deduplicateRecommendations(recommendations: string[]): string[] {
 }
 
 // In-memory submission cache
-export const submissionCache = new Map<string, any>();
 
 // In-memory rate limiting (5 requests per minute per IP)
 const ipSubmissions = new Map<string, { count: number; resetAt: number }>();
@@ -50,6 +49,7 @@ function getClientIP(req: NextRequest): string {
 }
 
 export async function POST(req: NextRequest) {
+  console.log("[Opportunity Submit API] Received request");
   // ── Rate limiting ──────────────────────────────────────────────────────────
   const ip = getClientIP(req);
   const rateCheck = checkRateLimit(ip);
@@ -83,9 +83,11 @@ export async function POST(req: NextRequest) {
   // ── Cast inputs ────────────────────────────────────────────────────────────
   const input = castToFormState(body as Record<string, any>);
   const submissionId = randomUUID();
+  console.log(`[Opportunity Submit API] Generated ID: ${submissionId}`);
 
   // ── Run scoring ────────────────────────────────────────────────────────────
   const results = runScoringEngine(input, submissionId);
+  console.log("[Opportunity Submit API] Generated report");
 
   // ── AI Recommendations and Report Generation ──────────────────────────────
   const aiRecommendations = await generateAIRecommendations(input, results.categories);
@@ -173,21 +175,15 @@ export async function POST(req: NextRequest) {
   // ── Database persistence ───────────────────────────────────────────────────
   try {
     await saveSubmission(submissionId, dbPayload);
-    submissionCache.set(submissionId, dbPayload);
+    console.log(`[Opportunity Submit API] Saved to Supabase: ${submissionId}`);
   } catch (err) {
     console.error("[submit] Failed to save submission to JSON database:", err);
-    submissionCache.set(submissionId, dbPayload);
   }
 
-  // Return the scorecard response augmented with AI content
-  return NextResponse.json({
-    ...results,
-    recommendations: deduplicateRecommendations(aiRecommendations.map(r => r.opportunity)),
-    aiRecommendations,
-    auditReport: reportResult.reportText,
-    findings: deduplicateRecommendations(reportResult.findings || []),
-    nextSteps: deduplicateRecommendations(reportResult.nextSteps || []),
-  }, { status: 200 });
+  return NextResponse.redirect(
+    new URL(`/result?id=${submissionId}`, req.url),
+    303, // See Other
+  );
 }
 
 export async function GET() {
