@@ -99,7 +99,11 @@ export function mdToHtml(markdown: string, options: { pdfMode?: boolean; emailMo
     // Code `text`
     line = line.replace(/`([^`]+)`/g, '<code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:0.9em;color:#0f172a;">$1</code>');
     // Links [text](url)
-    line = line.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    if (options.emailMode) {
+      line = line.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:#0d6efd;text-decoration:underline;">$1</a>');
+    } else {
+      line = line.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    }
     return line;
   };
 
@@ -260,11 +264,13 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
     <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td style="padding:0;width:50%;" valign="middle"><![endif]-->
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;table-layout:fixed;">
       <tr>
-        <td style="padding:0;width:50%;text-align:left;vertical-align:middle;">
+        <td style="padding:8px 0;width:50%;text-align:left;vertical-align:middle;background-color:#ffffff;">
+          <div style="padding-left:16px;">
           ${report.logoBase64
             ? `<img src="${report.logoBase64}" alt="Pixel Punch" width="auto" height="32" style="height:32px;display:block;">`
-            : `<span style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Pixel Punch</span>`
+            : `<span style="font-size:20px;font-weight:900;color:#0f172a;letter-spacing:-0.5px;">Pixel Punch</span>`
           }
+          </div>
         </td>
         <td style="padding:0;width:50%;text-align:right;vertical-align:middle;">
           <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.85);">${report.reportType === "cost" ? "AI Cost Audit Report" : "AI Opportunity Audit Report"}</span>
