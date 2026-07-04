@@ -173,7 +173,8 @@ export default function OpportunityResultsContent() {
     if (element) {
       // Make the hidden content visible for PDF generation
       element.style.display = "block";
-      html2pdf().from(element).set({
+      if (typeof window !== 'undefined') {
+        html2pdf().from(element).set({
         margin: 10,
         filename: `opportunity-audit-report-${id}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
@@ -235,17 +236,13 @@ export default function OpportunityResultsContent() {
          </div>
        </motion.nav>
 
-       <motion.div 
-         variants={staggerContainer}
-         initial="hidden"
-         animate="show"
-         className="max-w-4xl mx-auto px-4 py-8 md:py-10 space-y-6 md:[zoom:1.06]"
-       >
-         {/* Header Block */}
-         <motion.div 
-           variants={slideUp}
-           className="text-center mb-6"
+         <div 
+           className="max-w-4xl mx-auto px-4 py-8 md:py-10 space-y-6 md:[zoom:1.06]"
          >
+           {/* Header Block */}
+           <div 
+             className="text-center mb-6"
+           >
            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-xs font-bold mb-3 shadow-sm animate-pulse">
              <span className="relative flex h-3 w-3">
                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90 shadow-[0_0_12px_#10b981]"></span>
@@ -259,10 +256,10 @@ export default function OpportunityResultsContent() {
            <p className="text-slate-600 text-sm">
              Customized for <strong className="text-slate-800">{result.contact?.firstname} {result.contact?.lastname}</strong>
      </p>
-   </motion.div>
+   </div>
 
          <div className="grid gap-4 md:grid-cols-3">
-             {([
+             {([ 
                { title: "Spend & Visibility", dimension: "spend", score: result.scorecard?.spend },
                { title: "Architecture Risk", dimension: "architecture", score: result.scorecard?.architecture },
                { title: "Business Pain", dimension: "pain", score: result.scorecard?.pain },
@@ -346,7 +343,7 @@ export default function OpportunityResultsContent() {
          <p className="text-center text-[10px] text-slate-400 mt-8">
            Scan ID: {result.submissionId}
          </p>
-       </motion.div>
+       </div>
      </main>
 
        {isUnlocked && (
