@@ -13,7 +13,6 @@ import { RAG_META } from "@/shared/utils/rag-styles";
 
 import { ContactBar } from "@/shared/components/ContactBar";
 
-import * as motion from "framer-motion/client";
 
 import { slideUp, staggerContainer, fadeIn } from "@/shared/components/animations";
 
@@ -184,6 +183,7 @@ export default function OpportunityResultsContent() {
         // Hide the content again after PDF generation
         element.style.display = "none";
       });
+    }
     } else {
       toast.error("Could not find report content for PDF generation.");
     }
@@ -217,10 +217,7 @@ export default function OpportunityResultsContent() {
        <ContactBar containerClassName="max-w-4xl" />
 
        {/* Nav Strip */}
-       <motion.nav 
-         variants={fadeIn} 
-         initial="hidden" 
-         animate="show"
+       <nav 
           className="px-4 py-3"
        >
          <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -234,7 +231,7 @@ export default function OpportunityResultsContent() {
              New Scan
            </button>
          </div>
-       </motion.nav>
+       </nav>
 
          <div 
            className="max-w-4xl mx-auto px-4 py-8 md:py-10 space-y-6 md:[zoom:1.06]"
