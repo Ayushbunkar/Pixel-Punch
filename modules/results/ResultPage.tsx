@@ -66,7 +66,7 @@ export default function ResultPage() {
 
     const fetchResult = async () => {
       try {
-        const response = await fetch(`/api/audit-results?id=${id}`); // Placeholder API endpoint
+        const response = await fetch(`/api/opportunity-scan/result?id=${id}`);
         if (!response.ok) {
           throw new Error("Result not found.");
         }
