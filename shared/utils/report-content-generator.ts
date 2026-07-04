@@ -66,8 +66,8 @@ const ragColor  = (v: string) => v === "red" ? "#dc2626" : v === "amber" ? "#d97
 const ragBg     = (v: string) => v === "red" ? "#fee2e2" : v === "amber" ? "#fef3c7" : v === "green" ? "#dcfce7" : "#f8fafc";
 const ragText   = (v: string) => v === "red" ? "#991b1b" : v === "amber" ? "#b45309" : v === "green" ? "#166534" : "#64748b";
 const ragBorder = (v: string) => v === "red" ? "#fca5a5" : v === "amber" ? "#fcd34d" : v === "green" ? "#86efac" : "#e2e8f0";
-const ragLabel  = (v: string) => v === "red" ? "⚠ HIGH RISK" : v === "amber" ? "◑ NEEDS ATTENTION" : v === "green" ? "✓ GOOD" : "UNKNOWN";
-const ragFlag   = (v: string) => v === "red" ? "🔴" : v === "amber" ? "🟡" : v === "green" ? "🟢" : "⚪";
+const ragLabel  = (v: string) => v === "red" ? "HIGH RISK" : v === "amber" ? "NEEDS ATTENTION" : v === "green" ? "✓ GOOD" : "UNKNOWN";
+const ragFlag   = (v: string) => v === "red" ? "" : v === "amber" ? "" : v === "green" ? "" : "";
 
 // ── Strip leading hyphens from titles ─────────────────────────────────────────
 export function stripLeadingHyphens(text: string): string {
@@ -267,7 +267,7 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
         <td style="padding:8px 0;width:50%;text-align:left;vertical-align:middle;background-color:#ffffff;">
           <div style="padding-left:16px;">
           ${report.logoBase64
-            ? `<img src="${report.logoBase64}" alt="Pixel Punch" width="auto" height="32" style="height:32px;display:block;">`
+            ? `<div style="width:100px;height:32px;background-image:url('${report.logoBase64}');background-size:contain;background-repeat:no-repeat;background-position:left center;display:block;"></div>`
             : `<span style="font-size:20px;font-weight:900;color:#0f172a;letter-spacing:-0.5px;">Pixel Punch</span>`
           }
           </div>

@@ -528,7 +528,7 @@ export default function OpportunityResultsContent() {
       };
 
       const ragColor = (v: string) => v === "red" ? "#dc2626" : v === "amber" ? "#d97706" : "#16a34a";
-      const ragLabel = (v: string) => v === "red" ? "⚠ HIGH RISK" : v === "amber" ? "◑ NEEDS ATTENTION" : "✓ GOOD";
+      const ragLabel = (v: string) => v === "red" ? "HIGH RISK" : v === "amber" ? "NEEDS ATTENTION" : "GOOD";
       const ragBg = (v: string) => v === "red" ? "#fee2e2" : v === "amber" ? "#fef3c7" : "#dcfce7";
 
       // Generate SVG Pie Chart for RAG Scorecard ratings (each slice represents 1/3 since there are 3 scorecard ratings)
