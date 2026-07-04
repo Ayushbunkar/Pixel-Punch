@@ -69,6 +69,18 @@ export default function ResultsPageContent() {
 
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+
+  const renderMarkdown = (markdown: string) => {
+    return <div dangerouslySetInnerHTML={{ __html: markdown }} />;
+  };
+
+  const ctaUrl = ""; // Placeholder for ctaUrl
+
+  const triggerPdfDownload = (submissionId: string, result: StoredScanResult) => {
+    console.log(`Downloading PDF for ${submissionId}`);
+    // Actual PDF download logic would go here
+  };
 
   // Unlock Modal Component
   function UnlockModal({ isOpen, onClose, onEmail }: { isOpen: boolean; onClose: () => void; onEmail: () => void }) {
@@ -101,28 +113,28 @@ export default function ResultsPageContent() {
                   </div>
 
                 {/* Lock Overlay */}
-1130:                 {!isUnlocked && (
-1131:                   <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center rounded-lg border border-slate-200/50 shadow-inner">
-1132:                     <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
-1133:                       <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 text-blue-600">
-1134:                    <Lock className="w-5 h-5" />
-1135:                       </div>
-1136:                       <div>
-1137:                         <h3 className="text-sm font-bold text-slate-900">Unlock Full Technical Audit Report</h3>
-1138:                         <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
-1139:                           Enter your email below to receive the full AI Cost Audit report, key findings, and expert recommendations directly in your inbox.
-1140:                         </p>
-1141:                       </div>
-1142:                       <button
-1143:                         onClick={() => setUnlockModalOpen(true)}
-1144:                      className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
-1145:                       >
-1146:                      <Unlock className="w-3.5 h-3.5" />
-1147:                         Unlock Report
-1148:                       </button>
-1149:                     </div>
-1150:                   </div>
-1151:                 )}
+                 {!isUnlocked && (
+                   <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center rounded-lg border border-slate-200/50 shadow-inner">
+                     <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
+                       <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 text-blue-600">
+                    <Lock className="w-5 h-5" />
+                       </div>
+                       <div>
+                         <h3 className="text-sm font-bold text-slate-900">Unlock Full Technical Audit Report</h3>
+                         <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                           Enter your email below to receive the full AI Cost Audit report, key findings, and expert recommendations directly in your inbox.
+                         </p>
+                       </div>
+                       <button
+                         onClick={() => setUnlockModalOpen(true)}
+                   className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
+                      >
+                    <Unlock className="w-3.5 h-3.5" />
+                         Unlock Report
+                       </button>
+                    </div>
+                   </div>
+                )}
 
               </div>
 
