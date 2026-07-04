@@ -7,7 +7,6 @@ import toast from "react-hot-toast";
 import { useSearchParams, useRouter } from "next/navigation";
 
 import Image from "next/image";
-
 import { Cpu, Download, CheckCircle2 } from "lucide-react";
 import { RAG_META } from "@/shared/utils/rag-styles";
 
@@ -198,10 +197,10 @@ export default function OpportunityResultsContent() {
 
         {/* Nav Strip */}
         <motion.nav 
-          className="px-4 py-3"
-          variants={fadeIn}
-          initial="hidden"
+          variants={fadeIn} 
+          initial="hidden" 
           animate="show"
+          className="px-4 py-3"
         >
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
@@ -216,17 +215,17 @@ export default function OpportunityResultsContent() {
           </div>
         </motion.nav>
 
+        <motion.div 
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="max-w-4xl mx-auto px-4 py-8 md:py-10 space-y-6 md:[zoom:1.06]"
+        >
+          {/* Header Block */}
           <motion.div 
-            className="max-w-4xl mx-auto px-4 py-8 md:py-10 space-y-6 md:[zoom:1.06]"
-            variants={staggerContainer}
-            initial="hidden"
-            animate="show"
+            variants={slideUp}
+            className="text-center mb-6"
           >
-            {/* Header Block */}
-            <motion.div 
-              className="text-center mb-6"
-              variants={fadeIn}
-            >
            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-xs font-bold mb-3 shadow-sm animate-pulse">
              <span className="relative flex h-3 w-3">
                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90 shadow-[0_0_12px_#10b981]"></span>
@@ -340,6 +339,7 @@ export default function OpportunityResultsContent() {
          onEmail={() => {
            setUnlockModalOpen(false);
            setEmailModalOpen(true);
+           setIsUnlocked(true);
          }}
        />
 
