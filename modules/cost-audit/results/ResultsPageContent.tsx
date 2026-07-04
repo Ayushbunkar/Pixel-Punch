@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import { useSearchParams, useRouter } from "next/navigation";
 
 import { StoredScanResult } from "@/modules/cost-audit/types";
+import Image from "next/image";
 
 import { Cpu, Download, CheckCircle2 } from "lucide-react";
 
@@ -150,16 +151,58 @@ export default function ResultsPageContent() {
   console.log("[Cost Frontend] Rendering");
 
    return (
-     <>
-       <div
-         className="max-w-3xl mx-auto px-4 py-10 space-y-6"
-       >
-         <div>
-           <ContactBar />
-         </div>
+     <Fragment>
+       <main className="min-h-screen bg-[#fafbff] pb-12 overflow-x-hidden">
+       {/* Contact Bar */}
+       <ContactBar containerClassName="max-w-4xl" />
 
-         <div>
-           <div className="grid gap-4 md:grid-cols-3">
+       {/* Nav Strip */}
+       <motion.nav 
+         variants={fadeIn} 
+         initial="hidden" 
+         animate="show"
+         className="border-b border-slate-200 px-4 py-3 bg-white/50 backdrop-blur-md"
+       >
+         <div className="max-w-4xl mx-auto flex items-center justify-between">
+           <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
+             <Image src="/logo.jpg" alt="Pixel Punch" width={100} height={30} className="h-7 w-auto object-contain" />
+           </a>
+           <button
+             onClick={() => router.push("/ai/cost-scan")}
+             className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+           >
+             New Scan
+           </button>
+         </div>
+       </motion.nav>
+
+       <motion.div 
+         variants={staggerContainer}
+         initial="hidden"
+         animate="show"
+         className="max-w-4xl mx-auto px-4 py-8 md:py-10 space-y-6 md:[zoom:1.06]"
+       >
+         {/* Header Block */}
+         <motion.div 
+           variants={slideUp}
+           className="text-center mb-6"
+         >
+           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 text-xs font-bold mb-3 shadow-sm animate-pulse">
+             <span className="relative flex h-3 w-3">
+               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-90 shadow-[0_0_12px_#10b981]"></span>
+               <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-600 shadow-[0_0_10px_#10b981]"></span>
+             </span>
+             Audit Status: Live & Completed
+           </div>
+           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+             AI Cost Audit Results
+           </h1>
+           <p className="text-slate-600 text-sm">
+             Customized for <strong className="text-slate-800">{result.contact?.firstname} {result.contact?.lastname}</strong>
+     </p>
+   </motion.div>
+
+         <div className="grid gap-4 md:grid-cols-3">
              {([
                { title: "Spend Risk", dimension: "spend", score: result.scorecard?.spend },
                { title: "Architecture Risk", dimension: "architecture", score: result.scorecard?.architecture },
@@ -173,7 +216,6 @@ export default function ResultsPageContent() {
                />
              ))}
            </div>
-         </div>
 
          {result.insights && result.insights.length > 0 && (
            <div>
@@ -243,7 +285,8 @@ export default function ResultsPageContent() {
          <p className="text-center text-[10px] text-slate-400 mt-8">
            Scan ID: {result.submissionId}
          </p>
-       </div>
+       </motion.div>
+     </main>
 
        {isUnlocked && (
          <div className="fixed bottom-6 right-6 z-50">
@@ -362,6 +405,6 @@ export default function ResultsPageContent() {
          scanType="cost"
          defaultEmail={result.contact?.email ?? ""}
        />
-     </>
+     </Fragment>
    );
 }
