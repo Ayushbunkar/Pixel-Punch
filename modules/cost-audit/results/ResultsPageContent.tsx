@@ -165,7 +165,7 @@ export default function ResultsPageContent() {
        >
          <div className="max-w-4xl mx-auto flex items-center justify-between">
            <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-             <Image src="/Pixelpunch_logo2.png" alt="Pixel Punch" width={100} height={30} className="h-7 w-auto object-contain" />
+             <Image src="/logo.jpg" alt="Pixel Punch" width={100} height={30} className="h-7 w-auto object-contain" />
            </a>
            <button
              onClick={() => router.push("/ai/cost-scan")}
@@ -258,13 +258,11 @@ export default function ResultsPageContent() {
          </div>
          <div className="mt-6 text-center">
            <button
-             onClick={() => {
-              router.push("/result");
-            }}
+             onClick={() => setEmailModalOpen(true)}
              className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
            >
              <Cpu className="w-3.5 h-3.5" />
-             View Result
+             View Report
            </button>
          </div>
 

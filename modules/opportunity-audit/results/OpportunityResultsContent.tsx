@@ -808,7 +808,7 @@ export default function OpportunityResultsContent() {
                 Priority Actions & Next Steps
               </h2>
               <button
-                onClick={() => setUnlockModalOpen(true)} // Changed to open unlock modal
+                onClick={() => setEmailModalOpen(true)}
                 className="flex items-center gap-1 text-[10px] font-bold text-blue-600 hover:text-blue-700 transition-colors"
               >
                 <Unlock className="w-3 h-3" />
@@ -942,7 +942,7 @@ export default function OpportunityResultsContent() {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setUnlockModalOpen(true); // Changed to open unlock modal
+                  setEmailModalOpen(true);
                 }}
                 className="flex items-center gap-1 text-[10px] font-bold text-blue-600 hover:text-blue-700 transition-colors"
               >
@@ -989,7 +989,7 @@ export default function OpportunityResultsContent() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setUnlockModalOpen(true); // Changed to open unlock modal
+                        setEmailModalOpen(true);
                       }}
                       className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold transition-colors shadow-sm"
                     >
