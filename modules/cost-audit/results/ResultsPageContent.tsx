@@ -231,7 +231,157 @@ export default function ResultsPageContent() {
 
         )}
 
-        {/* ── Tier recommendation + CTA ─────────────────────────────── */}
+        {result.auditReport && (
+
+          <motion.div variants={slideUp} className="mb-6 space-y-4">
+
+            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+
+              <h2 className="text-center text-sm font-bold text-slate-950 uppercase tracking-wider mb-6">
+
+                ANALYSIS SUMMARY
+
+              </h2>
+
+              <div className="relative">
+
+                <div className={`flex flex-col gap-3 transition-all duration-500 ${!isUnlocked ? "blur-md select-none pointer-events-none opacity-40" : ""}`}>
+
+                  {/* Top side-by-side Findings & Recommendations */}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    {result.findings && result.findings.length > 0 && (
+
+                      <motion.div 
+
+                        whileHover={{ y: -2, borderColor: "rgba(239, 68, 68, 0.4)", boxShadow: "0 8px 12px -3px rgba(239, 68, 68, 0.08)" }}
+
+                        className="bg-red-50 rounded-lg border border-red-300 p-4 shadow-sm transition-all duration-300"
+
+                      >
+
+                        <h3 className="text-sm font-bold text-red-700 mb-2 flex items-center gap-2 uppercase tracking-wider">
+
+                          <AlertCircle className="w-4 h-4 text-red-500" /> KEY FINDINGS
+
+                        </h3>
+
+                        <ul className="space-y-2">
+
+                          {result.findings.map((f, i) => (
+
+                            <motion.li 
+
+                              key={i} 
+
+                              whileHover={{ x: 3 }}
+
+                              className="text-xs text-slate-600 flex items-start gap-2 leading-normal transition-all duration-200 cursor-default"
+
+                            >
+
+                              <span className="text-red-500 font-bold">•</span>
+
+                              <span>{f}</span>
+
+                            </motion.li>
+
+                          ))}
+
+                        </ul>
+
+                      </motion.div>
+
+                    )}
+
+                    {result.recommendations && result.recommendations.length > 0 && (
+
+                      <motion.div 
+
+                        whileHover={{ y: -2, borderColor: "rgba(34, 197, 94, 0.4)", boxShadow: "0 8px 12px -3px rgba(34, 197, 94, 0.08)" }}
+
+                        className="bg-green-50 rounded-lg border border-green-300 p-4 shadow-sm transition-all duration-300"
+
+                      >
+
+                        <h3 className="text-sm font-bold text-green-700 mb-2 flex items-center gap-2 uppercase tracking-wider">
+
+                          <CheckCircle2 className="w-4 h-4 text-green-500" /> EXPERT RECOMMENDATIONS
+
+                        </h3>
+
+                        <ul className="space-y-2">
+
+                          {result.recommendations.map((r, i) => (
+
+                            <motion.li 
+
+                              key={i} 
+
+                              whileHover={{ x: 3 }}
+
+                              className="text-xs text-slate-600 flex items-start gap-2 leading-normal transition-all duration-200 cursor-default"
+
+                            >
+
+                              <span className="text-green-500 font-bold">•</span>
+
+                              <span>{r}</span>
+
+                            </motion.li>
+
+                          ))}
+
+                        </ul>
+
+                      </motion.div>
+
+                    )}
+
+                  </div>
+
+                  {/* Bottom Full-Width Markdown Report Body */}
+
+                  <div className="bg-slate-50/50 rounded-lg border border-slate-200/60 p-3 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[150px]">
+
+                    {renderMarkdown(result.auditReport)}
+
+                  </div>
+
+                </div>
+
+                {/* Lock Overlay */}
+                {!isUnlocked && (
+                  <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center rounded-lg border border-slate-200/50 shadow-inner">
+                    <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-md max-w-sm flex flex-col items-center space-y-4">
+                      <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 text-blue-600">
+                   <Lock className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900">Unlock Full Technical Audit Report</h3>
+                        <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                          Enter your email below to receive the full AI Cost Audit report, key findings, and expert recommendations directly in your inbox.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setUnlockModalOpen(true)}
+                     className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
+                      >
+                     <Unlock className="w-3.5 h-3.5" />
+                        Unlock Report
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+            </div>
+
+          </motion.div>
+
+        )}
 
         <motion.div variants={slideUp}>
 
@@ -325,12 +475,7 @@ export default function ResultsPageContent() {
             ))}
           </div>
         )}
-        {result.auditReport && (
-          <div style={{ marginBottom: "20px" }}>
-            <div style={{ fontSize: "14px", fontWeight: "700", color: "#1e293b", marginBottom: "8px" }}>Full Technical Audit</div>
-            <div style={{ fontSize: "11px", color: "#475569", whiteSpace: "pre-wrap", lineHeight: "1.6" }}>{result.auditReport}</div>
-          </div>
-        )}
+
         <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "12px", fontSize: "10px", color: "#94a3b8", textAlign: "center" }}>Generated by Pixel Punch AI · pixelpunch.org · © 2026 Pixel Punch</div>
       </div>
 
