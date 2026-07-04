@@ -315,11 +315,11 @@ export default function OpportunityResultsContent() {
                     <div style="background: #fff; border-radius: 8px; border: 1.5px solid ${ragColor(val as string)}40; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
                       <div>
                         <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">${label}</div>
-                        <div style="font-size: 16px; font-weight: 900; color: ${ragColor(val as string)};">${(val as string).toUpperCase()}</div>
+                        <div style="font-size: 16px; font-weight: 900; color: ${ragColor(val as string)};">${ragLabel(val as string)}</div>
                       </div>
                       <div style="text-align: right;">
                         <div style="font-size: 9px; color: ${ragColor(val as string)}; font-weight: 600;">${ragLabel(val as string)}</div>
-                        <div style="font-size: 8px; background-color: ${ragBg(val as string)}; padding: 2px 6px; border-radius: 4px; margin-top: 2px; color: ${val === "red" ? "#991b1b" : val === "amber" ? "#b45309" : "#166534"}; display: inline-block;">${(val as string).toUpperCase()}</div>
+                        <div style="font-size: 8px; background-color: ${ragBg(val as string)}; padding: 2px 6px; border-radius: 4px; margin-top: 2px; color: ${val === "red" ? "#991b1b" : val === "amber" ? "#b45309" : "#166534"}; display: inline-block;">${ragLabel(val as string)}</div>
                       </div>
                     </div>
                   `).join("")}
@@ -1090,7 +1090,7 @@ export default function OpportunityResultsContent() {
               {([["AI Readiness", scorecard.readiness], ["Business Value", scorecard.value], ["Automation Opportunity", scorecard.opportunity]] as [string, string][]).map(([label, val]) => (
                 <tr key={label} style={{ borderTop: "1px solid #e2e8f0" }}>
                   <td style={{ padding: "8px 12px", color: "#334155" }}>{label}</td>
-                  <td style={{ padding: "8px 12px", fontWeight: "600", color: val === "red" ? "#dc2626" : val === "amber" ? "#d97706" : "#16a34a" }}>{val.toUpperCase()}</td>
+                  <td style={{ padding: "8px 12px", fontWeight: "600", color: val === "red" ? "#dc2626" : val === "amber" ? "#d97706" : "#16a34a" }}>{ragLabel(val as string)}</td>
                 </tr>
               ))}
             </tbody>

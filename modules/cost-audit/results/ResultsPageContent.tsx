@@ -9,6 +9,7 @@ import { StoredScanResult } from "@/modules/cost-audit/types";
 import Image from "next/image";
 
 import { Cpu, Download, CheckCircle2 } from "lucide-react";
+import { RAG_META } from "@/shared/utils/rag-styles";
 
 import { ContactBar } from "@/shared/components/ContactBar";
 
@@ -357,7 +358,7 @@ export default function ResultsPageContent() {
                        color: val === "red" ? "#dc2626" : val === "amber" ? "#d97706" : "#16a34a",
                      }}
                    >
-                     {val.toUpperCase()}
+                     {RAG_META[val as "red" | "amber" | "green"].label}
                    </td>
                  </tr>
                ))}
