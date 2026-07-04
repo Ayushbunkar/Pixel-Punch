@@ -255,9 +255,9 @@ export default function ResultsPageContent() {
 
         <motion.div variants={slideUp}>
           <div className="grid gap-4 md:grid-cols-3">
-            <ScoreCard title="Spend Risk" dimension="spend" score={result.scorecard.spend} />
-            <ScoreCard title="Architecture Risk" dimension="architecture" score={result.scorecard.architecture} />
-            <ScoreCard title="Pain Risk" dimension="pain" score={result.scorecard.pain} />
+            <ScoreCard title="Spend Risk" dimension="spend" score={result.scorecard?.spend} />
+            <ScoreCard title="Architecture Risk" dimension="architecture" score={result.scorecard?.architecture} />
+            <ScoreCard title="Pain Risk" dimension="pain" score={result.scorecard?.pain} />
           </div>
         </motion.div>
 
@@ -304,7 +304,7 @@ export default function ResultsPageContent() {
         </motion.div>
 
         <motion.div variants={slideUp}>
-          <TierRecommendation tier={result.tier} ctaUrl={ctaUrl} />
+          <TierRecommendation tier={result.tier ?? 4} ctaUrl={ctaUrl} />
         </motion.div>
 
         <motion.div
@@ -442,7 +442,7 @@ export default function ResultsPageContent() {
         onClose={() => setEmailModalOpen(false)}
         submissionId={result.submissionId}
         scanType="cost"
-        defaultEmail={result.contact.email}
+        defaultEmail={result.contact?.email ?? ""}
       />
     </>
   );

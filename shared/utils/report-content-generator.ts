@@ -69,6 +69,8 @@ const ragBorder = (v: string) => v === "red" ? "#fca5a5" : v === "amber" ? "#fcd
 const ragLabel  = (v: string) => v === "red" ? "HIGH RISK" : v === "amber" ? "NEEDS ATTENTION" : v === "green" ? "✓ GOOD" : "UNKNOWN";
 const ragFlag   = (v: string) => v === "red" ? "" : v === "amber" ? "" : v === "green" ? "" : "";
 
+const TRANSPARENT_GIF_BASE64 = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
 // ── Strip leading hyphens from titles ─────────────────────────────────────────
 export function stripLeadingHyphens(text: string): string {
   return text.replace(/^-+\s*/, '');
@@ -267,7 +269,7 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
         <td style="padding:8px 0;width:50%;text-align:left;vertical-align:middle;background-color:#ffffff;">
           <div style="padding-left:16px;">
           ${report.logoBase64
-            ? `<img src="${report.logoBase64}" alt="Pixel Punch" width="100" height="32" style="height:32px;display:block;">`
+            ? `<img src="${mode === "email" && report.logoBase64 !== TRANSPARENT_GIF_BASE64 ? "/logo.jpg" : report.logoBase64}" alt="Pixel Punch" width="100" height="32" style="height:32px;display:block;">`
             : `<span style="font-size:20px;font-weight:900;color:#0f172a;letter-spacing:-0.5px;">Pixel Punch</span>`
           }
           </div>

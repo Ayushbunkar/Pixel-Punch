@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@sparticuz/chromium-min": "^149.0.0",
+    "@supabase/supabase-js": "^2.110.0",
     "framer-motion": "^12.41.0",
     "html2pdf.js": "^0.14.0",
     "lucide-react": "^1.21.0",
