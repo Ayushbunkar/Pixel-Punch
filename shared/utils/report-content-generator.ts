@@ -260,6 +260,63 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
 
   let bodyContent = "";
 
+  if (mode === "email") {
+    // Assuming report.submissionId is available to construct the URL
+    // You might need to adjust this URL based on your actual application's routing
+    const viewReportLink = `https://app.pixelpunch.org/reports/${report.submissionId || 'default-report-id'}`;
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Your Report is Ready</title>
+  <style>
+    body { margin:0; padding:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f1f5f9; }
+    p { margin:0; }
+  </style>
+</head>
+<body>
+  <center>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;max-width:600px;background:#ffffff;mso-table-lspace:0pt;mso-table-rspace:0pt;border-radius:8px;overflow:hidden;">
+      <tr>
+        <td style="padding:40px 30px;text-align:center;">
+          <h1 style="font-size:24px;font-weight:700;color:#333333;margin:0 0 20px;">Your Report is Ready</h1>
+          <p style="font-size:16px;color:#555555;line-height:1.6;margin:0 0 20px;">
+            Hi John,
+          </p>
+          <p style="font-size:16px;color:#555555;line-height:1.6;margin:0 0 30px;">
+            Your latest report has been generated successfully.
+          </p>
+          <p style="font-size:16px;color:#555555;line-height:1.6;margin:0 0 30px;">
+            You can view it securely in your dashboard and download the attached PDF for your records.
+          </p>
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+            <tr>
+              <td style="border-radius:6px;background-color:#007bff;">
+                <a href="${viewReportLink}" target="_blank" style="font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;padding:12px 24px;display:inline-block;border-radius:6px;">View Report in Dashboard</a>
+              </td>
+            </tr>
+          </table>
+          <p style="font-size:16px;color:#555555;line-height:1.6;margin-top:30px;">
+            Thank you!
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td style="background-color:#f8f8f8;padding:20px 30px;text-align:center;">
+          <p style="font-size:12px;color:#999999;margin:0;">
+            This email was sent by Pixel Punch.
+          </p>
+        </td>
+      </tr>
+    </table>
+  </center>
+</body>
+</html>`;
+  }
+
+
   // ── Header bar
   bodyContent += `
   <div style="background:#0d6efd;padding:10px 32px;">
@@ -269,7 +326,7 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
         <td style="padding:8px 0;width:50%;text-align:left;vertical-align:middle;background-color:#ffffff;">
           <div style="padding-left:16px;">
           ${report.logoBase64
-            ? `<img src="${mode === "email" && report.logoBase64 !== TRANSPARENT_GIF_BASE64 ? "/logo.jpg" : report.logoBase64}" alt="Pixel Punch" width="100" height="32" style="height:32px;display:block;">`
+            ? `<img src="${report.logoBase64}" alt="Pixel Punch" width="100" height="32" style="height:32px;display:block;">`
             : `<span style="font-size:20px;font-weight:900;color:#0f172a;letter-spacing:-0.5px;">Pixel Punch</span>`
           }
           </div>
@@ -287,22 +344,11 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
   <div style="padding:28px 32px 20px;text-align:center;background:#fff;border-bottom:1px solid #e2e8f0;">
     <h1 style="font-size:${isPdf ? "24px" : "28px"};font-weight:800;color:#0f172a;margin:0 0 6px;line-height:1.2;">${stripLeadingHyphens(report.title)}</h1>
     <p style="font-size:12px;color:#64748b;margin:0 0 12px;">Generated: ${report.timestamp}</p>
-    ${mode === "email" ? `
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin:0 auto;background:#f8fafc;border-radius:8px;padding:10px 20px;border:1px solid #e2e8f0;mso-table-lspace:0pt;mso-table-rspace:0pt;">
-      <tr>
-        ${Object.keys(report.metadata).map((key, index, array) => `
-          <td style="font-size:11px;color:#475569;white-space:nowrap;"><strong style="color:#0f172a;">${key}:</strong> ${report.metadata[key]}</td>
-          ${index < array.length - 1 ? `<td style="padding:0 6px;"><span style="color:#cbd5e1;font-size:11px;">|</span></td>` : ``}
-        `).join("")}
-      </tr>
-    </table>
-    ` : `
     <div style="display:inline-flex;flex-wrap:wrap;gap:12px;justify-content:center;background:#f8fafc;border-radius:8px;padding:10px 20px;border:1px solid #e2e8f0;">
       ${Object.keys(report.metadata).map(key =>
         `<span style="font-size:11px;color:#475569;"><strong style="color:#0f172a;">${key}:</strong> ${report.metadata[key]}</span>`
       ).join('<span style="color:#cbd5e1;font-size:11px;">|</span>')}
     </div>
-    `}
 
   </div>`;
 
@@ -318,7 +364,7 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
     bodyContent += `
     <div style="padding:20px 32px;margin-bottom:24px;border-bottom:1px solid #e2e8f0;">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#64748b;margin-bottom:12px;">Audit Confidence Score</div>
-      ${mode === "email" ? `
+      ${isPdf ? `
       <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;">
         <tr>
           <td style="padding-right:20px;">
@@ -359,23 +405,7 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
       bodyContent += `
       <div style="padding:20px 32px;margin-bottom:24px;border-bottom:1px solid #e2e8f0;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#64748b;margin-bottom:14px;">💡 Key Insights</div>
-        ${mode === "email" ? `
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;">
-        ${items.map(text => `
-          <tr>
-            <td style="padding-bottom:10px;">
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background:#eff6ff;border-radius:8px;border:1px solid #bfdbfe;mso-table-lspace:0pt;mso-table-rspace:0pt;">
-                <tr>
-                  <td style="width:20px;color:#2563eb;font-size:14px;vertical-align:top;padding:10px 0 10px 14px;">✓</td>
-                  <td style="font-size:13px;color:#1e3a8a;line-height:1.6;padding:10px 14px 10px 0;">${text}</td>
-                </tr>
-              </table>
-            </td>
-          </tr>`
-        ).join("")}
-      </table>
-      ` : `
-      <div style="display:flex;flex-direction:column;gap:10px;">`}
+      <div style="display:flex;flex-direction:column;gap:10px;">
 
           ${items.map(text => `
             <div style="display:flex;gap:12px;align-items:flex-start;padding:10px 14px;background:#eff6ff;border-radius:8px;border:1px solid #bfdbfe;">
@@ -393,16 +423,6 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
       findingsHtml = `
       <div style="background:#fff;border-radius:10px;border:1px solid #fca5a5;padding:16px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#dc2626;margin-bottom:12px;">⚠ Key Findings</div>
-        ${mode === "email" ? `
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-          ${items.map(text => `
-            <tr>
-              <td style="width:10px;color:#dc2626;font-weight:700;vertical-align:top;padding:8px 0;font-size:10px;">•</td>
-              <td style="font-size:12px;color:#475569;line-height:1.6;padding:8px 0;border-bottom:1px solid #fee2e2;">${text}</td>
-            </tr>`
-          ).join("")}
-        </table>
-        ` : `
         <div style="display:flex;flex-direction:column;gap:8px;">
           ${items.map(text => `
             <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #fee2f2;">
@@ -411,7 +431,6 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
             </div>`
           ).join("")}
         </div>
-        `}
       </div>`;
 
     } else if (sectionId === "recommendations") {
@@ -421,16 +440,6 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
       recsHtml = `
       <div style="background:#fff;border-radius:10px;border:1px solid #86efac;padding:16px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#16a34a;margin-bottom:12px;">✓ Expert Recommendations</div>
-        ${mode === "email" ? `
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-          ${items.map(text => `
-            <tr>
-              <td style="width:10px;color:#16a34a;font-weight:700;vertical-align:top;padding:8px 0;font-size:10px;">•</td>
-              <td style="font-size:12px;color:#475569;line-height:1.6;padding:8px 0;border-bottom:1px solid #dcfce7;">${text}</td>
-            </tr>`
-          ).join("")}
-        </table>
-        ` : `
         <div style="display:flex;flex-direction:column;gap:8px;">
           ${items.map(text => `
             <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #dcfce7;">
@@ -439,7 +448,6 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
             </div>`
           ).join("")}
         </div>
-        `}
       </div>`;
 
     } else if (sectionId === "auditReport") {
@@ -448,7 +456,7 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
       <div style="padding:20px 32px;margin-bottom:24px;border-bottom:1px solid #e2e8f0;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#64748b;margin-bottom:14px;">📋 Full Technical Audit</div>
         <div style="background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;padding:20px;">
-          ${mdToHtml(rawContent, { pdfMode: isPdf, emailMode: mode === "email" })}
+          ${mdToHtml(rawContent, { pdfMode: isPdf, emailMode: false })}
         </div>
       </div>`;
 
@@ -456,29 +464,6 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
       bodyContent += `
       <div style="padding:20px 32px;margin-bottom:24px;border-bottom:1px solid #e2e8f0;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#64748b;margin-bottom:14px;">🗺 AI Roadmap & Phased Adoption</div>
-      ${mode === "email" ? `
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;">
-        ${section.items.map(item => {
-          if (item.type === "paragraph") {
-            return `<tr><td style="font-size:${isPdf ? "11px" : "13px"};font-weight:700;color:#1e293b;padding:8px 0 16px 0;border-bottom:2px solid #e2e8f0;">${item.content}</td></tr>`;
-          }
-          const listItems = item.content
-            .split("\n")
-            .map(l => l.replace(/^[-*+\d.]+\s*/, "").trim())
-            .filter(Boolean);
-          return `<tr><td>
-            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:8px;mso-table-lspace:0pt;mso-table-rspace:0pt;">
-              ${listItems.map(text => `
-                <tr>
-                  <td style="width:20px;color:#0d6efd;font-weight:700;vertical-align:top;padding:8px 0;font-size:12px;text-align:center;">→</td>
-                  <td style="font-size:${isPdf ? "10px" : "12px"};color:#475569;line-height:1.6;padding:8px 12px;background:#f8fafc;border-radius:8px;border-left:3px solid #0d6efd;">${text}</td>
-                </tr>`
-              ).join("")}
-            </table>
-          </td></tr>`;
-        }).join("<tr><td style=\"height:16px;\"></td></tr>")}
-      </table>
-      ` : `
       <div style="display:flex;flex-direction:column;gap:16px;">
           ${section.items.map(item => {
             if (item.type === "paragraph") {
@@ -498,7 +483,6 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
             </div>`;
           }).join("")}
       </div>
-      `}
 
       </div>`;
     }
@@ -541,25 +525,10 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
   </style>
 </head>
 <body>
-  ${mode === "email" ? `
-  <center>
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;max-width:860px;background:#ffffff;mso-table-lspace:0pt;mso-table-rspace:0pt;">
-      <tr>
-        <td style="padding:0;" align="center">
-          <div style="max-width:860px;margin:0 auto;background:#ffffff;border-radius:0;">
-            ${bodyContent}
-            ${footer}
-          </div>
-        </td>
-      </tr>
-    </table>
-  </center>
-  ` : `
   <div style="max-width:860px;margin:0 auto;background:#ffffff;border-radius:0;overflow:hidden;">
     ${bodyContent}
     ${footer}
   </div>
-  `}
 </body>
 </html>`;
 }
