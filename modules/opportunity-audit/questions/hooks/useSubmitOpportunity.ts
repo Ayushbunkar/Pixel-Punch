@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import type { FormState, ScorecardResult, ValidationErrors } from "../../types";
 
 interface SubmitResult {
@@ -22,6 +23,7 @@ interface UseSubmitOpportunityReturn {
 export function useSubmitOpportunity(): UseSubmitOpportunityReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const submit = useCallback(
     async (
@@ -83,6 +85,7 @@ export function useSubmitOpportunity(): UseSubmitOpportunityReturn {
         }
 
         setLoading(false);
+        router.push(data.redirectUrl);
         return { success: true, data: data as ScorecardResult };
       } catch (err: any) {
         const msg = err.message || "An unexpected error occurred.";

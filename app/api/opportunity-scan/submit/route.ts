@@ -180,9 +180,9 @@ export async function POST(req: NextRequest) {
     console.error("[submit] Failed to save submission to JSON database:", err);
   }
 
-  return NextResponse.redirect(
-    new URL(`/result?id=${submissionId}`, req.url),
-    303, // See Other
+  return NextResponse.json(
+    { success: true, submissionId, redirectUrl: `/result?id=${submissionId}` },
+    { status: 200 }
   );
 }
 
