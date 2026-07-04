@@ -276,43 +276,6 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
     p { margin:0; }
   </style>
 </head>
-<body>
-  <center>
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;max-width:600px;background:#ffffff;mso-table-lspace:0pt;mso-table-rspace:0pt;border-radius:8px;overflow:hidden;">
-      <tr>
-        <td style="padding:40px 30px;text-align:center;">
-          <h1 style="font-size:24px;font-weight:700;color:#333333;margin:0 0 20px;">Your Report is Ready</h1>
-          <p style="font-size:16px;color:#555555;line-height:1.6;margin:0 0 20px;">
-            Hi John,
-          </p>
-          <p style="font-size:16px;color:#555555;line-height:1.6;margin:0 0 30px;">
-            Your latest report has been generated successfully.
-          </p>
-          <p style="font-size:16px;color:#555555;line-height:1.6;margin:0 0 30px;">
-            You can view it securely in your dashboard and download the attached PDF for your records.
-          </p>
-          <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin:0 auto;">
-            <tr>
-              <td style="border-radius:6px;background-color:#007bff;">
-                <a href="${viewReportLink}" target="_blank" style="font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;padding:12px 24px;display:inline-block;border-radius:6px;">View Report in Dashboard</a>
-              </td>
-            </tr>
-          </table>
-          <p style="font-size:16px;color:#555555;line-height:1.6;margin-top:30px;">
-            Thank you!
-          </p>
-        </td>
-      </tr>
-      <tr>
-        <td style="background-color:#f8f8f8;padding:20px 30px;text-align:center;">
-          <p style="font-size:12px;color:#999999;margin:0;">
-            This email was sent by Pixel Punch.
-          </p>
-        </td>
-      </tr>
-    </table>
-  </center>
-</body>
 </html>`;
   }
 
