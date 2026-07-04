@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Rag } from "@/modules/cost-audit/types";
 import scoreDescriptions from "@/config/score-descriptions.json";
 import { AlertTriangle, Lightbulb, CheckCircle2 } from "lucide-react";
