@@ -15,7 +15,7 @@ export const RAG_META: Record<Rag, RagMeta> = {
   red: {
     label: "HIGH RISK",
     badgeClass: "rag-red",
-    bgClass: "bg-[#FFEAEA] border-[#FFC2C2]",
+    bgClass: "bg-[#FEF2F2] border-[#FEE2E2]",
     iconClass: "text-red-500",
     textColor: "text-red-700",
     buttonClass: "bg-red-500 hover:bg-red-600",
@@ -35,7 +35,7 @@ export const RAG_META: Record<Rag, RagMeta> = {
   green: {
     label: "LOW RISK",
     badgeClass: "rag-green",
-    bgClass: "bg-[#EAFFE2] border-[#C2FFC2]",
+    bgClass: "bg-[#F0FDF4] border-[#DCFCE7]",
     iconClass: "text-green-500",
     textColor: "text-green-700",
     buttonClass: "bg-green-500 hover:bg-green-600",

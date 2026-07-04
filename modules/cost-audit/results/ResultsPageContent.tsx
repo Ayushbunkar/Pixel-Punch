@@ -161,11 +161,11 @@ export default function ResultsPageContent() {
          variants={fadeIn} 
          initial="hidden" 
          animate="show"
-         className="border-b border-slate-200 px-4 py-3 bg-white/50 backdrop-blur-md"
+          className="px-4 py-3"
        >
          <div className="max-w-4xl mx-auto flex items-center justify-between">
            <a href="/" className="flex items-center hover:opacity-80 transition-opacity">
-             <Image src="/logo.jpg" alt="Pixel Punch" width={100} height={30} className="h-7 w-auto object-contain" />
+             <Image src="/Pixelpunch_logo2.png" alt="Pixel Punch" width={100} height={30} className="h-7 w-auto object-contain" />
            </a>
            <button
              onClick={() => router.push("/ai/cost-scan")}
@@ -194,7 +194,7 @@ export default function ResultsPageContent() {
              </span>
              Audit Status: Live & Completed
            </div>
-           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2">
              AI Cost Audit Results
            </h1>
            <p className="text-slate-600 text-sm">
