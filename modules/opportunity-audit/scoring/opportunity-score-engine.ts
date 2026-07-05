@@ -270,5 +270,10 @@ export function runScoringEngine(
     createdDate: new Date().toISOString(),
     auditStatus: "completed",
     categories,
+    insights: [],
+    ctaUrl: "",
+    confidenceScore: "N/A",
+    architectureAnalysis: { summary: "", findings: [], risks: [] },
+    costAnalysis: { summary: "", normalizedData: {} },
   };
 }
