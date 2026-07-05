@@ -198,7 +198,7 @@ export default function OpportunityResultsContent() {
               AI Opportunity Audit Results
            </h1>
            <p className="text-slate-600 text-sm">
-             Customized for <strong className="text-slate-800">{result.contact?.firstname} {result.contact?.lastname}</strong>
+             Customized for <strong className="text-slate-800">{result.contact ? `${result.contact.firstname} ${result.contact.lastname}` : "Guest"}</strong>
      </p>
    </motion.div>
 
