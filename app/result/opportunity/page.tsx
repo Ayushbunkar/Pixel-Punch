@@ -1,13 +1,18 @@
 // app/result/opportunity/page.tsx
 import { Suspense } from 'react';
-import OpportunityResultsContent from '@/modules/opportunity-audit/results/OpportunityResultsContent';
+import dynamic from 'next/dynamic';
+
+const DynamicOpportunityResultsContent = dynamic(
+  () => import('@/modules/opportunity-audit/results/OpportunityResultsContent'),
+  { ssr: false }
+);
 
 export default function OpportunityResultPage() {
   console.log("[OpportunityResultPage] Rendering");
   return (
     <div>
       <h1>Hello from OpportunityResultPage!</h1>
-        <OpportunityResultsContent />
+      <DynamicOpportunityResultsContent />
     </div>
   );
 }
