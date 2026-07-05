@@ -1,10 +1,8 @@
-import { Suspense } from 'react';
-import OpportunityResultsContent from '@/modules/opportunity-audit/results/OpportunityResultsContent';
-
 export default function OpportunityResultPage() {
+  console.log("[OpportunityResultPage] Rendering");
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <OpportunityResultsContent />
-    </Suspense>
+    <div>
+      <h1>Hello from OpportunityResultPage!</h1>
+    </div>
   );
 }
