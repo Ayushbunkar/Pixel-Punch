@@ -1,3 +1,5 @@
+"use client";
+
 // app/result/opportunity/page.tsx
 import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
