@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
-
+import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
+import "./globals.css"; // Import global styles
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: { default: "Pixel Punch AI", template: "%s | Pixel Punch AI" },
@@ -14,12 +17,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="icon" href="/Pixelpunch_logo2.png" type="image/png" />
-      </head>
+    <html lang="en" className={`${inter.variable}`}>
       <body>
         {children}
+        <Toaster />
       </body>
     </html>
   );
