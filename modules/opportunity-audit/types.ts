@@ -246,6 +246,11 @@ export interface ScorecardResult {
   };
   createdDate: string;
   auditStatus: string;
+  roadmap?: {
+    phase1: string[];
+    phase2: string[];
+    phase3: string[];
+  };
 }
 
 export interface StoredScanResult extends ScorecardResult {

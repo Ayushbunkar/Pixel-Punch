@@ -274,6 +274,15 @@ export default function OpportunityResultsContent() {
             </div>
           </div>
 
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => setEmailModalOpen(true)}
+              className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
+            >
+              <Cpu className="w-3.5 h-3.5" />
+              View Report
+            </button>
+          </div>
 
          <p className="text-center text-[10px] text-slate-400 mt-8">
            Scan ID: {result.submissionId}
