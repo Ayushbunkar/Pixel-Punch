@@ -202,30 +202,20 @@ export default function OpportunityResultsContent() {
      </p>
    </motion.div>
 
-         <div className="grid gap-4 md:grid-cols-3">
-             {([
-                { title: "Readiness Risk", dimension: "readiness", score: "red" },
-                { title: "Value Risk", dimension: "value", score: "red" },
-                { title: "Opportunity Risk", dimension: "opportunity", score: "red" },
-             ] as const).map((card, idx) => (
-               <StatCard
-                 key={idx}
-                 title={card.title}
-                 description={(scoreDescriptions as Record<string, Record<string, string>>)[card.dimension][card.score || "green"]}
-                 ragStatus={card.score || "green"}
-               />
-             ))}
-           </div>
-
-         {result.insights && result.insights.length > 0 && (
-             <div>
-               <InsightsList
-                 insights={result.insights}
-                 submissionId={submissionId as string}
-                 scanType="opportunity"
-               />
-             </div>
-         )}
+          <div className="grid gap-4 md:grid-cols-3">
+              {([
+                 { title: "Readiness Risk", dimension: "readiness", score: result.scorecard.readiness },
+                 { title: "Value Risk", dimension: "value", score: result.scorecard.value },
+                 { title: "Opportunity Risk", dimension: "opportunity", score: result.scorecard.opportunity },
+              ] as const).map((card, idx) => (
+                <StatCard
+                  key={idx}
+                  title={card.title}
+                  description={(scoreDescriptions as Record<string, Record<string, string>>)[card.dimension][card.score || "green"]}
+                  ragStatus={card.score || "green"}
+                />
+              ))}
+            </div>
 
          {result.recommendations && result.recommendations.length > 0 && (
            <div
@@ -284,14 +274,6 @@ export default function OpportunityResultsContent() {
             </div>
           </div>
 
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setEmailModalOpen(true)}
-              className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
-            >
-              View Report
-            </button>
-          </div>
 
          <p className="text-center text-[10px] text-slate-400 mt-8">
            Scan ID: {result.submissionId}

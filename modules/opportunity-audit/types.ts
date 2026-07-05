@@ -244,6 +244,8 @@ export interface ScorecardResult {
       unusedResources?: string;
     };
   };
+  createdDate: string;
+  auditStatus: string;
 }
 
 export interface StoredScanResult extends ScorecardResult {
