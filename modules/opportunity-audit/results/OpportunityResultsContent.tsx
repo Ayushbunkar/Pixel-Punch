@@ -195,7 +195,7 @@ export default function OpportunityResultsContent() {
              Audit Status: Live & Completed
            </div>
            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2">
-             AI Opportunity Audit Results
+              AI Opportunity Audit Results
            </h1>
            <p className="text-slate-600 text-sm">
              Customized for <strong className="text-slate-800">{result.contact?.firstname} {result.contact?.lastname}</strong>
@@ -204,9 +204,9 @@ export default function OpportunityResultsContent() {
 
          <div className="grid gap-4 md:grid-cols-3">
              {([
-               { title: "Readiness Score", dimension: "readiness", score: result.scorecard?.readiness },
-               { title: "Value Score", dimension: "value", score: result.scorecard?.value },
-               { title: "Opportunity Score", dimension: "opportunity", score: result.scorecard?.opportunity },
+                { title: "Readiness Risk", dimension: "readiness", score: "red" },
+                { title: "Value Risk", dimension: "value", score: "red" },
+                { title: "Opportunity Risk", dimension: "opportunity", score: "red" },
              ] as const).map((card, idx) => (
                <StatCard
                  key={idx}
@@ -248,41 +248,50 @@ export default function OpportunityResultsContent() {
            </div>
          )}
 
-         <div className="border border-slate-200 rounded-lg overflow-hidden relative">
-           <div className="bg-white p-3 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[150px]">
-             {/* Using MarkdownBody here if it was extracted to a shared utility or if a simple raw string display is fine */}
-             {result.auditReport}
-           </div>
+          {result.insights && result.insights.length > 0 && (
+            <div className="border border-slate-200 rounded-lg overflow-hidden relative">
+              <div className="bg-white p-3 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[150px]">
+                <InsightsList
+                  insights={result.insights}
+                  submissionId={submissionId as string}
+                  scanType="opportunity"
+                />
+              </div>
+              {!isUnlocked && (
+                <LockOverlay
+                  onUnlock={() => setUnlockModalOpen(true)}
+                  title="KEY INSIGHTS LOCKED"
+                  description="Unlock to view detailed insights."
+                />
+              )}
+            </div>
+          )}
 
-           {!isUnlocked && <LockOverlay onUnlock={() => setUnlockModalOpen(true)} />}
-         </div>
-         <div className="mt-6 text-center">
-           <button
-             onClick={() => setEmailModalOpen(true)}
-             className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
-           >
-             <Cpu className="w-3.5 h-3.5" />
-             View Report
-           </button>
-         </div>
+          <div className="mt-6 text-center">
+            <h2 className="text-xl font-bold text-slate-900 mb-4">Unlock Full Technical Audit Report</h2>
+            <div className="flex flex-col items-center gap-3">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full max-w-sm px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={() => setEmailModalOpen(true)}
+                className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
+              >
+                Unlock Report
+              </button>
+            </div>
+          </div>
 
-         <div>
-           <TierRecommendation tier={result.tier ?? 4} ctaUrl={ctaUrl} />
-         </div>
-
-         <div
-           className="flex flex-wrap items-center justify-center gap-3 mt-8 pt-6 border-t border-slate-200"
-         >
-           <ShareResults />
-
-           <button
-             onClick={() => setEmailModalOpen(true)}
-             className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
-           >
-             <Cpu className="w-3.5 h-3.5" />
-             Email Audit Report
-           </button>
-         </div>
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => setEmailModalOpen(true)}
+              className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
+            >
+              View Report
+            </button>
+          </div>
 
          <p className="text-center text-[10px] text-slate-400 mt-8">
            Scan ID: {result.submissionId}
