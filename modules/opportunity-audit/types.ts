@@ -218,29 +218,40 @@ export interface ScorecardResult {
     value:     Rag;
     opportunity: Rag;
   };
-  tier: 1 | 2 | 3 | 4;
-  recommendations: string[];
-  roadmap: {
-    phase1: string[];
-    phase2: string[];
-    phase3: string[];
+  tier:     1 | 2 | 3 | 4;
+  insights: string[];
+  ctaUrl:   string;
+  auditReport?: string;
+  findings?: string[];
+  recommendations?: string[];
+  
+  // Medium feature responses
+  confidenceScore: string;
+  architectureAnalysis: {
+    summary: string;
+    findings: string[];
+    risks: string[];
   };
-  createdDate: string;
-  auditStatus: "pending" | "completed";
+  costAnalysis: {
+    summary: string;
+    normalizedData: {
+      monthlySpend?: string;
+      provider?: string;
+      serviceUsage?: string;
+      modelUsage?: string;
+      tokenConsumption?: string;
+      gpuCost?: string;
+      unusedResources?: string;
+    };
+  };
 }
 
 export interface StoredScanResult extends ScorecardResult {
-  company: {
-    name: string;
-    industry: string;
-    size: string;
-    businessType: string;
-  };
   contact: {
     firstname: string;
-    lastname: string;
-    email: string;
-    job_title: string;
+    lastname:  string;
+    email:     string;
+    company:   string;
   };
 }
 
