@@ -1,4 +1,5 @@
 import { extractTextFromDoc } from "./extractor.service";
+import { parseOffice } from "officeparser";
 
 interface FileInput {
   name: string;
@@ -113,7 +114,14 @@ export async function analyzeArchitecture(
           // Plain text Draw.io
           docText = Buffer.from(fileToAnalyze.base64, "base64").toString("utf-8");
         } else {
-          docText = await extractTextFromDoc(fileToAnalyze);
+          const ext = fileToAnalyze.name.split(".").pop()?.toLowerCase();
+          const buffer = Buffer.from(fileToAnalyze.base64, "base64");
+          if (ext === "txt" || ext === "md") {
+            docText = buffer.toString("utf-8");
+          } else { // PDF, DOC, DOCX
+            const ast = await parseOffice(buffer);
+            docText = ast.toText() || "";
+          }
         }
 
         contentsParts = [
@@ -180,7 +188,14 @@ export async function analyzeArchitecture(
         if (fileToAnalyze.name.endsWith(".drawio") || fileToAnalyze.name.endsWith(".xml")) {
           docText = Buffer.from(fileToAnalyze.base64, "base64").toString("utf-8");
         } else {
-          docText = await extractTextFromDoc(fileToAnalyze);
+          const ext = fileToAnalyze.name.split(".").pop()?.toLowerCase();
+          const buffer = Buffer.from(fileToAnalyze.base64, "base64");
+          if (ext === "txt" || ext === "md") {
+            docText = buffer.toString("utf-8");
+          } else { // PDF, DOC, DOCX
+            const ast = await parseOffice(buffer);
+            docText = ast.toText() || "";
+          }
         }
 
         messages = [
@@ -377,7 +392,15 @@ export async function analyzeCostEvidence(
             }
           ];
         } else {
-          const text = await extractTextFromDoc(fileToAnalyze);
+          const ext = fileToAnalyze.name.split(".").pop()?.toLowerCase();
+          const buffer = Buffer.from(fileToAnalyze.base64, "base64");
+          let text = "";
+          if (ext === "txt" || ext === "md") {
+            text = buffer.toString("utf-8");
+          } else { // PDF, DOC, DOCX
+            const ast = await parseOffice(buffer);
+            text = ast.toText() || "";
+          }
           messages = [
             {
               role: "user",
