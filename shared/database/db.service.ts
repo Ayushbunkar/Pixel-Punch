@@ -19,6 +19,7 @@ export async function saveSubmission(id: string, data: any): Promise<void> {
       console.error("[db.service] Supabase save error:", error);
       throw error;
     }
+    console.log(`[db.service] Successfully saved submission with ID: ${id}`);
   } catch (err) {
     console.error("[db.service] Failed to save submission to Supabase:", err);
     throw err;
