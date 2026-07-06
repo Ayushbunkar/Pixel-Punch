@@ -13,11 +13,11 @@ interface TechnicalStepProps {
   state: FormState;
   errors: ValidationErrors;
   onChange: <K extends keyof FormState>(field: K, value: FormState[K]) => void;
-  onAddDocument: (doc: { name: string; type: string; size: number; path: string }) => void;
+  onAddDocument: (doc: { name: string; type: string; size: number; path: string; base64: string }) => void;
   onRemoveDocument: (index: number) => void;
-  onAddArchitectureFile: (doc: { name: string; type: string; size: number; path: string }) => void;
+  onAddArchitectureFile: (doc: { name: string; type: string; size: number; path: string; base64: string }) => void;
   onRemoveArchitectureFile: (index: number) => void;
-  onAddCostFile: (doc: { name: string; type: string; size: number; path: string }) => void;
+  onAddCostFile: (doc: { name: string; type: string; size: number; path: string; base64: string }) => void;
   onRemoveCostFile: (index: number) => void;
 }
 
@@ -40,6 +40,14 @@ export function TechnicalStep({
   const [dragOverDoc, setDragOverDoc] = useState(false);
   const [dragOverArch, setDragOverArch] = useState(false);
   const [dragOverCost, setDragOverCost] = useState(false);
+
+  const fileToBase64 = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
 
   // ── Multi-select toggles ──────────────────────────────────────────────────
   const toggleProvider = (provider: string) => {
@@ -86,12 +94,14 @@ export function TechnicalStep({
         continue;
       }
       try {
+        const base64 = await fileToBase64(file);
         const uploadedPath = await uploadFile(file, "/api/cost-scan/upload", "document");
         onAddDocument({
           name: file.name,
           type: file.type || `application/${ext}`,
           size: file.size,
           path: uploadedPath,
+          base64: base64,
         });
         toast.success(`Uploaded "${file.name}" successfully!`, { id: `doc-success-${file.name}` });
       } catch {
@@ -121,12 +131,14 @@ export function TechnicalStep({
         continue;
       }
       try {
+        const base64 = await fileToBase64(file);
         const uploadedPath = await uploadFile(file, "/api/cost-scan/upload", "architecture");
         onAddArchitectureFile({
           name: file.name,
           type: file.type || `application/${ext}`,
           size: file.size,
           path: uploadedPath,
+          base64: base64,
         });
         toast.success(`Loaded architecture diagram: "${file.name}" successfully!`, { id: `arch-success-${file.name}` });
       } catch {
@@ -155,12 +167,14 @@ export function TechnicalStep({
         continue;
       }
       try {
+        const base64 = await fileToBase64(file);
         const uploadedPath = await uploadFile(file, "/api/cost-scan/upload", "cost");
         onAddCostFile({
           name: file.name,
           type: file.type || `application/${ext}`,
           size: file.size,
           path: uploadedPath,
+          base64: base64,
         });
         toast.success(`Loaded billing evidence: "${file.name}" successfully!`, { id: `cost-success-${file.name}` });
       } catch {

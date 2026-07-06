@@ -85,45 +85,14 @@ export async function POST(req: NextRequest) {
     }
  
      // ── Parse body ─────────────────────────────────────────────────────────────
-    let formData: FormData;
-    try {
-      formData = await req.formData();
-    } catch (error) {
-      console.error("[Cost Submit API] Error parsing form data:", error);
-      return NextResponse.json(
-        { errors: [{ field: "_root", message: "Request body must be valid FormData." }] },
-        { status: 400 },
-      );
-    }
- 
-    const input: Record<string, any> = {};
-    const documents: any[] = [];
-    const architectureFiles: any[] = [];
-    const costEvidenceFiles: any[] = [];
- 
-    for (const [key, value] of formData.entries()) {
-      if (key === 'documents') {
-        documents.push(JSON.parse(value as string));
-      } else if (key === 'architecture_files') {
-        architectureFiles.push(JSON.parse(value as string));
-      } else if (key === 'cost_files') {
-        costEvidenceFiles.push(JSON.parse(value as string));
-      } else {
-        try {
-          input[key] = JSON.parse(value as string);
-        } catch {
-          input[key] = value;
-        }
-      }
-    }
- 
-     // Reconstruct the input object to match the original structure expected by castToFormState
+    const body = await req.json();
+
     const reconstructedInput: FormState = {
       ...INITIAL_FORM_STATE,
-      ...input,
-      documents: documents.flat(),
-      architecture_files: architectureFiles.flat(),
-      cost_files: costEvidenceFiles.flat(),
+      ...body,
+      documents: body.documents || [],
+      architecture_files: body.architecture_files || [],
+      cost_files: body.cost_files || [],
     };
 
     // ── Validation (HARD FAIL) ─────────────────────────────────────────────────
@@ -163,9 +132,9 @@ export async function POST(req: NextRequest) {
     try {
       const hasWebsite = !!websiteUrl;
       const hasAiStack = aiStack.providers.length > 0 || !!aiStack.models;
-      const hasDocuments = documents.length > 0;
-      const hasArchitecture = architectureFiles.length > 0;
-      const hasCostEvidence = costEvidenceFiles.length > 0;
+      const hasDocuments = reconstructedInput.documents.length > 0;
+      const hasArchitecture = reconstructedInput.architecture_files.length > 0;
+      const hasCostEvidence = reconstructedInput.cost_files.length > 0;
 
       const conf = calculateConfidenceScore({
         hasWebsite,
@@ -176,8 +145,8 @@ export async function POST(req: NextRequest) {
       });
       confidenceScore = `${conf.score}%`;
 
-      archAnalysis = await analyzeArchitecture(architectureFiles, castedInput, websiteUrl, aiStack);
-      costAnalysis = await analyzeCostEvidence(costEvidenceFiles, castedInput);
+      archAnalysis = await analyzeArchitecture(castedInput.architecture_files, castedInput, websiteUrl, aiStack);
+      costAnalysis = await analyzeCostEvidence(castedInput.cost_files, castedInput);
       usageAnalysis = analyzeUsageMetrics(usageMetricsInput, costAnalysis.normalizedData);
     } catch (err) {
       console.error("[submit] Error running medium upgrades analysis:", err);
@@ -210,7 +179,7 @@ export async function POST(req: NextRequest) {
         websiteUrl: websiteUrl || "",
         aiStack,
         technicalNotes: technicalNotes || "",
-        files: documents,
+        files: castedInput.documents,
         architectureAnalysis: archAnalysis,
         costAnalysis: costAnalysis,
         usageMetrics: usageAnalysis,
@@ -273,11 +242,11 @@ export async function POST(req: NextRequest) {
         website_url:             websiteUrl || "",
         ai_stack_details:        aiStack || {},
         technical_notes:         technicalNotes || "",
-        uploaded_documents:      documents.map((doc: any) => ({ name: doc.name, size: doc.size, type: doc.type, path: doc.path })),
+        uploaded_documents:      castedInput.documents.map((doc: any) => ({ name: doc.name, size: doc.size, type: doc.type, path: doc.path })),
         generated_report:        auditResult.auditReport,
-        architecture_files:      architectureFiles.map((f: any) => ({ name: f.name, size: f.size, type: f.type, path: f.path })),
+        architecture_files:      castedInput.architecture_files.map((f: any) => ({ name: f.name, size: f.size, type: f.type, path: f.path })),
         architecture_analysis:   archAnalysis,
-        cost_files:              costEvidenceFiles.map((f: any) => ({ name: f.name, size: f.size, type: f.type, path: f.path })),
+        cost_files:              castedInput.cost_files.map((f: any) => ({ name: f.name, size: f.size, type: f.type, path: f.path })),
         cost_analysis:           costAnalysis,
         usage_metrics:           usageMetricsInput,
         confidence_score:        confidenceScore,
