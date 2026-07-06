@@ -346,8 +346,8 @@ export function castToFormState(data: Record<string, unknown>): FormState {
     technical_notes:    (techCtx.technicalNotes || (isNested ? data.technicalNotes : null) || answersData.technical_notes || "") as string,
     documents:          (techCtx.documents || (isNested ? data.documents : null) || answersData.documents || []) as any[],
 
-    architecture_files: (isNested ? data.architectureFiles : answersData.architecture_files || []) as any[],
-    cost_files:         (isNested ? data.costEvidenceFiles : answersData.cost_files || []) as any[],
+    architecture_files: (isNested ? (data.architectureFiles || []) : (answersData.architecture_files || [])) as any[],
+    cost_files:         (isNested ? (data.costEvidenceFiles || []) : (answersData.cost_files || [])) as any[],
     usage_metrics: {
       monthly_requests:     String(metrics.monthly_requests ?? answersData.usage_metrics?.monthly_requests ?? ""),
       input_tokens:         String(metrics.input_tokens ?? answersData.usage_metrics?.input_tokens ?? ""),
