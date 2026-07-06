@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { ContactBar } from "@/shared/components/ContactBar";
 import { Target, Lightbulb, ClipboardList } from "lucide-react";
+import { CostScanWizard } from "@/modules/cost-audit/questions/CostScanWizard";
 
 export const metadata: Metadata = {
   title: "AI Cost Scan | Pixel Punch AI",
@@ -84,7 +85,7 @@ export default function AiCostScanPage() {
         </div>
 
         {/* ── Wizard ─────────────────────────────────────────────── */}
-        <div>CostScanWizard Placeholder</div>
+        <CostScanWizard />
 
         {/* ── Social proof strip ──────────────────────────────────── */}
         <div 
