@@ -3,7 +3,7 @@ import { generatePdf, loadLogoBase64 } from "@/shared/utils/pdf-generator";
 import { ReportData, renderReportToHtml, getColorConfig } from "@/shared/utils/report-content-generator";
 
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
-
+//ghf
 function mapScoreToRAGStatus(score: string | number | undefined): "red" | "amber" | "green" | "unknown" {
   if (typeof score === 'number') {
     if (score <= 2) return "red";
