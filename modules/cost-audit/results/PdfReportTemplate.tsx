@@ -7,10 +7,37 @@ interface Props {
   result: StoredScanResult;
 }
 
-const RAG_CONFIG = {
-  red:   { bg: "#fff1f2", color: "#dc2626", border: "#fca5a5", dot: "#dc2626", label: "Action Needed" },
-  amber: { bg: "#fffbeb", color: "#d97706", border: "#fcd34d", dot: "#d97706", label: "Needs Attention" },
-  green: { bg: "#f0fdf4", color: "#16a34a", border: "#86efac", dot: "#16a34a", label: "Looking Good" },
+const ragStyles = {
+  red: {
+    bgColor: "#fee2e2",
+    borderColor: "#fca5a5",
+    titleColor: "#b91c1c",
+    labelColor: "#ef4444",
+    descriptionColor: "#475569", // Changed to dark grey
+    badgeBg: "#fca5a5",
+    badgeText: "#b91c1c",
+    statusText: "HIGH RISK",
+  },
+  amber: {
+    bgColor: "#fffbeb",
+    borderColor: "#fcd34d",
+    titleColor: "#b45309",
+    labelColor: "#f59e0b",
+    descriptionColor: "#475569", // Changed to dark grey
+    badgeBg: "#fcd34d",
+    badgeText: "#b45309",
+    statusText: "NEEDS ATTENTION",
+  },
+  green: {
+    bgColor: "#ecfdf5",
+    borderColor: "#a7f3d0",
+    titleColor: "#047857",
+    labelColor: "#10b981",
+    descriptionColor: "#475569", // Changed to dark grey
+    badgeBg: "#a7f3d0",
+    badgeText: "#047857",
+    statusText: "GOOD",
+  },
 };
 
 const TIER_LABELS: Record<number, string> = {
@@ -28,9 +55,9 @@ const TIER_COLORS: Record<number, { bg: string; border: string; text: string; ba
 };
 
 export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
-  const spend = RAG_CONFIG[result.scorecard.spend];
-  const arch  = RAG_CONFIG[result.scorecard.architecture];
-  const pain  = RAG_CONFIG[result.scorecard.pain];
+  const spend = ragStyles[result.scorecard.spend as keyof typeof ragStyles];
+  const arch  = ragStyles[result.scorecard.architecture as keyof typeof ragStyles];
+  const pain  = ragStyles[result.scorecard.pain as keyof typeof ragStyles];
   const tierStyle = TIER_COLORS[result.tier];
   const today = new Date().toLocaleDateString("en-GB", {
     day: "2-digit", month: "long", year: "numeric",
@@ -140,27 +167,29 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
             </div>
 
             {/* Diagnostic Scorecard Section */}
-            <div>
-              <p style={{ margin: "0 0 8px 0", fontSize: "10px", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", color: "#94a3b8" }}>
-                Diagnostic Scorecard
-              </p>
-              <div style={{ display: "flex", gap: "12px" }}>
-                {[
-                  { label: "Spend & Visibility",    desc: "Cost tracking & attribution", cfg: spend },
-                  { label: "Architecture Risk",     desc: "Infrastructure design & leakage", cfg: arch  },
-                  { label: "Business Urgency",      desc: "Operational pain & savings target", cfg: pain  },
-                ].map(({ label, desc, cfg }) => (
-                  <div key={label} style={{ flex: 1, minWidth: 0, border: `1.5px solid ${cfg.border}`, borderRadius: "10px", padding: "12px 14px", backgroundColor: cfg.bg }}>
-                    <p style={{ margin: "0 0 3px 0", fontSize: "10.5px", fontWeight: "800", color: "#334155", textTransform: "uppercase", letterSpacing: "0.4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</p>
-                    <p style={{ margin: "0 0 8px 0", fontSize: "10px", color: "#64748b", lineHeight: "1.35" }}>{desc}</p>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <div style={{ flexShrink: 0, width: "8px", height: "8px", borderRadius: "50%", backgroundColor: cfg.dot }} />
-                      <span style={{ fontSize: "12px", fontWeight: "700", color: cfg.color }}>{cfg.label}</span>
+            {result.scorecard && (
+              <div>
+                <p style={{ margin: "0 0 8px 0", fontSize: "10px", fontWeight: "800", textTransform: "uppercase", letterSpacing: "1px", color: "#94a3b8" }}>
+                  Diagnostic Scorecard
+                </p>
+                <div style={{ display: "flex", gap: "16px" }}>
+                  {[
+                    { label: "Spend & Visibility",    desc: "Cost tracking & attribution", cfg: spend },
+                    { label: "Architecture Risk",     desc: "Infrastructure design & leakage", cfg: arch  },
+                    { label: "Business Urgency",      desc: "Operational pain & savings target", cfg: pain  },
+                  ].map(({ label, desc, cfg }) => (
+                    <div key={label} style={{ flex: 1, minWidth: 0, border: `1.5px solid ${cfg.borderColor}`, borderRadius: "12px", padding: "14px 16px", backgroundColor: cfg.bgColor }}>
+                      <p style={{ margin: "0 0 3px 0", fontSize: "11px", fontWeight: "800", color: cfg.titleColor, textTransform: "uppercase", letterSpacing: "0.4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</p>
+                      <p style={{ margin: "0 0 8px 0", fontSize: "10.5px", color: cfg.descriptionColor, lineHeight: "1.35" }}>{desc}</p>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <div style={{ flexShrink: 0, width: "8px", height: "8px", borderRadius: "50%", backgroundColor: cfg.badgeBg }} />
+                        <span style={{ fontSize: "13px", fontWeight: "700", color: cfg.badgeText }}>{cfg.statusText}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Evidence Verification Section */}
             {result.confidenceScore && (

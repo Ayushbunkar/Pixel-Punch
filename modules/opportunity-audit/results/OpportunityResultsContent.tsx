@@ -283,17 +283,7 @@ export default function OpportunityResultsContent() {
        </motion.div>
      </main>
 
-       {isUnlocked && (
-         <div className="fixed bottom-6 right-6 z-50">
-           <button
-             onClick={() => triggerPdfDownload(result.submissionId || "", result)}
-             className="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl flex items-center gap-2"
-             title="Download PDF Report"
-           >
-             <Download className="w-5 h-5" />
-           </button>
-         </div>
-       )}
+
 
 
 
