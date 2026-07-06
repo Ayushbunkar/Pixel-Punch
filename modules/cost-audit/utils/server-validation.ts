@@ -308,6 +308,7 @@ export function validateSubmission(body: unknown): FieldError[] {
 }
 
 /** Casts a validated body to FormState (call only after validateSubmission returns []). */
+
 export function castToFormState(data: Record<string, unknown>): FormState {
   const isNested = data.answers && typeof data.answers === "object" && !Array.isArray(data.answers);
   const answersData = (isNested ? (data.answers as Record<string, unknown>) : data) as any;
@@ -317,7 +318,9 @@ export function castToFormState(data: Record<string, unknown>): FormState {
 
   const metrics: Record<string, any> = (isNested ? (data.usageMetrics as Record<string, any> || {}) : {});
 
-  return {
+  // Merge with INITIAL_FORM_STATE to ensure all fields are present with default values
+  const casted: FormState = {
+    ...INITIAL_FORM_STATE,
     ai_dependence:      answersData.ai_dependence      as FormState["ai_dependence"],
     monthly_spend_band: answersData.monthly_spend_band as FormState["monthly_spend_band"],
     spend_visibility:   answersData.spend_visibility   as FormState["spend_visibility"],
@@ -354,4 +357,6 @@ export function castToFormState(data: Record<string, unknown>): FormState {
       user_volume:          String(metrics.user_volume ?? answersData.usage_metrics?.user_volume ?? ""),
     },
   };
+
+  return casted;
 }
