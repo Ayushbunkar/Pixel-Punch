@@ -416,7 +416,7 @@ export default function OpportunityResultsContent() {
        <EmailModal
          isOpen={emailModalOpen}
          onClose={() => setEmailModalOpen(false)}
-         submissionId={result.submissionId}
+         submissionId={result.submissionId || ""}
          scanType="opportunity"
          defaultEmail={result.contact?.email ?? ""}
        />
