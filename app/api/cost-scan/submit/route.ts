@@ -300,6 +300,9 @@ export async function POST(req: NextRequest) {
         // The following fields are removed as per the new architecture
         // extracted_document_text: filesContent.map(f => ({ name: f.name, content: f.content })),
         // ai_audit_context:        auditResult.auditReport,
+        email:                   castedInput.email, // Add email as a top-level field
+        firstname:               castedInput.firstname, // Add firstname as a top-level field
+        lastname:                castedInput.lastname, // Add lastname as a top-level field
       };
       console.log(`[Cost Submit API] Attempting to save submission with ID: ${submissionId}. Payload keys: ${Object.keys(dbPayload).join(', ')}`);
       await saveSubmission(submissionId, dbPayload);
