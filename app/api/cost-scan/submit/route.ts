@@ -96,6 +96,28 @@ export async function POST(req: NextRequest) {
 
     let castedInput: FormState = INITIAL_FORM_STATE; // Initialize with default
     let submissionIdFromDb: string | undefined;
+    let submissionId: string; // Declare submissionId here
+
+    // Determine submissionId early
+    if (body.submissionId) {
+      submissionId = body.submissionId;
+    } else {
+      submissionId = randomUUID();
+    }
+    console.log(`[Cost Submit API] Determined submission ID: ${submissionId}`);
+
+    // If submissionId is provided, save the initial body to the database
+    // This ensures that a record exists before any potential retrieval attempts
+    if (body.submissionId) {
+      try {
+        console.log(`[Cost Submit API] Pre-saving submission with ID: ${submissionId}. Initial payload keys: ${Object.keys(body).join(', ')}`);
+        await saveSubmission(submissionId, body);
+        console.log(`[Cost Submit API] Pre-saved to Supabase: ${submissionId}`);
+      } catch (err) {
+        console.error("[Cost Submit API] Failed to pre-save submission to database:", err);
+        // Do not block the request, proceed with existing logic
+      }
+    }
 
     // If submissionId and email are present, but not full form data, retrieve from DB
     if (body.submissionId && body.email && !body.ai_dependence) {
@@ -185,10 +207,6 @@ export async function POST(req: NextRequest) {
 
     // ── Insight generation (rule-based, never fails) ──────────────────────────
     const insights = generateInsights(castedInput, scores, scores.tier);
-
-    // ── Submission ID ──────────────────────────────────────────────────────────
-    const submissionId = submissionIdFromDb || randomUUID();
-    console.log(`[Cost Submit API] Generated ID: ${submissionId}`);
 
     // ── CTA URL ────────────────────────────────────────────────────────────────
     const ctaUrl = getCTAUrl(scores.tier);
