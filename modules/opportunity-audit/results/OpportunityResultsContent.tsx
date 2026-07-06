@@ -4,7 +4,6 @@ import { Fragment, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 import { useSearchParams, useRouter } from "next/navigation";
-
 import { StoredScanResult } from "@/modules/opportunity-audit/types";
 import Image from "next/image";
 
@@ -320,7 +319,7 @@ export default function OpportunityResultsContent() {
 
          {result.scorecard && (
            <div style={{ marginBottom: "20px" }}>
-             <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e293b", marginBottom: "8px" }}>RAG Scorecard</div>
+             <div style={{ fontSize: "18px", fontWeight: 800, color: "#475569", marginBottom: "16px", textTransform: "uppercase" }}>RAG SCORECARD OVERVIEW</div>
              <div style={{ display: "flex", gap: "16px" }}>
                  {(
                    [
@@ -338,33 +337,30 @@ export default function OpportunityResultsContent() {
                        borderColor: "#fca5a5",
                        titleColor: "#b91c1c",
                        labelColor: "#ef4444",
-                       descriptionColor: "#ef4444",
+                       descriptionColor: "#475569", // Changed to dark grey
                        badgeBg: "#fca5a5",
                        badgeText: "#b91c1c",
                        statusText: "HIGH RISK",
-                       icon: "⚠️",
                      },
                      amber: {
                        bgColor: "#fffbeb",
                        borderColor: "#fcd34d",
                        titleColor: "#b45309",
                        labelColor: "#f59e0b",
-                       descriptionColor: "#f59e0b",
+                       descriptionColor: "#475569", // Changed to dark grey
                        badgeBg: "#fcd34d",
                        badgeText: "#b45309",
                        statusText: "NEEDS ATTENTION",
-                       icon: "💡",
                      },
                      green: {
                        bgColor: "#ecfdf5",
                        borderColor: "#a7f3d0",
                        titleColor: "#047857",
                        labelColor: "#10b981",
-                       descriptionColor: "#10b981",
+                       descriptionColor: "#475569", // Changed to dark grey
                        badgeBg: "#a7f3d0",
                        badgeText: "#047857",
                        statusText: "GOOD",
-                       icon: "✅",
                      },
                    };
 
@@ -378,20 +374,19 @@ export default function OpportunityResultsContent() {
                          backgroundColor: currentRagStyle.bgColor,
                          border: `1px solid ${currentRagStyle.borderColor}`,
                          borderRadius: "8px",
-                         padding: "20px", // Increased padding to match image
+                         padding: "24px", // Adjusted padding
                          display: "flex",
                          flexDirection: "column",
-                         gap: "10px", // Adjusted gap
-                         position: "relative", // For absolute positioning of badge
+                         position: "relative",
                        }}
                      >
-                       <div style={{ fontSize: "12px", fontWeight: 700, color: currentRagStyle.titleColor, textTransform: "uppercase", marginBottom: "4px" }}>
+                       <div style={{ fontSize: "12px", fontWeight: 700, color: currentRagStyle.titleColor, textTransform: "uppercase", marginBottom: "8px" }}>
                          {cardItem.title}
                        </div>
-                       <div style={{ fontSize: "16px", fontWeight: 800, color: currentRagStyle.labelColor, marginBottom: "2px" }}>
+                       <div style={{ fontSize: "16px", fontWeight: 800, color: currentRagStyle.labelColor, marginBottom: "6px" }}>
                          {currentRagStyle.statusText}
                        </div>
-                       <div style={{ fontSize: "28px", fontWeight: 900, color: currentRagStyle.labelColor, lineHeight: 1 }}>
+                       <div style={{ fontSize: "28px", fontWeight: 900, color: currentRagStyle.labelColor, lineHeight: 1, marginBottom: "8px" }}>
                          {ragStatus.toUpperCase()}
                        </div>
                        <div
@@ -404,13 +399,13 @@ export default function OpportunityResultsContent() {
                            fontWeight: 700,
                            textTransform: "uppercase",
                            display: "inline-block",
-                           marginTop: "8px",
+                           marginTop: "8px", // Adjusted margin
                            width: "fit-content",
                          }}
                        >
                          {ragStatus.toUpperCase()}
                        </div>
-                       <div style={{ fontSize: "12px", color: "#475569", lineHeight: 1.5, marginTop: "12px" }}>
+                       <div style={{ fontSize: "12px", color: currentRagStyle.descriptionColor, lineHeight: 1.5, marginTop: "8px" }}>
                          {description}
                        </div>
                      </div>
