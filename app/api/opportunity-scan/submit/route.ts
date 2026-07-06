@@ -172,6 +172,11 @@ export async function POST(req: NextRequest) {
         opportunity: results.scorecard.opportunity,
       },
       tier: results.tier,
+      insights: [], // Added placeholder
+      ctaUrl: "", // Added placeholder
+      confidenceScore: "", // Added placeholder
+      architectureAnalysis: { summary: "", findings: [], risks: [] }, // Added placeholder
+      costAnalysis: { summary: "", normalizedData: {} }, // Added placeholder
       recommendations: deduplicateRecommendations(aiRecommendations.map(r => r.opportunity)), // Deduplicated recommendations
       roadmap: results.roadmap,
       auditReport: reportResult.reportText,
