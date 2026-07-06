@@ -198,7 +198,7 @@ export default function OpportunityResultsContent() {
               AI Opportunity Audit Results
            </h1>
            <p className="text-slate-600 text-sm">
-             Customized for <strong className="text-slate-800">{result.contact ? `${result.contact.firstname} ${result.contact.lastname}` : "Guest"}</strong>
+             Customized for <strong className="text-slate-800">{result.contact ? `${result.contact.firstname} ${result.contact.lastname}${result.contact.company ? ` from ${result.contact.company}` : ''}` : "Guest"}</strong>
      </p>
    </motion.div>
 
@@ -257,22 +257,31 @@ export default function OpportunityResultsContent() {
             </div>
           )}
 
-          <div className="mt-6 text-center">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Unlock Full Technical Audit Report</h2>
-            <div className="flex flex-col items-center gap-3">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full max-w-sm px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                onClick={() => setEmailModalOpen(true)}
-                className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
-              >
-                Unlock Report
-              </button>
-            </div>
-          </div>
+           {result.auditReport && (
+             <div className="mt-6">
+               <h2 className="text-xl font-bold text-slate-900 mb-4">Full Technical Audit Report</h2>
+               <div className="bg-white p-4 rounded-lg shadow-sm">
+                 <MarkdownBody markdown={result.auditReport} />
+               </div>
+             </div>
+           )}
+
+           <div className="mt-6 text-center">
+             <h2 className="text-xl font-bold text-slate-900 mb-4">Unlock Full Technical Audit Report</h2>
+             <div className="flex flex-col items-center gap-3">
+               <input
+                 type="email"
+                 placeholder="Enter your email"
+                 className="w-full max-w-sm px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               />
+               <button
+                 onClick={() => setEmailModalOpen(true)}
+                 className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
+               >
+                 Unlock Report
+               </button>
+             </div>
+           </div>
 
           <div className="mt-6 text-center">
             <button
