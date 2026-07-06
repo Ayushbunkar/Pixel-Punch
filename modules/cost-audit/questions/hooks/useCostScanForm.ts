@@ -18,7 +18,7 @@ import {
   isValidEnum,
 } from "@/modules/cost-audit/types";
 
-const TOTAL_STEPS = 9;
+const TOTAL_STEPS = 8;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Per-step validation
