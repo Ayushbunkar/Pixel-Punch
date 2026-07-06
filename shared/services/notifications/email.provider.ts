@@ -287,16 +287,21 @@ export async function sendReportEmail(
     console.log(`[email.provider] Attempting to send email to ${email} from ${senderEmail} with subject: Your ${reportTitle} Report — Pixel Punch`);
     console.log(`[email.provider] Brevo API request body: ${requestBody}`);
 
-    const response = await fetch(BREVO_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "api-key": apiKey,
-      },
-      body: requestBody,
-    });
+           console.log(`[email.provider] Using API Key (first 5 chars): ${apiKey.substring(0, 5)}*****`);
+           const response = await fetch(BREVO_API_URL, {
+             method: "POST",
+             headers: {
+               "Content-Type": "application/json",
+               "api-key": apiKey,
+             },
+             body: requestBody,
+           });
 
-    console.log(`[email.provider] Brevo API response status: ${response.status}`);
+           console.log(`[email.provider] Brevo API response status: ${response.status}`);
+           if (!response.ok) {
+             const errorText = await response.text();
+             console.error(`[email.provider] Brevo API error response body: ${errorText}`);
+           }
 
     if (!response.ok) {
       const text = await response.text();
