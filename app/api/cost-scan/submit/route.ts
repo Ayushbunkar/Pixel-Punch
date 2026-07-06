@@ -111,10 +111,11 @@ export async function POST(req: NextRequest) {
     if (body.submissionId) {
       try {
         console.log(`[Cost Submit API] Pre-saving submission with ID: ${submissionId}. Initial payload keys: ${Object.keys(body).join(', ')}`);
+        console.log("[Cost Submit API] Pre-save Payload:", JSON.stringify(body, null, 2));
         await saveSubmission(submissionId, body);
         console.log(`[Cost Submit API] Pre-saved to Supabase: ${submissionId}`);
       } catch (err) {
-        console.error("[Cost Submit API] Failed to pre-save submission to database:", err);
+        console.error("[Cost Submit API] Failed to pre-save submission to database:", JSON.stringify(err, null, 2));
         // Do not block the request, proceed with existing logic
       }
     }
@@ -303,11 +304,15 @@ export async function POST(req: NextRequest) {
         email:                   castedInput.email, // Add email as a top-level field
         firstname:               castedInput.firstname, // Add firstname as a top-level field
         lastname:                castedInput.lastname, // Add lastname as a top-level field
+        user_email:              castedInput.email, // Add user_email for RLS policies
       };
       console.log(`[Cost Submit API] Attempting to save submission with ID: ${submissionId}. Payload keys: ${Object.keys(dbPayload).join(', ')}`);
+      console.log("[Cost Submit API] dbPayload:", JSON.stringify(dbPayload, null, 2));
       
-      // Ensure email is present before saving to prevent RLS policy violations
-      if (!castedInput.email) {
+      // Ensure email is present and is a string before saving to prevent RLS policy violations
+      const emailToSave = castedInput.email || ""; // Ensure email is always a string
+
+      if (!emailToSave) {
         console.error("[Cost Submit API] Email is missing from submission, cannot save to database due to RLS policy.");
         return NextResponse.json(
           { error: "Email address is required for submission." },
@@ -315,10 +320,14 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      // Update dbPayload with the ensured email value
+      dbPayload.email = emailToSave;
+      dbPayload.user_email = emailToSave;
+
       await saveSubmission(submissionId, dbPayload);
       console.log(`[Cost Submit API] Saved to Supabase: ${submissionId}`);
     } catch (err) {
-      console.error("[submit] Failed to save submission to database:", err);
+      console.error("[submit] Failed to save submission to database:", JSON.stringify(err, null, 2));
       // Re-throw the error to be caught by the main try-catch block
       throw err; 
     }
