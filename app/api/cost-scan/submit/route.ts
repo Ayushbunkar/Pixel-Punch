@@ -305,10 +305,22 @@ export async function POST(req: NextRequest) {
         lastname:                castedInput.lastname, // Add lastname as a top-level field
       };
       console.log(`[Cost Submit API] Attempting to save submission with ID: ${submissionId}. Payload keys: ${Object.keys(dbPayload).join(', ')}`);
+      
+      // Ensure email is present before saving to prevent RLS policy violations
+      if (!castedInput.email) {
+        console.error("[Cost Submit API] Email is missing from submission, cannot save to database due to RLS policy.");
+        return NextResponse.json(
+          { error: "Email address is required for submission." },
+          { status: 400 }
+        );
+      }
+
       await saveSubmission(submissionId, dbPayload);
       console.log(`[Cost Submit API] Saved to Supabase: ${submissionId}`);
     } catch (err) {
       console.error("[submit] Failed to save submission to database:", err);
+      // Re-throw the error to be caught by the main try-catch block
+      throw err; 
     }
 
     // ── Notifications (NON-BLOCKING) ───────────────────────────────────────────
