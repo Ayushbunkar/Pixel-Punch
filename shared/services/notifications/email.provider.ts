@@ -45,6 +45,8 @@ export async function sendReportEmail(
       return { success: false, error: "Submission not found." };
     }
 
+    console.log(`[email.provider] Retrieved submission: ${JSON.stringify(submission, null, 2)}`);
+
     // Ensure scorecard and score are present to avoid errors
     if (!submission.scorecard && !submission.score) {
       console.error(`[email.provider] Submission ${submissionId} is missing scorecard/score data.`);
@@ -238,6 +240,8 @@ export async function sendReportEmail(
       confidenceScore: submission.confidenceScore,
       logoBase64: await loadLogoBase64(),
     };
+
+    console.log(`[email.provider] ReportData constructed: ${JSON.stringify(reportData, null, 2)}`);
 
     let htmlContent: string;
     try {
