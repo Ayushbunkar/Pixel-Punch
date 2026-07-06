@@ -45,6 +45,7 @@ export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess,
         let errorData: { error?: string } | null = null;
       
         if (!response.ok) {
+                console.error("EmailModal: Server responded with an error:", response.status, await response.text());
                 try {
                   errorData = await response.json();
                 } catch (jsonError) {
