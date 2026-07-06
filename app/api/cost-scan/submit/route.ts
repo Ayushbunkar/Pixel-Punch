@@ -5,7 +5,7 @@ import { runScoring, getCTAUrl }              from "@/modules/cost-audit/scoring
 import { generateInsights }                   from "@/modules/cost-audit/utils/insight.service";
 import { syncToBrevo }                        from "@/shared/utils/brevo.service";
 import { generateAuditReport }                from "@/shared/utils/audit.service";
-import { saveSubmission }                     from "@/shared/database/db.service";
+import { getSubmission, saveSubmission }                     from "@/shared/database/db.service";
 import { calculateConfidenceScore, analyzeArchitecture, analyzeCostEvidence, analyzeUsageMetrics } from "@/shared/utils/medium-analysis.service";
 import { FormState, INITIAL_FORM_STATE } from "@/modules/cost-audit/types";
 import {
@@ -92,23 +92,38 @@ export async function POST(req: NextRequest) {
      // ── Parse body ─────────────────────────────────────────────────────────────
     const body = await req.json();
 
-    const reconstructedInput: FormState = {
-      ...INITIAL_FORM_STATE,
-      ...body,
-      documents: body.documents || [],
-      architecture_files: body.architecture_files || [],
-      cost_files: body.cost_files || [],
-    };
+    let castedInput: FormState = INITIAL_FORM_STATE; // Initialize with default
+    let submissionIdFromDb: string | undefined;
 
-    // ── Validation (HARD FAIL) ─────────────────────────────────────────────────
-    const validationErrors = validateSubmission(reconstructedInput);
-    if (validationErrors.length > 0) {
-      return NextResponse.json({ errors: validationErrors }, { status: 400 });
+    // If submissionId and email are present, but not full form data, retrieve from DB
+    if (body.submissionId && body.email && !body.ai_dependence) {
+      console.log(`[Cost Submit API] Retrieving submission ${body.submissionId} from DB for email sending.`);
+      const submission = await getSubmission(body.submissionId);
+      if (!submission) {
+        return NextResponse.json({ error: "Submission not found." }, { status: 404 });
+      }
+      castedInput = castToFormState(submission);
+      castedInput.email = body.email; // Update email from modal
+      submissionIdFromDb = body.submissionId;
+    } else {
+      const reconstructedInput: FormState = {
+        ...INITIAL_FORM_STATE,
+        ...body,
+        documents: body.documents || [],
+        architecture_files: body.architecture_files || [],
+        cost_files: body.cost_files || [],
+      };
+
+      // ── Validation (HARD FAIL) ─────────────────────────────────────────────────
+      const validationErrors = validateSubmission(reconstructedInput);
+      if (validationErrors.length > 0) {
+        return NextResponse.json({ errors: validationErrors }, { status: 400 });
+      }
+
+      // ── Cast to typed FormState ────────────────────────────────────────────────
+      const bodyRecord = reconstructedInput as Record<string, any>;
+      castedInput = castToFormState(bodyRecord);
     }
-
-    // ── Cast to typed FormState ────────────────────────────────────────────────
-    const bodyRecord = reconstructedInput as Record<string, any>;
-    const castedInput = castToFormState(bodyRecord);
 
     // ── Technical audit parameters ─────────────────────────────────────────────
     const websiteUrl     = castedInput.website_url;
@@ -137,9 +152,9 @@ export async function POST(req: NextRequest) {
     try {
       const hasWebsite = !!websiteUrl;
       const hasAiStack = aiStack.providers.length > 0 || !!aiStack.models;
-      const hasDocuments = reconstructedInput.documents.length > 0;
-      const hasArchitecture = reconstructedInput.architecture_files.length > 0;
-      const hasCostEvidence = reconstructedInput.cost_files.length > 0;
+      const hasDocuments = castedInput.documents.length > 0;
+      const hasArchitecture = castedInput.architecture_files.length > 0;
+      const hasCostEvidence = castedInput.cost_files.length > 0;
 
       const conf = calculateConfidenceScore({
         hasWebsite,
@@ -164,7 +179,7 @@ export async function POST(req: NextRequest) {
     const insights = generateInsights(castedInput, scores, scores.tier);
 
     // ── Submission ID ──────────────────────────────────────────────────────────
-    const submissionId = randomUUID();
+    const submissionId = submissionIdFromDb || randomUUID();
     console.log(`[Cost Submit API] Generated ID: ${submissionId}`);
 
     // ── CTA URL ────────────────────────────────────────────────────────────────
