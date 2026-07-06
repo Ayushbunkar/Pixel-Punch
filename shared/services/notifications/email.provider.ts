@@ -243,6 +243,8 @@ export async function sendReportEmail(
 
     const senderEmail = process.env.BREVO_SENDER_EMAIL || "consulting@pixelpunch.org";
     const senderName  = process.env.BREVO_SENDER_NAME  || "Pixel Punch Consulting";
+
+    console.log(`[email.provider] Attempting to send email to ${email} from ${senderEmail} with subject: Your ${reportTitle} Report — Pixel Punch`);
     const response = await fetch(BREVO_API_URL, {
       method: "POST",
       headers: {
@@ -262,6 +264,8 @@ export async function sendReportEmail(
         ],
       }),
     });
+
+    console.log(`[email.provider] Brevo API response status: ${response.status}`);
 
     if (!response.ok) {
       const text = await response.text();
