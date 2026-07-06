@@ -272,25 +272,28 @@ export async function sendReportEmail(
     const senderEmail = process.env.BREVO_SENDER_EMAIL || "consulting@pixelpunch.org";
     const senderName  = process.env.BREVO_SENDER_NAME  || "Pixel Punch Consulting";
 
+    const requestBody = JSON.stringify({
+      sender: { name: senderName, email: senderEmail },
+      to: [{ email, name: recipientName }],
+      subject: `Your ${reportTitle} Report — Pixel Punch`,
+      htmlContent,
+      attachment: [
+        {
+          name: pdfFileName,
+          content: pdfBase64,
+        },
+      ],
+    });
     console.log(`[email.provider] Attempting to send email to ${email} from ${senderEmail} with subject: Your ${reportTitle} Report — Pixel Punch`);
+    console.log(`[email.provider] Brevo API request body: ${requestBody}`);
+
     const response = await fetch(BREVO_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "api-key": apiKey,
       },
-      body: JSON.stringify({
-        sender: { name: senderName, email: senderEmail },
-        to: [{ email, name: recipientName }],
-        subject: `Your ${reportTitle} Report — Pixel Punch`,
-        htmlContent,
-        attachment: [
-          {
-            name: pdfFileName,
-            content: pdfBase64,
-          },
-        ],
-      }),
+      body: requestBody,
     });
 
     console.log(`[email.provider] Brevo API response status: ${response.status}`);
