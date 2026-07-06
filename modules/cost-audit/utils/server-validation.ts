@@ -209,12 +209,12 @@ export function validateSubmission(body: unknown): FieldError[] {
           } else {
             const name = doc.name;
             const size = doc.size;
-            const base64 = doc.base64;
+            const path = doc.path;
             if (typeof name !== "string" || !name) {
               errors.push({ field: `documents[${i}].name`, message: "Document name is required." });
             }
-            if (typeof base64 !== "string" || !base64) {
-              errors.push({ field: `documents[${i}].base64`, message: "Document base64 content is required." });
+            if (typeof path !== "string" || !path) {
+              errors.push({ field: `documents[${i}].path`, message: "Document path is required." });
             }
             if (typeof size === "number" && size > 10 * 1024 * 1024) {
               errors.push({ field: `documents[${i}].size`, message: "Document size must not exceed 10MB." });
@@ -230,10 +230,10 @@ export function validateSubmission(body: unknown): FieldError[] {
     }
 
     // Architecture Files
-    const archFiles = bodyRecord.architectureFiles;
+    const archFiles = data.architecture_files;
     if (archFiles !== undefined && archFiles !== null) {
       if (!Array.isArray(archFiles)) {
-        errors.push({ field: "architectureFiles", message: "Architecture files must be an array." });
+        errors.push({ field: "architecture_files", message: "Architecture files must be an array." });
       } else {
         for (let i = 0; i < archFiles.length; i++) {
           const file = archFiles[i];
@@ -242,12 +242,12 @@ export function validateSubmission(body: unknown): FieldError[] {
           } else {
             const name = file.name;
             const size = file.size;
-            const base64 = file.base64;
+            const path = file.path;
             if (typeof name !== "string" || !name) {
               errors.push({ field: `architectureFiles[${i}].name`, message: "Architecture file name is required." });
             }
-            if (typeof base64 !== "string" || !base64) {
-              errors.push({ field: `architectureFiles[${i}].base64`, message: "Architecture file base64 content is required." });
+            if (typeof path !== "string" || !path) {
+              errors.push({ field: `architectureFiles[${i}].path`, message: "Architecture file path is required." });
             }
             if (typeof size === "number" && size > 10 * 1024 * 1024) {
               errors.push({ field: `architectureFiles[${i}].size`, message: "Architecture file size must not exceed 10MB." });
@@ -263,10 +263,10 @@ export function validateSubmission(body: unknown): FieldError[] {
     }
 
     // Cost Evidence Files
-    const costFiles = bodyRecord.costEvidenceFiles;
+    const costFiles = data.cost_files;
     if (costFiles !== undefined && costFiles !== null) {
       if (!Array.isArray(costFiles)) {
-        errors.push({ field: "costEvidenceFiles", message: "Cost evidence files must be an array." });
+        errors.push({ field: "cost_files", message: "Cost evidence files must be an array." });
       } else {
         for (let i = 0; i < costFiles.length; i++) {
           const file = costFiles[i];
@@ -275,12 +275,12 @@ export function validateSubmission(body: unknown): FieldError[] {
           } else {
             const name = file.name;
             const size = file.size;
-            const base64 = file.base64;
+            const path = file.path;
             if (typeof name !== "string" || !name) {
               errors.push({ field: `costEvidenceFiles[${i}].name`, message: "Cost evidence file name is required." });
             }
-            if (typeof base64 !== "string" || !base64) {
-              errors.push({ field: `costEvidenceFiles[${i}].base64`, message: "Cost evidence file base64 content is required." });
+            if (typeof path !== "string" || !path) {
+              errors.push({ field: `costEvidenceFiles[${i}].path`, message: "Cost evidence file path is required." });
             }
             if (typeof size === "number" && size > 10 * 1024 * 1024) {
               errors.push({ field: `costEvidenceFiles[${i}].size`, message: "Cost evidence file size must not exceed 10MB." });
@@ -296,10 +296,10 @@ export function validateSubmission(body: unknown): FieldError[] {
     }
 
     // Usage Metrics
-    const metrics = bodyRecord.usageMetrics;
+    const metrics = data.usage_metrics;
     if (metrics !== undefined && metrics !== null) {
       if (typeof metrics !== "object" || Array.isArray(metrics)) {
-        errors.push({ field: "usageMetrics", message: "Usage metrics must be an object." });
+        errors.push({ field: "usage_metrics", message: "Usage metrics must be an object." });
       }
     }
   }

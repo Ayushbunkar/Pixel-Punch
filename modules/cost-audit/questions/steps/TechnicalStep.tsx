@@ -7,13 +7,18 @@ import {
   Activity, FileSpreadsheet, DollarSign, ImageIcon, X, AlertCircle, Info
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { uploadFile } from "@/shared/utils/frontend-storage.service";
 
 interface TechnicalStepProps {
   state: FormState;
   errors: ValidationErrors;
   onChange: <K extends keyof FormState>(field: K, value: FormState[K]) => void;
-  onAddDocument: (doc: { name: string; type: string; size: number; base64: string }) => void;
+  onAddDocument: (doc: { name: string; type: string; size: number; path: string }) => void;
   onRemoveDocument: (index: number) => void;
+  onAddArchitectureFile: (doc: { name: string; type: string; size: number; path: string }) => void;
+  onRemoveArchitectureFile: (index: number) => void;
+  onAddCostFile: (doc: { name: string; type: string; size: number; path: string }) => void;
+  onRemoveCostFile: (index: number) => void;
 }
 
 export function TechnicalStep({
@@ -22,6 +27,10 @@ export function TechnicalStep({
   onChange,
   onAddDocument,
   onRemoveDocument,
+  onAddArchitectureFile,
+  onRemoveArchitectureFile,
+  onAddCostFile,
+  onRemoveCostFile,
 }: TechnicalStepProps) {
   const [activeTab, setActiveTab] = useState<"stack" | "architecture" | "billing">("stack");
   const docInputRef = useRef<HTMLInputElement>(null);
@@ -58,18 +67,6 @@ export function TechnicalStep({
   };
 
   // ── File upload processing helpers ────────────────────────────────────────
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        const base64 = (reader.result as string).split(",")[1];
-        resolve(base64);
-      };
-      reader.onerror = (error) => reject(error);
-    });
-  };
-
   const handleDocFiles = async (files: FileList) => {
     const totalFiles = (state.documents?.length || 0) + (state.architecture_files?.length || 0) + (state.cost_files?.length || 0);
     if (totalFiles + files.length > 5) {
@@ -89,16 +86,16 @@ export function TechnicalStep({
         continue;
       }
       try {
-        const b64 = await fileToBase64(file);
+        const uploadedPath = await uploadFile(file, "/api/cost-scan/upload", "document");
         onAddDocument({
           name: file.name,
           type: file.type || `application/${ext}`,
           size: file.size,
-          base64: b64,
+          path: uploadedPath,
         });
         toast.success(`Uploaded "${file.name}" successfully!`, { id: `doc-success-${file.name}` });
       } catch {
-        toast.error(`Failed to read file: ${file.name}`);
+        toast.error(`Failed to upload file: ${file.name}`);
       }
     }
   };
@@ -124,19 +121,18 @@ export function TechnicalStep({
         continue;
       }
       try {
-        const b64 = await fileToBase64(file);
-        updated.push({
+        const uploadedPath = await uploadFile(file, "/api/cost-scan/upload", "architecture");
+        onAddArchitectureFile({
           name: file.name,
           type: file.type || `application/${ext}`,
           size: file.size,
-          base64: b64,
+          path: uploadedPath,
         });
-        toast.success(`Loaded architecture diagram: "${file.name}"`, { id: `arch-success-${file.name}` });
+        toast.success(`Loaded architecture diagram: "${file.name}" successfully!`, { id: `arch-success-${file.name}` });
       } catch {
-        toast.error(`Failed to read architecture file.`);
+        toast.error(`Failed to upload architecture file.`);
       }
     }
-    onChange("architecture_files", updated);
   };
 
   const handleCostFiles = async (files: FileList) => {
@@ -146,7 +142,6 @@ export function TechnicalStep({
       return;
     }
     const allowed = ["csv", "xlsx", "xls", "pdf", "png", "jpg", "jpeg"];
-    const updated = [...(state.cost_files || [])];
     
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -160,19 +155,18 @@ export function TechnicalStep({
         continue;
       }
       try {
-        const b64 = await fileToBase64(file);
-        updated.push({
+        const uploadedPath = await uploadFile(file, "/api/cost-scan/upload", "cost");
+        onAddCostFile({
           name: file.name,
           type: file.type || `application/${ext}`,
           size: file.size,
-          base64: b64,
+          path: uploadedPath,
         });
-        toast.success(`Loaded billing evidence: "${file.name}"`, { id: `cost-success-${file.name}` });
+        toast.success(`Loaded billing evidence: "${file.name}" successfully!`, { id: `cost-success-${file.name}` });
       } catch {
-        toast.error(`Failed to read cost evidence file.`);
+        toast.error(`Failed to upload cost evidence file.`);
       }
     }
-    onChange("cost_files", updated);
   };
 
   const handleMetricsChange = (field: keyof FormState["usage_metrics"], value: string) => {
@@ -422,19 +416,10 @@ export function TechnicalStep({
               {state.architecture_files && state.architecture_files.length > 0 && (
                 <div className="mt-3 space-y-1.5">
                   {state.architecture_files.map((file, idx) => {
-                    const isImg = file.type.startsWith("image/");
                     return (
                       <div key={idx} className="flex items-center justify-between p-2.5 border border-slate-100 rounded-lg bg-slate-50/50 text-xs">
                         <div className="flex items-center gap-2 min-w-0">
-                          {isImg ? (
-                            <img
-                              src={`data:${file.type};base64,${file.base64}`}
-                              alt={file.name}
-                              className="w-8 h-8 rounded border object-cover bg-white"
-                            />
-                          ) : (
-                            <FileText className="w-5 h-5 text-blue-500 flex-shrink-0" />
-                          )}
+                          <FileText className="w-5 h-5 text-blue-500 flex-shrink-0" />
                           <div className="min-w-0">
                             <p className="font-semibold text-slate-700 truncate">{file.name}</p>
                             <p className="text-[10px] text-slate-400">{(file.size / 1024).toFixed(1)} KB</p>
@@ -442,10 +427,7 @@ export function TechnicalStep({
                         </div>
                         <button
                           type="button"
-                          onClick={() => {
-                            const updated = state.architecture_files.filter((_, i) => i !== idx);
-                            onChange("architecture_files", updated);
-                          }}
+                        onClick={() => onRemoveArchitectureFile(idx)}
                           className="text-slate-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors"
                         >
                           <X className="w-3.5 h-3.5" />
@@ -579,10 +561,7 @@ export function TechnicalStep({
                       </div>
                       <button
                         type="button"
-                        onClick={() => {
-                          const updated = state.cost_files.filter((_, i) => i !== idx);
-                          onChange("cost_files", updated);
-                        }}
+                        onClick={() => onRemoveCostFile(idx)}
                         className="text-slate-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors"
                       >
                         <X className="w-3.5 h-3.5" />

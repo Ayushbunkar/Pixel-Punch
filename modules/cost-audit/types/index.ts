@@ -126,7 +126,7 @@ export interface FormState {
     name: string;
     type: string;
     size: number;
-    base64: string;
+    path: string;
   }>;
 
   // Medium feature upgrades
@@ -134,13 +134,13 @@ export interface FormState {
     name: string;
     type: string;
     size: number;
-    base64: string;
+    path: string;
   }>;
   cost_files: Array<{
     name: string;
     type: string;
     size: number;
-    base64: string;
+    path: string;
   }>;
   usage_metrics: {
     monthly_requests: string;

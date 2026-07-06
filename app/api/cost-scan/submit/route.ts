@@ -4,10 +4,10 @@ import { validateSubmission, castToFormState } from "@/modules/cost-audit/utils/
 import { runScoring, getCTAUrl }              from "@/modules/cost-audit/scoring/cost-score-service";
 import { generateInsights }                   from "@/modules/cost-audit/utils/insight.service";
 import { syncToBrevo }                        from "@/shared/utils/brevo.service";
-import { extractTextFromDoc }                 from "@/shared/utils/extractor.service";
 import { generateAuditReport }                from "@/shared/utils/audit.service";
 import { saveSubmission }                     from "@/shared/database/db.service";
 import { calculateConfidenceScore, analyzeArchitecture, analyzeCostEvidence, analyzeUsageMetrics } from "@/shared/utils/medium-analysis.service";
+import { FormState, INITIAL_FORM_STATE } from "@/modules/cost-audit/types";
 
 // ── Helper: Remove duplicate recommendations ───────────────────────────────────
 function deduplicateRecommendations(recommendations: string[]): string[] {
@@ -83,71 +83,71 @@ export async function POST(req: NextRequest) {
         },
       );
     }
-
-    // ── Parse body ─────────────────────────────────────────────────────────────
-    let rawBody: string;
-    let body:    unknown;
-
+ 
+     // ── Parse body ─────────────────────────────────────────────────────────────
+    let formData: FormData;
     try {
-      rawBody = await req.text();
-      body    = JSON.parse(rawBody);
-    } catch {
+      formData = await req.formData();
+    } catch (error) {
+      console.error("[Cost Submit API] Error parsing form data:", error);
       return NextResponse.json(
-        { errors: [{ field: "_root", message: "Request body must be valid JSON." }] },
+        { errors: [{ field: "_root", message: "Request body must be valid FormData." }] },
         { status: 400 },
       );
     }
-
-    // ── HMAC verification (Hermes integration) ────────────────────────────────
-    const hmacValid = await verifyHmacIfPresent(req, rawBody);
-    if (!hmacValid) {
-      return NextResponse.json(
-        { errors: [{ field: "_root", message: "Invalid request signature." }] },
-        { status: 401 },
-      );
+ 
+    const input: Record<string, any> = {};
+    const documents: any[] = [];
+    const architectureFiles: any[] = [];
+    const costEvidenceFiles: any[] = [];
+ 
+    for (const [key, value] of formData.entries()) {
+      if (key === 'documents') {
+        documents.push(JSON.parse(value as string));
+      } else if (key === 'architecture_files') {
+        architectureFiles.push(JSON.parse(value as string));
+      } else if (key === 'cost_files') {
+        costEvidenceFiles.push(JSON.parse(value as string));
+      } else {
+        try {
+          input[key] = JSON.parse(value as string);
+        } catch {
+          input[key] = value;
+        }
+      }
     }
+ 
+     // Reconstruct the input object to match the original structure expected by castToFormState
+    const reconstructedInput: FormState = {
+      ...INITIAL_FORM_STATE,
+      ...input,
+      documents: documents.flat(),
+      architecture_files: architectureFiles.flat(),
+      cost_files: costEvidenceFiles.flat(),
+    };
 
     // ── Validation (HARD FAIL) ─────────────────────────────────────────────────
-    const validationErrors = validateSubmission(body);
+    const validationErrors = validateSubmission(reconstructedInput);
     if (validationErrors.length > 0) {
       return NextResponse.json({ errors: validationErrors }, { status: 400 });
     }
 
     // ── Cast to typed FormState ────────────────────────────────────────────────
-    const bodyRecord = body as Record<string, any>;
-    const input = castToFormState(bodyRecord);
+    const bodyRecord = reconstructedInput as Record<string, any>;
+    const castedInput = castToFormState(bodyRecord);
 
     // ── Technical audit parameters ─────────────────────────────────────────────
-    const websiteUrl     = input.website_url;
+    const websiteUrl     = castedInput.website_url;
     const aiStack        = {
-      providers:      input.ai_providers,
-      models:         input.ai_models,
-      infrastructure: input.ai_infrastructure,
-      other:          input.ai_other,
+      providers:      castedInput.ai_providers,
+      models:         castedInput.ai_models,
+      infrastructure: castedInput.ai_infrastructure,
+      other:          castedInput.ai_other,
     };
-    const technicalNotes = input.technical_notes;
-    const documents      = input.documents;
-    const architectureFiles = input.architecture_files;
-    const costEvidenceFiles = input.cost_files;
-    const usageMetricsInput = bodyRecord.usageMetrics || {};
+    const technicalNotes = castedInput.technical_notes;
+    const usageMetricsInput = castedInput.usage_metrics || {};
 
     // ── Extract file texts (parallel, non-blocking errors) ─────────────────────
-    let filesContent: Array<{ name: string; content: string }> = [];
-    try {
-      filesContent = await Promise.all(
-        documents.map(async (doc) => {
-          try {
-            const content = await extractTextFromDoc(doc);
-            return { name: doc.name, content };
-          } catch (err) {
-            console.error(`[submit] Error extracting text from ${doc.name}:`, err);
-            return { name: doc.name, content: `Error: failed to extract text from document.` };
-          }
-        })
-      );
-    } catch (err) {
-      console.error("[submit] Failed processing documents:", err);
-    }
 
     // ── Medium upgrades analysis ───────────────────────────────────────────────
     let archAnalysis = { summary: "No architecture diagrams were provided.", findings: [] as string[], risks: [] as string[] };
@@ -176,8 +176,8 @@ export async function POST(req: NextRequest) {
       });
       confidenceScore = `${conf.score}%`;
 
-      archAnalysis = await analyzeArchitecture(architectureFiles, input, websiteUrl, aiStack);
-      costAnalysis = await analyzeCostEvidence(costEvidenceFiles, input);
+      archAnalysis = await analyzeArchitecture(architectureFiles, castedInput, websiteUrl, aiStack);
+      costAnalysis = await analyzeCostEvidence(costEvidenceFiles, castedInput);
       usageAnalysis = analyzeUsageMetrics(usageMetricsInput, costAnalysis.normalizedData);
     } catch (err) {
       console.error("[submit] Error running medium upgrades analysis:", err);
@@ -210,7 +210,7 @@ export async function POST(req: NextRequest) {
         websiteUrl: websiteUrl || "",
         aiStack,
         technicalNotes: technicalNotes || "",
-        files: filesContent,
+        files: documents,
         architectureAnalysis: archAnalysis,
         costAnalysis: costAnalysis,
         usageMetrics: usageAnalysis,
@@ -273,17 +273,18 @@ export async function POST(req: NextRequest) {
         website_url:             websiteUrl || "",
         ai_stack_details:        aiStack || {},
         technical_notes:         technicalNotes || "",
-        uploaded_documents:      documents.map((doc: any) => ({ name: doc.name, size: doc.size, type: doc.type })),
-        extracted_document_text: filesContent.map((f) => f.content).join("\n\n"),
-        ai_audit_context:        `Website: ${websiteUrl || "none"}\nAI Stack: ${JSON.stringify(aiStack)}\nNotes: ${technicalNotes || "none"}\nFiles: ${filesContent.map((f) => f.name).join(", ")}`,
+        uploaded_documents:      documents.map((doc: any) => ({ name: doc.name, size: doc.size, type: doc.type, path: doc.path })),
         generated_report:        auditResult.auditReport,
-        architecture_files:      architectureFiles.map((f: any) => ({ name: f.name, size: f.size, type: f.type })),
+        architecture_files:      architectureFiles.map((f: any) => ({ name: f.name, size: f.size, type: f.type, path: f.path })),
         architecture_analysis:   archAnalysis,
-        cost_files:              costEvidenceFiles.map((f: any) => ({ name: f.name, size: f.size, type: f.type })),
+        cost_files:              costEvidenceFiles.map((f: any) => ({ name: f.name, size: f.size, type: f.type, path: f.path })),
         cost_analysis:           costAnalysis,
         usage_metrics:           usageMetricsInput,
         confidence_score:        confidenceScore,
         audit_findings:          auditResult.findings,
+        // The following fields are removed as per the new architecture
+        // extracted_document_text: filesContent.map(f => ({ name: f.name, content: f.content })),
+        // ai_audit_context:        auditResult.auditReport,
       };
       await saveSubmission(submissionId, dbPayload);
       console.log(`[Cost Submit API] Saved to Supabase: ${submissionId}`);

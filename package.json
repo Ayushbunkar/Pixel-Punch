@@ -10,8 +10,10 @@
     "test:step4": "node -e \"require('tsconfig-paths').register({baseUrl:'.',paths:{'@/*':['./*']}}); require('ts-node').register({transpileOnly:true,compilerOptions:{module:'commonjs',moduleResolution:'node'}}); require('./src/scoring/step4.test.ts')\""
   },
   "dependencies": {
+    "@google-cloud/storage": "^7.21.0",
     "@sparticuz/chromium-min": "^149.0.0",
     "@supabase/supabase-js": "^2.110.0",
+    "formdata-node": "^6.0.3",
     "framer-motion": "^12.41.0",
     "html2pdf.js": "^0.14.0",
     "lucide-react": "^1.21.0",
@@ -20,12 +22,14 @@
     "puppeteer-core": "^24.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-hot-toast": "^2.6.0"
+    "react-hot-toast": "^2.6.0",
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.5.2",
     "postcss": "^8.5.15",
     "tailwindcss": "^3.4.19",

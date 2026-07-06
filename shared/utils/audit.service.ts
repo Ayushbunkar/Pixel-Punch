@@ -1,5 +1,7 @@
 import type { FormState, Rag } from "@/modules/cost-audit/types";
 
+import { getStorageService } from "@/shared/services/storage/storage-provider.service";
+
 interface AuditInput {
   answers: FormState;
   scores: {
@@ -16,7 +18,7 @@ interface AuditInput {
     other?: string[];
   };
   technicalNotes?: string;
-  files: Array<{ name: string; content: string }>;
+  files: Array<{ name: string; path: string; type: string; size: number }>;
   architectureAnalysis?: { summary: string; findings: string[]; risks: string[] };
   costAnalysis?: { summary: string; normalizedData: any };
   usageMetrics?: any;
@@ -63,9 +65,21 @@ function extractBulletPoints(text: string, heading: string): string[] {
 /**
  * Fallback local report generator when no LLM API key is configured or API fails.
  */
-function generateFallbackReport(input: AuditInput): AuditOutput {
+async function generateFallbackReport(input: AuditInput): Promise<AuditOutput> {
   const { answers, scores, websiteUrl, aiStack, technicalNotes, files, architectureAnalysis, costAnalysis, usageMetrics, confidenceScore } = input;
   const companyName = answers.company || "Your Company";
+
+  const storageService = getStorageService();
+  const filesWithContent: Array<{ name: string; content: string }> = [];
+  for (const file of files) {
+    try {
+      const fileBuffer = await storageService.downloadFile(file.path);
+      filesWithContent.push({ name: file.name, content: fileBuffer.toString('utf8') });
+    } catch (error) {
+      console.error(`[audit.service] Failed to download file ${file.path}:`, error);
+      filesWithContent.push({ name: file.name, content: `Error downloading file: ${error.message}` });
+    }
+  }
 
   // Extract domain name
   let domain = "";
@@ -88,7 +102,7 @@ function generateFallbackReport(input: AuditInput): AuditOutput {
 
   const parsedFilesInfo: string[] = [];
 
-  files.forEach(f => {
+  filesWithContent.forEach(f => {
     const textLower = f.content.toLowerCase();
 
     for (const [category, words] of Object.entries(fileKeywords)) {
@@ -324,6 +338,18 @@ export async function generateAuditReport(input: AuditInput): Promise<AuditOutpu
     return generateFallbackReport(input);
   }
 
+  const storageService = getStorageService();
+  const filesWithContent: Array<{ name: string; content: string }> = [];
+  for (const file of files) {
+    try {
+      const fileBuffer = await storageService.downloadFile(file.path);
+      filesWithContent.push({ name: file.name, content: fileBuffer.toString('utf8') });
+    } catch (error) {
+      console.error(`[audit.service] Failed to download file ${file.path}:`, error);
+      filesWithContent.push({ name: file.name, content: `Error downloading file: ${error.message}` });
+    }
+  }
+
   // Build the context prompt
   const prompt = `You are an AI infrastructure cost auditor. Analyze the company's actual technical environment using provided architecture, usage data, cost evidence, and technical information.
  
@@ -354,7 +380,7 @@ Here is the context provided about the company:
   ${technicalNotes || "None provided"}
 
 - Extracted Technical Resources & Document Texts:
-  ${files.length > 0 ? files.map(f => `--- File: ${f.name} ---\n${f.content}`).join("\n\n") : "No documents provided."}
+  ${filesWithContent.length > 0 ? filesWithContent.map(f => `--- File: ${f.name} ---\n${f.content}`).join("\n\n") : "No documents provided."}
 
 - Architecture Diagram Analysis:
   ${architectureAnalysis?.summary || "None provided"}
@@ -490,7 +516,7 @@ Please perform a detailed cost audit. You must:
       recommendations: recommendations.length > 0 ? recommendations : ["Implement prompt caching to reduce repetitious input token costs."],
     };
 
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("[audit.service] AI API failed. Running fallback report generator. Error:", err);
     return generateFallbackReport(input);
   }
