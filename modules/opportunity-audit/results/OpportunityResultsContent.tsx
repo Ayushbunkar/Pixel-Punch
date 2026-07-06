@@ -329,23 +329,23 @@ export default function OpportunityResultsContent() {
                  </tr>
                </thead>
                <tbody>
-                 {(
+                 {( 
                    [
-                     ["Readiness Score", result.scorecard.readiness],
-                     ["Value Score", result.scorecard.value],
-                     ["Opportunity Score", result.scorecard.opportunity],
-                   ] as [string, string][]
-                 ).map(([label, val]) => (
-                   <tr key={label} style={{ borderTop: "1px solid #e2e8f0" }}>
-                     <td style={{ padding: "8px 12px", color: "#334155" }}>{label}</td>
+                     { label: "Readiness Score", dimension: "readiness", score: result.scorecard.readiness },
+                     { label: "Value Score", dimension: "value", score: result.scorecard.value },
+                     { label: "Opportunity Score", dimension: "opportunity", score: result.scorecard.opportunity },
+                   ] as const
+                 ).map((item) => (
+                   <tr key={item.label} style={{ borderTop: "1px solid #e2e8f0" }}>
+                     <td style={{ padding: "8px 12px", color: "#334155" }}>{item.label}</td>
                      <td
                        style={{
                          padding: "8px 12px",
                          fontWeight: 600,
-                         color: val === "red" ? "#dc2626" : val === "amber" ? "#d97706" : "#16a34a",
+                         color: item.score === "red" ? "#dc2626" : item.score === "amber" ? "#d97706" : "#16a34a",
                        }}
                      >
-                       {RAG_META[val as "red" | "amber" | "green"].label}
+                       {(scoreDescriptions as Record<string, Record<string, string>>)[item.dimension][item.score || "green"]}
                      </td>
                    </tr>
                  ))}
