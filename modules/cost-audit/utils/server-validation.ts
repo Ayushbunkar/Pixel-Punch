@@ -13,8 +13,8 @@ import {
   OPTIMIZATION_DONE_VALUES,
   SAVINGS_THRESHOLD_VALUES,
 } from "@/modules/cost-audit/types";
-import { INITIAL_FORM_STATE } from "@/modules/cost-audit/types";
-import type { FormState } from "@/modules/cost-audit/types";
+import { INITIAL_FORM_STATE } from "@/modules/cost-audit/types/index";
+import type { FormState } from "@/modules/cost-audit/types/index";
 
 export interface FieldError {
   field:   string;

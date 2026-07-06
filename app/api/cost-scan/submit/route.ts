@@ -76,6 +76,7 @@ async function verifyHmacIfPresent(req: NextRequest, rawBody: string): Promise<b
 export async function POST(req: NextRequest) {
   try {
     console.log("[Cost Submit API] Received request");
+    console.log("[Cost Submit API] Request body:", JSON.stringify(req.body));
     // ── Rate limiting ──────────────────────────────────────────────────────────
     const ip        = getClientIP(req);
     const rateCheck = checkRateLimit(ip);
@@ -91,6 +92,7 @@ export async function POST(req: NextRequest) {
  
      // ── Parse body ─────────────────────────────────────────────────────────────
     const body = await req.json();
+    console.log("[Cost Submit API] Parsed request body:", JSON.stringify(body));
 
     let castedInput: FormState = INITIAL_FORM_STATE; // Initialize with default
     let submissionIdFromDb: string | undefined;
@@ -99,6 +101,7 @@ export async function POST(req: NextRequest) {
     if (body.submissionId && body.email && !body.ai_dependence) {
           console.log(`[Cost Submit API] Attempting to retrieve submission for ID: ${body.submissionId}`);
           const submission = await getSubmission(body.submissionId);
+          console.log(`[Cost Submit API] Result of getSubmission: ${JSON.stringify(submission)}`);
 
           if (!submission) {
             console.error(`[Cost Submit API] Submission with ID ${body.submissionId} not found or could not be retrieved.`);
@@ -127,6 +130,7 @@ export async function POST(req: NextRequest) {
       // ── Cast to typed FormState ────────────────────────────────────────────────
       const bodyRecord = reconstructedInput as Record<string, any>;
       castedInput = castToFormState(bodyRecord);
+      console.log(`[Cost Submit API] Casted input (new submission): ${JSON.stringify(castedInput)}`);
     }
 
     // ── Technical audit parameters ─────────────────────────────────────────────
@@ -279,6 +283,7 @@ export async function POST(req: NextRequest) {
         // extracted_document_text: filesContent.map(f => ({ name: f.name, content: f.content })),
         // ai_audit_context:        auditResult.auditReport,
       };
+      console.log(`[Cost Submit API] Attempting to save submission with ID: ${submissionId}. Payload keys: ${Object.keys(dbPayload).join(', ')}`);
       await saveSubmission(submissionId, dbPayload);
       console.log(`[Cost Submit API] Saved to Supabase: ${submissionId}`);
     } catch (err) {
@@ -298,6 +303,7 @@ export async function POST(req: NextRequest) {
     // Send user email
     console.log(`[Cost Submit API] User email: ${userEmail}`);
     if (userEmail) {
+      console.log(`[Cost Submit API] Sending user email with: submissionId=${submissionId}, email=${userEmail}, scanType=cost`);
       notificationService.sendNotification("user_email", {
         submissionId,
         email: userEmail,
@@ -322,12 +328,12 @@ export async function POST(req: NextRequest) {
     // Send Telegram notification to team
     if (telegramChatIdTeam) {
       const telegramMessage = `New Cost Scan Submission!
-
+ 
 Submission ID: ${submissionId}
 Company: ${castedInput.company}
 Contact: ${castedInput.firstname} ${castedInput.lastname} (${castedInput.email})
 Tier: ${scores.tier}
-
+ 
 View Report: http://localhost:3000/ai/cost-scan/results?id=${submissionId}`;
       notificationService.sendNotification("telegram_team", {
         message: telegramMessage,

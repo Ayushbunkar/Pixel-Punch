@@ -10,6 +10,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function saveSubmission(id: string, data: any): Promise<void> {
   try {
+    console.log(`[db.service] Saving submission with ID: ${id}, Data keys: ${Object.keys(data).join(', ')}`);
     const { error } = await supabase
       .from('submissions')
       .upsert({ id: id, data: data }, { onConflict: 'id' }); // Upsert by ID
