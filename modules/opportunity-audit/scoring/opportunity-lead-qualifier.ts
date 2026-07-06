@@ -52,7 +52,7 @@ export function calculateLeadScore(input: FormState): number {
 
   // 3. Manual Work Density (Max 20 pts)
   const manualCount = input.manual_processes.length;
-  score += Math.min(manualCount * 5, 20);
+  score += manualCount * 5;
 
   // 4. Data Maturity (Max 15 pts)
   if (input.data_quality === "clean_reliable") score += 10;

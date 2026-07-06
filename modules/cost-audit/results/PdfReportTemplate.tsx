@@ -2,6 +2,7 @@
 
 import React from "react";
 import { StoredScanResult } from "@/modules/cost-audit/types";
+import scoreDescriptions from "@/shared/config/score-descriptions.json";
 
 interface Props {
   result: StoredScanResult;
@@ -173,20 +174,28 @@ export const PdfReportTemplate: React.FC<Props> = ({ result }) => {
                   Diagnostic Scorecard
                 </p>
                 <div style={{ display: "flex", gap: "16px" }}>
-                  {[
-                    { label: "Spend & Visibility",    desc: "Cost tracking & attribution", cfg: spend },
-                    { label: "Architecture Risk",     desc: "Infrastructure design & leakage", cfg: arch  },
-                    { label: "Business Urgency",      desc: "Operational pain & savings target", cfg: pain  },
-                  ].map(({ label, desc, cfg }) => (
-                    <div key={label} style={{ flex: 1, minWidth: 0, border: `1.5px solid ${cfg.borderColor}`, borderRadius: "12px", padding: "14px 16px", backgroundColor: cfg.bgColor }}>
-                      <p style={{ margin: "0 0 3px 0", fontSize: "11px", fontWeight: "800", color: cfg.titleColor, textTransform: "uppercase", letterSpacing: "0.4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</p>
-                      <p style={{ margin: "0 0 8px 0", fontSize: "10.5px", color: cfg.descriptionColor, lineHeight: "1.35" }}>{desc}</p>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <div style={{ flexShrink: 0, width: "8px", height: "8px", borderRadius: "50%", backgroundColor: cfg.badgeBg }} />
-                        <span style={{ fontSize: "13px", fontWeight: "700", color: cfg.badgeText }}>{cfg.statusText}</span>
+                  {(
+                    [
+                      { title: "Spend & Visibility", dimension: "spend", score: result.scorecard?.spend },
+                      { title: "Architecture Risk", dimension: "architecture", score: result.scorecard?.architecture },
+                      { title: "Business Urgency", dimension: "pain", score: result.scorecard?.pain },
+                    ] as const
+                  ).map((cardItem) => {
+                    const ragStatus = cardItem.score || "green";
+                    const cfg = ragStyles[ragStatus as keyof typeof ragStyles];
+                    const description = (scoreDescriptions as Record<string, Record<string, string>>)[cardItem.dimension][ragStatus];
+
+                    return (
+                      <div key={cardItem.dimension} style={{ flex: 1, minWidth: 0, border: `1.5px solid ${cfg.borderColor}`, borderRadius: "12px", padding: "14px 16px", backgroundColor: cfg.bgColor }}>
+                        <p style={{ margin: "0 0 3px 0", fontSize: "11px", fontWeight: "800", color: cfg.titleColor, textTransform: "uppercase", letterSpacing: "0.4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cardItem.title}</p>
+                        <p style={{ margin: "0 0 8px 0", fontSize: "10.5px", color: cfg.descriptionColor, lineHeight: "1.35" }}>{description}</p>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <div style={{ flexShrink: 0, width: "8px", height: "8px", borderRadius: "50%", backgroundColor: cfg.badgeBg }} />
+                          <span style={{ fontSize: "13px", fontWeight: "700", color: cfg.badgeText }}>{cfg.statusText}</span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

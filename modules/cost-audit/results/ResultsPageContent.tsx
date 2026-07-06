@@ -250,22 +250,14 @@ export default function ResultsPageContent() {
          )}
 
          <div className="border border-slate-200 rounded-lg overflow-hidden relative">
-           <div className="bg-white p-3 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[150px]">
+            <div className="bg-white p-3 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[300px]">
              {/* Using MarkdownBody here if it was extracted to a shared utility or if a simple raw string display is fine */}
              {result.auditReport}
            </div>
 
            {!isUnlocked && <LockOverlay onUnlock={() => setUnlockModalOpen(true)} />}
          </div>
-         <div className="mt-6 text-center">
-           <button
-             onClick={() => setEmailModalOpen(true)}
-             className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
-           >
-             <Cpu className="w-3.5 h-3.5" />
-             View Report
-           </button>
-         </div>
+
 
          <div>
            <TierRecommendation tier={result.tier ?? 4} ctaUrl={ctaUrl} />
