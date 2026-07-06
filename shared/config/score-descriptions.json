@@ -13,5 +13,20 @@
     "red": "High business urgency. Your cost pain points justify immediate intervention and structured optimization.",
     "amber": "Moderate urgency. It's a good time to review costs before they become a larger business issue.",
     "green": "Low immediate urgency, but building cost-aware habits now will prevent future pain."
+  },
+  "readiness": {
+    "red": "Your readiness for AI adoption is low, indicating significant hurdles.",
+    "amber": "You have moderate readiness for AI adoption, with some areas needing improvement.",
+    "green": "Your organization is well-prepared for AI adoption."
+  },
+  "value": {
+    "red": "The potential value from AI initiatives is at high risk due to current limitations.",
+    "amber": "There is moderate potential for value from AI, but challenges exist.",
+    "green": "High potential for value from AI initiatives, with strong alignment."
+  },
+  "opportunity": {
+    "red": "Significant missed opportunities in AI implementation, requiring urgent attention.",
+    "amber": "Some AI opportunities are being missed, but can be addressed.",
+    "green": "You are effectively capitalizing on AI opportunities."
   }
 }
