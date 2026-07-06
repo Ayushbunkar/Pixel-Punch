@@ -49,15 +49,8 @@ export function useSubmitScan(): UseSubmitScanReturn {
           leakage_pattern:    state.leakage_pattern,
           optimization_done:  state.optimization_done,
           savings_threshold:  state.savings_threshold,
-          firstname:          state.firstname.trim(),
-          email:              state.email.trim().toLowerCase(),
           ref:                state.ref ?? "co-landing",
         };
-
-        // Only include optional lead fields if they have values
-        if (state.lastname.trim())  answers.lastname  = state.lastname.trim();
-        if (state.company.trim())   answers.company   = state.company.trim();
-        if (state.job_title.trim()) answers.job_title  = state.job_title.trim();
 
         // Include extra_context only if non-empty
         if (state.extra_context && state.extra_context.trim().length > 0) {
@@ -73,7 +66,14 @@ export function useSubmitScan(): UseSubmitScanReturn {
         }
 
         const payload = {
-          answers,
+          // Directly include contact fields at the top level
+          firstname:          state.firstname.trim(),
+          lastname:           state.lastname.trim(),
+          email:              state.email.trim().toLowerCase(),
+          company:            state.company.trim(),
+          job_title:          state.job_title.trim(),
+          
+          answers, // Keep answers object for other form fields
           technicalContext: {
             websiteUrl:     state.website_url ? state.website_url.trim() : "",
             aiStack: {
