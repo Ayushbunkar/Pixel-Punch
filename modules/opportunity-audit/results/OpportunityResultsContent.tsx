@@ -321,36 +321,66 @@ export default function OpportunityResultsContent() {
          {result.scorecard && (
            <div style={{ marginBottom: "20px" }}>
              <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e293b", marginBottom: "8px" }}>RAG Scorecard</div>
-             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
-               <thead>
-                 <tr style={{ backgroundColor: "#f1f5f9" }}>
-                   <th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Dimension</th>
-                   <th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Rating</th>
-                 </tr>
-               </thead>
-               <tbody>
-                 {( 
+             <div style={{ display: "flex", gap: "16px" }}>
+                 {(
                    [
-                     { label: "Readiness Score", dimension: "readiness", score: result.scorecard.readiness },
-                     { label: "Value Score", dimension: "value", score: result.scorecard.value },
-                     { label: "Opportunity Score", dimension: "opportunity", score: result.scorecard.opportunity },
+                     { title: "Readiness Risk", dimension: "readiness", score: result.scorecard.readiness },
+                     { title: "Value Risk", dimension: "value", score: result.scorecard.value },
+                     { title: "Opportunity Risk", dimension: "opportunity", score: result.scorecard.opportunity },
                    ] as const
-                 ).map((item) => (
-                   <tr key={item.label} style={{ borderTop: "1px solid #e2e8f0" }}>
-                     <td style={{ padding: "8px 12px", color: "#334155" }}>{item.label}</td>
-                     <td
+                 ).map((cardItem) => {
+                   const ragStatus = cardItem.score || "green";
+                   const description = (scoreDescriptions as Record<string, Record<string, string>>)[cardItem.dimension][ragStatus];
+                   let bgColor, borderColor, textColor, titleColor, icon;
+
+                   if (ragStatus === "red") {
+                     bgColor = "#fee2e2";
+                     borderColor = "#fca5a5";
+                     textColor = "#ef4444";
+                     titleColor = "#b91c1c";
+                     icon = "⚠️";
+                   } else if (ragStatus === "amber") {
+                     bgColor = "#fffbeb";
+                     borderColor = "#fcd34d";
+                     textColor = "#f59e0b";
+                     titleColor = "#b45309";
+                     icon = "💡";
+                   } else { // green
+                     bgColor = "#ecfdf5";
+                     borderColor = "#a7f3d0";
+                     textColor = "#10b981";
+                     titleColor = "#047857";
+                     icon = "✅";
+                   }
+
+                   return (
+                     <div
+                       key={cardItem.dimension}
                        style={{
-                         padding: "8px 12px",
-                         fontWeight: 600,
-                         color: item.score === "red" ? "#dc2626" : item.score === "amber" ? "#d97706" : "#16a34a",
+                         flex: 1,
+                         backgroundColor: bgColor,
+                         border: `1px solid ${borderColor}`,
+                         borderRadius: "8px",
+                         padding: "16px",
+                         display: "flex",
+                         flexDirection: "column",
+                         gap: "8px",
                        }}
                      >
-                       {(scoreDescriptions as Record<string, Record<string, string>>)[item.dimension][item.score || "green"]}
-                     </td>
-                   </tr>
-                 ))}
-               </tbody>
-             </table>
+                       <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: 700, textTransform: "uppercase", color: textColor }}>
+                         <span>{icon}</span>
+                         <span>{RAG_META[ragStatus].label}</span>
+                       </div>
+                       <div style={{ fontSize: "14px", fontWeight: 700, color: titleColor }}>
+                         {cardItem.title}
+                       </div>
+                       <div style={{ fontSize: "11px", color: "#475569", lineHeight: 1.4 }}>
+                         {description}
+                       </div>
+                     </div>
+                   );
+                 })}
+             </div>
            </div>
          )}
 
