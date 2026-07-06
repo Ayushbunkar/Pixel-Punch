@@ -41,8 +41,14 @@ export async function sendReportEmail(
     let submission = await getSubmission(submissionId);
 
     if (!submission) {
-      console.error(`Submission ${submissionId} not found.`);
+      console.error(`[email.provider] Submission ${submissionId} not found.`);
       return { success: false, error: "Submission not found." };
+    }
+
+    // Ensure scorecard and score are present to avoid errors
+    if (!submission.scorecard && !submission.score) {
+      console.error(`[email.provider] Submission ${submissionId} is missing scorecard/score data.`);
+      return { success: false, error: "Submission missing scorecard/score data." };
     }
 
     const isCost = scanType === "cost" || !!submission.scorecard?.spend || !!submission.score?.spend;
@@ -233,9 +239,21 @@ export async function sendReportEmail(
       logoBase64: await loadLogoBase64(),
     };
 
-    const htmlContent = renderReportToHtml(reportData, { mode: 'email' });
+    let htmlContent: string;
+    try {
+      htmlContent = renderReportToHtml(reportData, { mode: 'email' });
+    } catch (err) {
+      console.error("[email.provider] Error rendering report to HTML:", err);
+      return { success: false, error: "Failed to render report HTML." };
+    }
 
-    const pdfBuffer = await generatePdf(reportData);
+    let pdfBuffer: Buffer;
+    try {
+      pdfBuffer = await generatePdf(reportData);
+    } catch (err) {
+      console.error("[email.provider] Error generating PDF:", err);
+      return { success: false, error: "Failed to generate PDF report." };
+    }
     const pdfBase64 = pdfBuffer.toString("base64");
     const pdfFileName = isCost ? "audit-cost-scan.pdf" : "opportunity-audit.pdf";
 
