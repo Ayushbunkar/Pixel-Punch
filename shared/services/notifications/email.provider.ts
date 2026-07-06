@@ -40,6 +40,11 @@ export async function sendReportEmail(
 
     let submission = await getSubmission(submissionId);
 
+    console.log(`[email.provider] Type of submission: ${typeof submission}`);
+    if (submission) {
+      console.log(`[email.provider] Keys in submission object: ${Object.keys(submission).join(', ')}`);
+    }
+
     if (!submission) {
       console.error(`[email.provider] Submission ${submissionId} not found.`);
       return { success: false, error: "Submission not found." };

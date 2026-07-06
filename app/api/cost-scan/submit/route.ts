@@ -97,11 +97,13 @@ export async function POST(req: NextRequest) {
 
     // If submissionId and email are present, but not full form data, retrieve from DB
     if (body.submissionId && body.email && !body.ai_dependence) {
-      console.log(`[Cost Submit API] Retrieving submission ${body.submissionId} from DB for email sending.`);
-      const submission = await getSubmission(body.submissionId);
-      if (!submission) {
-        return NextResponse.json({ error: "Submission not found." }, { status: 404 });
-      }
+          console.log(`[Cost Submit API] Attempting to retrieve submission for ID: ${body.submissionId}`);
+          const submission = await getSubmission(body.submissionId);
+
+          if (!submission) {
+            console.error(`[Cost Submit API] Submission with ID ${body.submissionId} not found or could not be retrieved.`);
+            return NextResponse.json({ error: "Submission not found." }, { status: 404 });
+          }
       castedInput = castToFormState(submission);
       castedInput.email = body.email; // Update email from modal
       submissionIdFromDb = body.submissionId;

@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
 
+console.log("[db.service] Supabase URL:", supabaseUrl ? "Set" : "Not Set");
+console.log("[db.service] Supabase Anon Key:", supabaseAnonKey ? "Set" : "Not Set");
+
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function saveSubmission(id: string, data: any): Promise<void> {
@@ -33,6 +36,9 @@ export async function getSubmission(id: string): Promise<any | null> {
       console.error("[db.service] Supabase retrieve error:", error);
       throw error;
     }
+
+    console.log("[db.service] Supabase query data:", data);
+    console.log("[db.service] Supabase query error:", error);
 
     return data ? data.data : null; // Return the content of the 'data' JSONB column
   } catch (err) {
