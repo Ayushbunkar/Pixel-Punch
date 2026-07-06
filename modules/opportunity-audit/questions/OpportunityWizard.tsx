@@ -13,7 +13,7 @@ import { StepDataSystems } from "./steps/StepDataSystems";
 import { StepWorkflows } from "./steps/StepWorkflows";
 import { StepOperations } from "./steps/StepOperations";
 import { StepStrategy } from "./steps/StepStrategy";
-import { StepContact } from "./steps/StepContact";
+
 
 import { ChevronLeft, Loader2, ArrowRight, ChevronRight, Lock, Zap, Ban } from "lucide-react";
 
@@ -23,7 +23,6 @@ const STEP_LABELS = [
   "Process & Workflows",
   "Customer Operations",
   "AI Strategic Fit",
-  "Contact Profile",
 ];
 
 function ProgressBar({ step, total }: { step: number; total: number }) {
@@ -78,10 +77,9 @@ interface NavProps {
   loading:    boolean;
   onBack:     () => void;
   onNext:     () => void;
-  onSubmit:   () => void;
 }
 
-function NavButtons({ step, total, loading, onBack, onNext, onSubmit }: NavProps) {
+function NavButtons({ step, total, loading, onBack, onNext }: NavProps) {
   const isLast = step === total;
   return (
     <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-100">
@@ -97,20 +95,10 @@ function NavButtons({ step, total, loading, onBack, onNext, onSubmit }: NavProps
       </button>
 
       <div className="flex items-center gap-3">
-        {step === 6 && (
-          <button
-            type="button"
-            onClick={onSubmit}
-            disabled={loading}
-            className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors text-sm font-medium"
-          >
-            Skip & See Results
-          </button>
-        )}
         {isLast ? (
           <button
             type="button"
-            onClick={onSubmit}
+            onClick={onNext}
             disabled={loading}
             className="px-6 py-2.5 bg-[#0d6efd] text-white rounded-lg hover:bg-blue-700 transition-colors min-w-[200px] flex items-center justify-center gap-2 text-sm font-semibold"
             aria-label="Submit and get your AI Opportunity Roadmap"
@@ -157,6 +145,30 @@ export function OpportunityWizard({ initialRef }: OpportunityWizardProps) {
 
   const formRef = useRef<HTMLDivElement>(null);
 
+  const { submit, loading } = useSubmitOpportunity();
+
+  const handleNext = async () => {
+    const canAdvance = goNext();
+    if (canAdvance && step === totalSteps) {
+      const result = await submit(state, validateAll);
+      if (result.success && result.data) {
+        toast.success("Opportunity scan complete!");
+        resetForm();
+        router.push(`/ai/opportunity-scan/results?id=${result.data.submissionId}`);
+      } else if (result.errors && Object.keys(result.errors).length > 0) {
+        const missing = Object.keys(result.errors)
+          .map((k) => k.replace("_", " "))
+          .join(", ");
+          
+        toast.error(`Please complete the required fields: ${missing}`, {
+          id: "opportunity-val-error",
+        });
+      } else if (result.message) {
+        toast.error(result.message);
+      }
+    }
+  };
+
   useEffect(() => {
     if (formRef.current) {
       const yOffset = -80; // Offset from top of viewport
@@ -166,26 +178,7 @@ export function OpportunityWizard({ initialRef }: OpportunityWizardProps) {
     }
   }, [step]);
 
-  const { submit, loading } = useSubmitOpportunity();
 
-  const handleSubmit = async () => {
-    const result = await submit(state, validateAll);
-    if (result.success && result.data) {
-      toast.success("Opportunity scan complete!");
-      resetForm();
-      router.push(`/ai/opportunity-scan/results?id=${result.data.submissionId}`);
-    } else if (result.errors && Object.keys(result.errors).length > 0) {
-      const missing = Object.keys(result.errors)
-        .map((k) => k.replace("_", " "))
-        .join(", ");
-        
-      toast.error(`Please complete the required fields: ${missing}`, {
-        id: "opportunity-val-error",
-      });
-    } else if (result.message) {
-      toast.error(result.message);
-    }
-  };
 
   const renderStep = () => {
     switch (step) {
@@ -231,15 +224,6 @@ export function OpportunityWizard({ initialRef }: OpportunityWizardProps) {
             onChange={setField}
           />
         );
-      case 6:
-        return (
-          <StepContact
-            state={state}
-            errors={errors}
-            onChange={setField}
-            loading={loading}
-          />
-        );
       default:
         return null;
     }
@@ -271,8 +255,7 @@ export function OpportunityWizard({ initialRef }: OpportunityWizardProps) {
           total={totalSteps}
           loading={loading}
           onBack={goBack}
-          onNext={goNext}
-          onSubmit={handleSubmit}
+          onNext={handleNext}
         />
       </div>
 

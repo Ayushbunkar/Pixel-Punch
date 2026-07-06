@@ -24,7 +24,7 @@ import {
   isValidEnum,
 } from "../../types";
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 5;
 const STORAGE_KEY = "pixelpunch_opportunity_form_progress";
 
 function validateStep(step: number, state: FormState): ValidationErrors {
@@ -76,11 +76,7 @@ function validateStep(step: number, state: FormState): ValidationErrors {
         errors.adoption_blocker = "Please select AI adoption blocker.";
       break;
 
-    case 6: // Contact
-      if (state.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email.trim())) {
-        errors.email = "Please enter a valid email address.";
-      }
-      break;
+
   }
 
   return errors;

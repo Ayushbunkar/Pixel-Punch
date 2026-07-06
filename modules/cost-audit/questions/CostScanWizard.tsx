@@ -14,7 +14,7 @@ import { PainStep }          from "./steps/PainStep";
 import { LeakageStep }       from "./steps/LeakageStep";
 import { OptimizationStep }  from "./steps/OptimizationStep";
 import { ThresholdStep }     from "./steps/ThresholdStep";
-import { ContactStep }       from "./steps/ContactStep";
+
 import { TechnicalStep }     from "./steps/TechnicalStep";
 import { AiDependence, SpendBand, SpendVisibility, MainPain,
          LeakagePattern, SavingsThreshold, UnitEconomic, OptimizationDone }
@@ -31,7 +31,6 @@ const STEP_LABELS = [
   "Optimization",
   "Savings Threshold",
   "Technical Audit",
-  "Contact",
 ];
 
 // ── Progress bar ─────────────────────────────────────────────────────────────
@@ -89,11 +88,9 @@ interface NavProps {
   loading:    boolean;
   onBack:     () => void;
   onNext:     () => void;
-  onSubmit:   () => void;
-  onSkipSubmit: () => void;
 }
 
-function NavButtons({ step, total, loading, onBack, onNext, onSubmit, onSkipSubmit }: NavProps) {
+function NavButtons({ step, total, loading, onBack, onNext }: NavProps) {
   const isLast = step === total;
   return (
     <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-100">
@@ -109,22 +106,11 @@ function NavButtons({ step, total, loading, onBack, onNext, onSubmit, onSkipSubm
       </button>
 
       <div className="flex items-center gap-3">
-        {step === 9 && (
-          <button
-            type="button"
-            onClick={onSkipSubmit}
-            disabled={loading}
-            className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors text-sm font-medium"
-          >
-            Skip & See Results
-          </button>
-        )}
-
         {isLast ? (
           <button
             type="button"
             id="cost-scan-submit-btn"
-            onClick={onSkipSubmit}
+            onClick={onNext}
             disabled={loading}
             className="px-6 py-2 bg-[#0d6efd] text-white rounded-lg hover:bg-blue-700 transition-colors min-w-[180px] flex items-center justify-center gap-2"
             aria-label="Submit and see your results"
@@ -173,6 +159,41 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
 
   const formRef = useRef<HTMLDivElement>(null);
 
+  const { submit, loading, error: submitError } = useSubmitScan();
+
+  const handleNext = async () => {
+    const canAdvance = goNext();
+    if (canAdvance && step === totalSteps) {
+      const result = await submit(state, validateAll);
+      if (result.success && result.redirectUrl) {
+        router.push(result.redirectUrl);
+      } else if (result.errors && Object.keys(result.errors).length > 0) {
+        const FIELD_LABELS: Record<string, string> = {
+          firstname: "Name",
+          email: "Work Email",
+          ai_dependence: "AI Dependence",
+          monthly_spend_band: "Monthly Spend Band",
+          spend_visibility: "Spend Visibility",
+          unit_economics: "Unit Economics",
+          main_pain: "Cost Pain",
+          leakage_pattern: "Leakage Pattern",
+          optimization_done: "Optimization",
+          savings_threshold: "Savings Threshold",
+        };
+        
+        const missing = Object.keys(result.errors)
+          .map((k) => FIELD_LABELS[k] || k)
+          .join(", ");
+          
+        toast.error(`Please complete the required fields: ${missing}`, {
+          id: "validation-error",
+        });
+      } else if (result.message) {
+        toast.error(result.message);
+      }
+    }
+  };
+
   useEffect(() => {
     if (formRef.current) {
       const yOffset = -80; // Offset from top of viewport
@@ -182,47 +203,8 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
     }
   }, [step]);
 
-  const { submit, loading, error: submitError } = useSubmitScan();
-
   // ── Submit handler ────────────────────────────────────────────────────────
-  const handleSubmit = async () => {
-    const result = await submit(state, validateAll);
-    if (result.success && result.redirectUrl) {
-      router.push(result.redirectUrl);
-    } else if (result.errors && Object.keys(result.errors).length > 0) {
-      const FIELD_LABELS: Record<string, string> = {
-        firstname: "Name",
-        email: "Work Email",
-        ai_dependence: "AI Dependence",
-        monthly_spend_band: "Monthly Spend Band",
-        spend_visibility: "Spend Visibility",
-        unit_economics: "Unit Economics",
-        main_pain: "Cost Pain",
-        leakage_pattern: "Leakage Pattern",
-        optimization_done: "Optimization",
-        savings_threshold: "Savings Threshold",
-      };
-      
-      const missing = Object.keys(result.errors)
-        .map((k) => FIELD_LABELS[k] || k)
-        .join(", ");
-        
-      toast.error(`Please complete the required fields: ${missing}`, {
-        id: "validation-error",
-      });
-    } else if (result.message) {
-      toast.error(result.message);
-    }
-  };
 
-  const handleSkipSubmit = async () => {
-    const result = await submit(state, () => ({})); // Skip validation for contact fields
-    if (result.success && result.redirectUrl) {
-      router.push(result.redirectUrl);
-    } else if (result.message) {
-      toast.error(result.message);
-    }
-  };
 
   // ── Step renderer ─────────────────────────────────────────────────────────
   const renderStep = () => {
@@ -300,16 +282,22 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
               const updatedDocs = (state.documents || []).filter((_, i) => i !== index);
               setField("documents", updatedDocs);
             }}
-          />
-        );
-      case 9:
-        return (
-          <ContactStep
-            state={state}
-            errors={errors}
-            onChange={setField}
-            loading={loading}
-            submitError={submitError}
+            onAddArchitectureFile={(doc) => {
+              const updatedArchDocs = [...(state.architecture_files || []), doc];
+              setField("architecture_files", updatedArchDocs);
+            }}
+            onRemoveArchitectureFile={(index) => {
+              const updatedArchDocs = (state.architecture_files || []).filter((_, i) => i !== index);
+              setField("architecture_files", updatedArchDocs);
+            }}
+            onAddCostFile={(doc) => {
+              const updatedCostDocs = [...(state.cost_files || []), doc];
+              setField("cost_files", updatedCostDocs);
+            }}
+            onRemoveCostFile={(index) => {
+              const updatedCostDocs = (state.cost_files || []).filter((_, i) => i !== index);
+              setField("cost_files", updatedCostDocs);
+            }}
           />
         );
       default:
@@ -336,9 +324,7 @@ export function CostScanWizard({ initialRef }: CostScanWizardProps) {
           total={totalSteps}
           loading={loading}
           onBack={goBack}
-          onNext={goNext}
-          onSubmit={handleSubmit}
-          onSkipSubmit={handleSkipSubmit}
+          onNext={handleNext}
         />
       </div>
 
