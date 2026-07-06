@@ -8,6 +8,11 @@ import { generateAuditReport }                from "@/shared/utils/audit.service
 import { saveSubmission }                     from "@/shared/database/db.service";
 import { calculateConfidenceScore, analyzeArchitecture, analyzeCostEvidence, analyzeUsageMetrics } from "@/shared/utils/medium-analysis.service";
 import { FormState, INITIAL_FORM_STATE } from "@/modules/cost-audit/types";
+import {
+  NotificationService,
+  EmailNotificationProvider,
+  TelegramNotificationProvider,
+} from "@/shared/services/notification.service";
 
 // ── Helper: Remove duplicate recommendations ───────────────────────────────────
 function deduplicateRecommendations(recommendations: string[]): string[] {
@@ -261,6 +266,55 @@ export async function POST(req: NextRequest) {
       console.error("[submit] Failed to save submission to database:", err);
     }
 
+    // ── Notifications (NON-BLOCKING) ───────────────────────────────────────────
+    const notificationService = new NotificationService([
+      new EmailNotificationProvider(),
+      new TelegramNotificationProvider(),
+    ]);
+
+    const userEmail = castedInput.email;
+    const teamEmail = process.env.TEAM_EMAIL_ADDRESS;
+    const telegramChatIdTeam = process.env.TELEGRAM_CHAT_ID_TEAM;
+
+    // Send user email
+    if (userEmail) {
+      notificationService.sendNotification("user_email", {
+        submissionId,
+        email: userEmail,
+        scanType: "cost",
+        recipientName: `${castedInput.firstname} ${castedInput.lastname}`,
+      }).then(res => console.log("[Cost Submit API] User email notification result:", res))
+        .catch(err => console.error("[Cost Submit API] Error sending user email notification:", err));
+    }
+
+    // Send team email
+    if (teamEmail) {
+      notificationService.sendNotification("team_email", {
+        submissionId,
+        email: teamEmail,
+        scanType: "cost",
+        recipientName: "Pixel Punch Team",
+      }).then(res => console.log("[Cost Submit API] Team email notification result:", res))
+        .catch(err => console.error("[Cost Submit API] Error sending team email notification:", err));
+    }
+
+    // Send Telegram notification to team
+    if (telegramChatIdTeam) {
+      const telegramMessage = `New Cost Scan Submission!
+
+Submission ID: ${submissionId}
+Company: ${castedInput.company}
+Contact: ${castedInput.firstname} ${castedInput.lastname} (${castedInput.email})
+Tier: ${scores.tier}
+
+View Report: http://localhost:3000/ai/cost-scan/results?id=${submissionId}`;
+      notificationService.sendNotification("telegram_team", {
+        message: telegramMessage,
+        chatId: telegramChatIdTeam,
+      }).then(res => console.log("[Cost Submit API] Telegram notification result:", res))
+        .catch(err => console.error("[Cost Submit API] Error sending Telegram notification:", err));
+    }
+ 
     return NextResponse.json(
       { success: true, submissionId, redirectUrl: `/ai/cost-scan/results?id=${submissionId}` },
       { status: 200 }

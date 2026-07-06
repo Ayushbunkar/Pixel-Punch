@@ -1,18 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
 import { getSubmission } from "@/shared/database/db.service";
 import { generatePdf, loadLogoBase64 } from "@/shared/utils/pdf-generator";
-import { ReportData, renderReportToHtml, getColorConfig } from "@/shared/utils/report-content-generator"; // Added renderReportToHtml and getColorConfig
+import { ReportData, renderReportToHtml, getColorConfig } from "@/shared/utils/report-content-generator";
 
-// ── Helper: Remove duplicate recommendations ───────────────────────────────────
-function deduplicateRecommendations(recommendations: string[]): string[] {
-  const seen = new Set<string>();
-  return recommendations.filter((rec) => {
-    const normalized = rec.toLowerCase().trim();
-    if (seen.has(normalized)) return false;
-    seen.add(normalized);
-    return true;
-  });
-}
+const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
 function mapScoreToRAGStatus(score: string | number | undefined): "red" | "amber" | "green" | "unknown" {
   if (typeof score === 'number') {
@@ -35,43 +25,26 @@ function mapScoreToRAGStatus(score: string | number | undefined): "red" | "amber
   return "unknown";
 }
 
-const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
-
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Route handler
-// ─────────────────────────────────────────────────────────────────────────────
-export async function POST(req: NextRequest) {
+export async function sendReportEmail(
+  submissionId: string,
+  email: string,
+  scanType: string,
+  recipientName?: string,
+) {
   try {
-    const body = await req.json();
-    const { submissionId, email, scanType } = body;
-
-    if (!submissionId || !email) {
-      return NextResponse.json(
-        { error: "Missing required fields: submissionId and email are required." },
-        { status: 400 }
-      );
-    }
-
     const apiKey = process.env.BREVO_API_KEY;
     if (!apiKey) {
-      return NextResponse.json(
-        { error: "Email service is not configured (BREVO_API_KEY is missing)." },
-        { status: 500 }
-      );
+      console.error("Email service is not configured (BREVO_API_KEY is missing).");
+      return { success: false, error: "Email service not configured." };
     }
 
-    // ── 1. Fetch submission — DB first, then both memory caches ───────────────
     let submission = await getSubmission(submissionId);
 
     if (!submission) {
-      return NextResponse.json(
-        { error: "Assessment record not found. The report may have expired — please re-submit the scan." },
-        { status: 404 }
-      );
+      console.error(`Submission ${submissionId} not found.`);
+      return { success: false, error: "Submission not found." };
     }
 
-    // ── 2. Determine scan type and metadata ───────────────────────────────────
     const isCost = scanType === "cost" || !!submission.scorecard?.spend || !!submission.score?.spend;
     const companyName =
       submission.company?.name ||
@@ -81,15 +54,11 @@ export async function POST(req: NextRequest) {
       submission.costAnalysis?.normalizedData?.provider ||
       (submission.contact?.firstname ? undefined : undefined) ||
       "N/A";
-    const recipientName =
-      `${submission.contact?.firstname ?? ""} ${submission.contact?.lastname ?? ""}`.trim() ||
-      undefined;
     const reportTitle = isCost ? "AI Cost Audit" : "AI Opportunity Audit";
     const companySize = submission.answers?.company_size || submission.company?.size || "small-to-midsize";
     const businessType = submission.answers?.business_type || submission.company?.type || "technology";
 
-    // sections and metadata preparation remains the same, as it forms the base for ReportData
-    const sections: any[] = []; // Changed to any[] to avoid strict typing issues here
+    const sections: any[] = [];
     const metadata: { [key: string]: string } = {};
 
     metadata['Submission ID'] = submissionId;
@@ -98,11 +67,6 @@ export async function POST(req: NextRequest) {
     metadata['Company Size'] = companySize;
     metadata['Business Type'] = businessType;
 
-    // Scorecard Section
-    // The scorecard data is now directly part of ReportData
-    // No need to create separate scorecardItems here if they are only used for the ReportData object below
-
-    // Insights Section
     if (submission.insights && submission.insights.length > 0) {
       sections.push({
         id: 'insights',
@@ -114,7 +78,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Findings Section
     const findings: string[] =
       submission.findings
         ?.filter((f: any) => typeof f === "string")
@@ -130,7 +93,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Recommendations Section
     const recommendations: string[] =
       submission.recommendations
         ?.filter((r: any) => typeof r === "string")
@@ -146,7 +108,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Audit Report Section
     if (submission.auditReport) {
       sections.push({
         id: 'auditReport',
@@ -158,9 +119,8 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Roadmap Section
     if (submission.roadmap) {
-      const roadmapItems: any[] = []; // Changed to any[]
+      const roadmapItems: any[] = [];
       if (submission.roadmap.phase1 && submission.roadmap.phase1.length > 0) {
         roadmapItems.push({
           type: 'paragraph',
@@ -205,7 +165,6 @@ export async function POST(req: NextRequest) {
       timestamp: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" }),
       metadata,
       sections,
-      // New fields from PdfReportData for unified model
       submissionId,
       reportType: isCost ? "cost" : "opportunity",
       scorecard: {
@@ -274,18 +233,14 @@ export async function POST(req: NextRequest) {
       logoBase64: await loadLogoBase64(),
     };
 
-    // ── 7. Generate Email HTML ────────────────────────────────────────────────
     const htmlContent = renderReportToHtml(reportData, { mode: 'email' });
 
-
-    // ── 8. Generate PDF and Attach to Email ──────────────────────────────────────
     const pdfBuffer = await generatePdf(reportData);
     const pdfBase64 = pdfBuffer.toString("base64");
     const pdfFileName = isCost ? "audit-cost-scan.pdf" : "opportunity-audit.pdf";
 
-    console.log(`[send-report] Generated PDF (${(pdfBuffer.length / 1024).toFixed(2)} KB) for submission ${submissionId}`);
+    console.log(`[email.provider] Generated PDF (${(pdfBuffer.length / 1024).toFixed(2)} KB) for submission ${submissionId}`);
 
-    // ── 9. Send email with PDF attachment via Brevo ─────────────────────────────
     const senderEmail = process.env.BREVO_SENDER_EMAIL || "consulting@pixelpunch.org";
     const senderName  = process.env.BREVO_SENDER_NAME  || "Pixel Punch Consulting";
     const response = await fetch(BREVO_API_URL, {
@@ -298,7 +253,7 @@ export async function POST(req: NextRequest) {
         sender: { name: senderName, email: senderEmail },
         to: [{ email, name: recipientName }],
         subject: `Your ${reportTitle} Report — Pixel Punch`,
-        htmlContent, // Use the generated htmlContent
+        htmlContent,
         attachment: [
           {
             name: pdfFileName,
@@ -310,30 +265,15 @@ export async function POST(req: NextRequest) {
 
     if (!response.ok) {
       const text = await response.text();
-      console.error("[send-report] Brevo API error:", response.status, text);
-
-      if (response.status === 401 || response.status === 403) {
-        console.warn("[send-report] Brevo auth issue — check BREVO_API_KEY and sender domain.");
-        return NextResponse.json(
-          { error: "Email authentication failed. Please check your Brevo API key and verified sender domain." },
-          { status: 502 }
-        );
-      }
-
-      return NextResponse.json(
-        { error: `Failed to send email. Brevo API returned status ${response.status}.` },
-        { status: 502 }
-      );
+      console.error("[email.provider] Brevo API error:", response.status, text);
+      return { success: false, error: `Brevo API returned status ${response.status}.` };
     }
 
-    console.log(`[send-report] Email sent successfully to ${email} with attachment ${pdfFileName} for submission ${submissionId}`);
-    return NextResponse.json({ success: true, message: "Report email sent successfully with PDF attachment!" }, { status: 200 });
+    console.log(`[email.provider] Email sent successfully to ${email} with attachment ${pdfFileName} for submission ${submissionId}`);
+    return { success: true, message: "Report email sent successfully with PDF attachment!" };
 
   } catch (error: any) {
-    console.error("[send-report] Unexpected error:", error);
-    return NextResponse.json(
-      { error: error?.message || "An unexpected server error occurred." },
-      { status: 500 }
-    );
+    console.error("[email.provider] Unexpected error:", error);
+    return { success: false, error: error?.message || "An unexpected server error occurred." };
   }
 }
