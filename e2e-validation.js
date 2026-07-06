@@ -5,8 +5,9 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
 // Mock Next.js environment variables
-process.env.NODE_ENV = 'development'; // Or 'production' for GCS testing
+process.env.STORAGE_PROVIDER = 'local'; // Set to 'local' for development, 'gcs' for production
 process.env.LOCAL_STORAGE_DIR = path.join(__dirname, 'local-storage'); // Ensure this directory exists
+process.env.GCS_BUCKET_NAME = 'pixelpunch-audit-files'; // Required for GCS, even if not used in local testing
 
 async function runE2EValidation() {
   console.log('Starting E2E Validation...');

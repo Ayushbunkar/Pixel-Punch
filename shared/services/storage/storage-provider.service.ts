@@ -6,11 +6,13 @@ import { LocalStorageService } from './local-storage.service';
 import { GoogleCloudStorageService } from './google-cloud-storage.service';
 
 export function getStorageService(): StorageService {
-  if (process.env.NODE_ENV === 'production') {
-    // In a real application, the bucket name would come from environment variables or a config file.
-    // For this example, we'll use a placeholder.
+  const storageProvider = process.env.STORAGE_PROVIDER;
+
+  if (storageProvider === 'gcs') {
     return new GoogleCloudStorageService(process.env.GCS_BUCKET_NAME || 'pixelpunch-audit-files');
-  } else {
+  } else if (storageProvider === 'local') {
     return new LocalStorageService();
+  } else {
+    throw new Error('Invalid or missing STORAGE_PROVIDER environment variable. Please set it to "local" or "gcs".');
   }
 }

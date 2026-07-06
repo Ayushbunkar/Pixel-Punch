@@ -75,9 +75,9 @@ async function generateFallbackReport(input: AuditInput): Promise<AuditOutput> {
     try {
       const fileBuffer = await storageService.downloadFile(file.path);
       filesWithContent.push({ name: file.name, content: fileBuffer.toString('utf8') });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`[audit.service] Failed to download file ${file.path}:`, error);
-      filesWithContent.push({ name: file.name, content: `Error downloading file: ${error.message}` });
+      filesWithContent.push({ name: file.name, content: `Error downloading file: ${(error as Error).message}` });
     }
   }
 
@@ -344,9 +344,9 @@ export async function generateAuditReport(input: AuditInput): Promise<AuditOutpu
     try {
       const fileBuffer = await storageService.downloadFile(file.path);
       filesWithContent.push({ name: file.name, content: fileBuffer.toString('utf8') });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`[audit.service] Failed to download file ${file.path}:`, error);
-      filesWithContent.push({ name: file.name, content: `Error downloading file: ${error.message}` });
+      filesWithContent.push({ name: file.name, content: `Error downloading file: ${(error as Error).message}` });
     }
   }
 

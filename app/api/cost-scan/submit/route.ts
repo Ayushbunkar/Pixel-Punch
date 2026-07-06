@@ -184,10 +184,10 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Scoring (pure, deterministic, never fails) ────────────────────────────
-    const scores = runScoring(input);
+    const scores = runScoring(castedInput);
 
     // ── Insight generation (rule-based, never fails) ──────────────────────────
-    const insights = generateInsights(input, scores, scores.tier);
+    const insights = generateInsights(castedInput, scores, scores.tier);
 
     // ── Submission ID ──────────────────────────────────────────────────────────
     const submissionId = randomUUID();
@@ -200,7 +200,7 @@ export async function POST(req: NextRequest) {
     let auditResult = { auditReport: "", findings: [] as string[], recommendations: [] as string[] };
     try {
       auditResult = await generateAuditReport({
-        answers: input,
+        answers: castedInput,
         scores: {
           spend: scores.spend,
           architecture: scores.architecture,
@@ -226,7 +226,7 @@ export async function POST(req: NextRequest) {
     // The response is built and returned immediately.
     Promise.resolve().then(() =>
       syncToBrevo({
-        input,
+        input: castedInput,
         scores: {
           spend:        scores.spend,
           architecture: scores.architecture,
@@ -259,10 +259,10 @@ export async function POST(req: NextRequest) {
       architectureAnalysis: archAnalysis,
       costAnalysis: costAnalysis,
       contact: {
-        firstname: input.firstname,
-        lastname:  input.lastname,
-        email:     input.email,
-        company:   input.company,
+        firstname: castedInput.firstname,
+        lastname:  castedInput.lastname,
+        email:     castedInput.email,
+        company:   castedInput.company,
       },
     };
 
