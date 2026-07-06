@@ -110,7 +110,68 @@ function NavButtons({ step, total, loading, onBack, onNext }: NavProps) {
               </>
             ) : (
               <>
-                Generate Roadmap
+                See my results
+                <ArrowRight className="w-4 h-4" strokeWidth={2} />
+              </>
+            )}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onNext}
+            disabled={loading}
+            className="px-6 py-2.5 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors min-w-[140px] flex items-center justify-center gap-2 text-sm font-semibold"
+            aria-label="Go to next step"
+          >
+            Continue
+            <ChevronRight className="w-4 h-4" strokeWidth={2} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface NavProps {
+  step:       number;
+  total:      number;
+  loading:    boolean;
+  onBack:     () => void;
+  onNext:     () => void;
+}
+
+function NavButtons({ step, total, loading, onBack, onNext }: NavProps) {
+  const isLast = step === total;
+  return (
+    <div className="flex items-center justify-between mt-8 pt-6 border-t border-slate-100">
+      <button
+        type="button"
+        onClick={onBack}
+        disabled={step === 1 || loading}
+        className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-900 disabled:opacity-0 transition-colors"
+        aria-label="Go to previous step"
+      >
+        <ChevronLeft className="w-4 h-4" strokeWidth={2} />
+        Back
+      </button>
+
+      <div className="flex items-center gap-3">
+        {isLast ? (
+          <button
+            type="button"
+            onClick={onNext}
+            disabled={loading}
+            className="px-6 py-2.5 bg-[#0d6efd] text-white rounded-lg hover:bg-blue-700 transition-colors min-w-[200px] flex items-center justify-center gap-2 text-sm font-semibold"
+            aria-label="Submit and see your AI Opportunity Roadmap"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Analyzing Opportunities…
+              </>
+            ) : (
+              <>
+                See my results
                 <ArrowRight className="w-4 h-4" strokeWidth={2} />
               </>
             )}
