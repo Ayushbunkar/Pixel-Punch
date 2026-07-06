@@ -32,6 +32,7 @@ export async function sendReportEmail(
   recipientName?: string,
 ) {
   try {
+    console.log(`[email.provider] sendReportEmail called for submissionId: ${submissionId}, email: ${email}`);
     const apiKey = process.env.BREVO_API_KEY;
     if (!apiKey) {
       console.error("Email service is not configured (BREVO_API_KEY is missing).");

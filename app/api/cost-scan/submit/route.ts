@@ -104,7 +104,9 @@ export async function POST(req: NextRequest) {
             console.error(`[Cost Submit API] Submission with ID ${body.submissionId} not found or could not be retrieved.`);
             return NextResponse.json({ error: "Submission not found." }, { status: 404 });
           }
+      console.log(`[Cost Submit API] Retrieved submission (before cast): ${JSON.stringify(submission)}`);
       castedInput = castToFormState(submission);
+      console.log(`[Cost Submit API] Casted input (after cast): ${JSON.stringify(castedInput)}`);
       castedInput.email = body.email; // Update email from modal
       submissionIdFromDb = body.submissionId;
     } else {
