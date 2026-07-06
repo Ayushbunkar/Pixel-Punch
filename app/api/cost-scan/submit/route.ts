@@ -365,7 +365,7 @@ View Report: http://localhost:3000/ai/cost-scan/results?id=${submissionId}`;
       { status: 200 }
     );
   } catch (error) {
-    console.error("[Cost Submit API] Unhandled error during processing:", error);
+    console.error("[Cost Submit API] FULL ERROR:", error);
     return NextResponse.json(
       { error: "An internal server error occurred." },
       { status: 500 }
