@@ -331,50 +331,86 @@ export default function OpportunityResultsContent() {
                  ).map((cardItem) => {
                    const ragStatus = cardItem.score || "green";
                    const description = (scoreDescriptions as Record<string, Record<string, string>>)[cardItem.dimension][ragStatus];
-                   let bgColor, borderColor, textColor, titleColor, icon;
 
-                   if (ragStatus === "red") {
-                     bgColor = "#fee2e2";
-                     borderColor = "#fca5a5";
-                     textColor = "#ef4444";
-                     titleColor = "#b91c1c";
-                     icon = "⚠️";
-                   } else if (ragStatus === "amber") {
-                     bgColor = "#fffbeb";
-                     borderColor = "#fcd34d";
-                     textColor = "#f59e0b";
-                     titleColor = "#b45309";
-                     icon = "💡";
-                   } else { // green
-                     bgColor = "#ecfdf5";
-                     borderColor = "#a7f3d0";
-                     textColor = "#10b981";
-                     titleColor = "#047857";
-                     icon = "✅";
-                   }
+                   const ragStyles = {
+                     red: {
+                       bgColor: "#fee2e2",
+                       borderColor: "#fca5a5",
+                       titleColor: "#b91c1c",
+                       labelColor: "#ef4444",
+                       descriptionColor: "#ef4444",
+                       badgeBg: "#fca5a5",
+                       badgeText: "#b91c1c",
+                       statusText: "HIGH RISK",
+                       icon: "⚠️",
+                     },
+                     amber: {
+                       bgColor: "#fffbeb",
+                       borderColor: "#fcd34d",
+                       titleColor: "#b45309",
+                       labelColor: "#f59e0b",
+                       descriptionColor: "#f59e0b",
+                       badgeBg: "#fcd34d",
+                       badgeText: "#b45309",
+                       statusText: "NEEDS ATTENTION",
+                       icon: "💡",
+                     },
+                     green: {
+                       bgColor: "#ecfdf5",
+                       borderColor: "#a7f3d0",
+                       titleColor: "#047857",
+                       labelColor: "#10b981",
+                       descriptionColor: "#10b981",
+                       badgeBg: "#a7f3d0",
+                       badgeText: "#047857",
+                       statusText: "GOOD",
+                       icon: "✅",
+                     },
+                   };
+
+                   const currentRagStyle = ragStyles[ragStatus as keyof typeof ragStyles];
 
                    return (
                      <div
                        key={cardItem.dimension}
                        style={{
                          flex: 1,
-                         backgroundColor: bgColor,
-                         border: `1px solid ${borderColor}`,
+                         backgroundColor: currentRagStyle.bgColor,
+                         border: `1px solid ${currentRagStyle.borderColor}`,
                          borderRadius: "8px",
-                         padding: "16px",
+                         padding: "20px", // Increased padding to match image
                          display: "flex",
                          flexDirection: "column",
-                         gap: "8px",
+                         gap: "10px", // Adjusted gap
+                         position: "relative", // For absolute positioning of badge
                        }}
                      >
-                       <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", fontWeight: 700, textTransform: "uppercase", color: textColor }}>
-                         <span>{icon}</span>
-                         <span>{RAG_META[ragStatus].label}</span>
-                       </div>
-                       <div style={{ fontSize: "14px", fontWeight: 700, color: titleColor }}>
+                       <div style={{ fontSize: "12px", fontWeight: 700, color: currentRagStyle.titleColor, textTransform: "uppercase", marginBottom: "4px" }}>
                          {cardItem.title}
                        </div>
-                       <div style={{ fontSize: "11px", color: "#475569", lineHeight: 1.4 }}>
+                       <div style={{ fontSize: "16px", fontWeight: 800, color: currentRagStyle.labelColor, marginBottom: "2px" }}>
+                         {currentRagStyle.statusText}
+                       </div>
+                       <div style={{ fontSize: "28px", fontWeight: 900, color: currentRagStyle.labelColor, lineHeight: 1 }}>
+                         {ragStatus.toUpperCase()}
+                       </div>
+                       <div
+                         style={{
+                           backgroundColor: currentRagStyle.badgeBg,
+                           color: currentRagStyle.badgeText,
+                           padding: "4px 8px",
+                           borderRadius: "4px",
+                           fontSize: "10px",
+                           fontWeight: 700,
+                           textTransform: "uppercase",
+                           display: "inline-block",
+                           marginTop: "8px",
+                           width: "fit-content",
+                         }}
+                       >
+                         {ragStatus.toUpperCase()}
+                       </div>
+                       <div style={{ fontSize: "12px", color: "#475569", lineHeight: 1.5, marginTop: "12px" }}>
                          {description}
                        </div>
                      </div>
