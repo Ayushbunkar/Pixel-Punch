@@ -86,7 +86,6 @@ export default function OpportunityResultsContent() {
   const [loading, setLoading] = useState(true);
 
   const [emailModalOpen, setEmailModalOpen] = useState(false);
-  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
 
   console.log("[Opportunity Frontend] Loading");
@@ -251,7 +250,7 @@ export default function OpportunityResultsContent() {
               </div>
               {!isUnlocked && (
                 <LockOverlay
-                  onUnlock={() => setUnlockModalOpen(true)}
+                  onUnlock={() => setEmailModalOpen(true)}
                   title="KEY INSIGHTS LOCKED"
                   description="Unlock to view detailed insights."
                 />
@@ -262,38 +261,22 @@ export default function OpportunityResultsContent() {
            {result.auditReport && (
              <div className="mt-6">
                <h2 className="text-xl font-bold text-slate-900 mb-4">Full Technical Audit Report</h2>
-               <div className="bg-white p-4 rounded-lg shadow-sm">
-                 <MarkdownBody markdown={result.auditReport} />
+               <div className="border border-slate-200 rounded-lg overflow-hidden relative">
+                 <div className="bg-white p-4 rounded-lg shadow-sm">
+                   <MarkdownBody markdown={result.auditReport} />
+                 </div>
+                 {!isUnlocked && (
+                   <LockOverlay
+                     onUnlock={() => setEmailModalOpen(true)}
+                     title="FULL TECHNICAL AUDIT REPORT LOCKED"
+                     description="Unlock to view the complete report."
+                   />
+                 )}
                </div>
              </div>
            )}
 
-           <div className="mt-6 text-center">
-             <h2 className="text-xl font-bold text-slate-900 mb-4">Unlock Full Technical Audit Report</h2>
-             <div className="flex flex-col items-center gap-3">
-               <input
-                 type="email"
-                 placeholder="Enter your email"
-                 className="w-full max-w-sm px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-               />
-               <button
-                 onClick={() => setEmailModalOpen(true)}
-                 className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
-               >
-                 Unlock Report
-               </button>
-             </div>
-           </div>
 
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => setEmailModalOpen(true)}
-              className="inline-flex items-center justify-center px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-all duration-200 shadow-sm gap-2 h-9 min-w-[150px]"
-            >
-              <Cpu className="w-3.5 h-3.5" />
-              View Report
-            </button>
-          </div>
 
          <p className="text-center text-[10px] text-slate-400 mt-8">
            Scan ID: {result.submissionId}
@@ -313,14 +296,7 @@ export default function OpportunityResultsContent() {
          </div>
        )}
 
-       <UnlockModal
-         isOpen={unlockModalOpen}
-         onClose={() => setUnlockModalOpen(false)}
-         onEmail={() => {
-           setUnlockModalOpen(false);
-           setEmailModalOpen(true);
-         }}
-       />
+
 
        {/* Hidden PDF report content, used as the source for PDF generation */}
        <div
