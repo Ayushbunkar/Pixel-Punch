@@ -277,6 +277,7 @@ export async function POST(req: NextRequest) {
     const telegramChatIdTeam = process.env.TELEGRAM_CHAT_ID_TEAM;
 
     // Send user email
+    console.log(`[Cost Submit API] User email: ${userEmail}`);
     if (userEmail) {
       notificationService.sendNotification("user_email", {
         submissionId,
@@ -288,6 +289,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Send team email
+    console.log(`[Cost Submit API] Team email: ${teamEmail}`);
     if (teamEmail) {
       notificationService.sendNotification("team_email", {
         submissionId,
