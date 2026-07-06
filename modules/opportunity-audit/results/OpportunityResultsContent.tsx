@@ -198,24 +198,26 @@ export default function OpportunityResultsContent() {
               AI Opportunity Audit Results
            </h1>
            <p className="text-slate-600 text-sm">
-             Customized for <strong className="text-slate-800">{result.contact ? `${result.contact.firstname} ${result.contact.lastname}${result.contact.company ? ` from ${result.contact.company}` : ''}` : "Guest"}</strong>
+             Customized for <strong className="text-slate-800">{result.contact?.firstname && result.contact?.lastname ? `${result.contact.firstname} ${result.contact.lastname}${result.contact.company ? ` from ${result.contact.company}` : ''}` : "Guest"}</strong>
      </p>
    </motion.div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-              {([
-                 { title: "Readiness Risk", dimension: "readiness", score: result.scorecard.readiness },
-                 { title: "Value Risk", dimension: "value", score: result.scorecard.value },
-                 { title: "Opportunity Risk", dimension: "opportunity", score: result.scorecard.opportunity },
-              ] as const).map((card, idx) => (
-                <StatCard
-                  key={idx}
-                  title={card.title}
-                  description={(scoreDescriptions as Record<string, Record<string, string>>)[card.dimension][card.score || "green"]}
-                  ragStatus={card.score || "green"}
-                />
-              ))}
-            </div>
+          {result.scorecard && (
+            <div className="grid gap-4 md:grid-cols-3">
+                {([
+                   { title: "Readiness Risk", dimension: "readiness", score: result.scorecard.readiness },
+                   { title: "Value Risk", dimension: "value", score: result.scorecard.value },
+                   { title: "Opportunity Risk", dimension: "opportunity", score: result.scorecard.opportunity },
+                ] as const).map((card, idx) => (
+                  <StatCard
+                    key={idx}
+                    title={card.title}
+                    description={(scoreDescriptions as Record<string, Record<string, string>>)[card.dimension][card.score || "green"]}
+                    ragStatus={card.score || "green"}
+                  />
+                ))}
+              </div>
+          )}
 
          {result.recommendations && result.recommendations.length > 0 && (
            <div
@@ -340,39 +342,41 @@ export default function OpportunityResultsContent() {
            <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px" }}>ID: {result.submissionId}</div>
          </div>
 
-         <div style={{ marginBottom: "20px" }}>
-           <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e293b", marginBottom: "8px" }}>RAG Scorecard</div>
-           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
-             <thead>
-               <tr style={{ backgroundColor: "#f1f5f9" }}>
-                 <th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Dimension</th>
-                 <th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Rating</th>
-               </tr>
-             </thead>
-             <tbody>
-               {(
-                 [
-                   ["Readiness Score", result.scorecard.readiness],
-                   ["Value Score", result.scorecard.value],
-                   ["Opportunity Score", result.scorecard.opportunity],
-                 ] as [string, string][]
-               ).map(([label, val]) => (
-                 <tr key={label} style={{ borderTop: "1px solid #e2e8f0" }}>
-                   <td style={{ padding: "8px 12px", color: "#334155" }}>{label}</td>
-                   <td
-                     style={{
-                       padding: "8px 12px",
-                       fontWeight: 600,
-                       color: val === "red" ? "#dc2626" : val === "amber" ? "#d97706" : "#16a34a",
-                     }}
-                   >
-                     {RAG_META[val as "red" | "amber" | "green"].label}
-                   </td>
+         {result.scorecard && (
+           <div style={{ marginBottom: "20px" }}>
+             <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e293b", marginBottom: "8px" }}>RAG Scorecard</div>
+             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+               <thead>
+                 <tr style={{ backgroundColor: "#f1f5f9" }}>
+                   <th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Dimension</th>
+                   <th style={{ padding: "8px 12px", textAlign: "left", color: "#475569" }}>Rating</th>
                  </tr>
-               ))}
-             </tbody>
-           </table>
-         </div>
+               </thead>
+               <tbody>
+                 {(
+                   [
+                     ["Readiness Score", result.scorecard.readiness],
+                     ["Value Score", result.scorecard.value],
+                     ["Opportunity Score", result.scorecard.opportunity],
+                   ] as [string, string][]
+                 ).map(([label, val]) => (
+                   <tr key={label} style={{ borderTop: "1px solid #e2e8f0" }}>
+                     <td style={{ padding: "8px 12px", color: "#334155" }}>{label}</td>
+                     <td
+                       style={{
+                         padding: "8px 12px",
+                         fontWeight: 600,
+                         color: val === "red" ? "#dc2626" : val === "amber" ? "#d97706" : "#16a34a",
+                       }}
+                     >
+                       {RAG_META[val as "red" | "amber" | "green"].label}
+                     </td>
+                   </tr>
+                 ))}
+               </tbody>
+             </table>
+           </div>
+         )}
 
          {result.insights && result.insights.length > 0 && (
            <div style={{ marginBottom: "20px" }}>
