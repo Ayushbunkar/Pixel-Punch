@@ -35,97 +35,172 @@ export async function loadLogoBase64(): Promise<string> {
 export function generateBasicTextPdf(data: ReportData): Buffer {
   const objects: { id: number; data: string | Buffer }[] = [];
   
-  const contentLines: string[] = [];
-  contentLines.push(`PIXEL PUNCH — AUDIT REPORT`);
-  contentLines.push(`=================================`);
-  contentLines.push(``);
-  contentLines.push(`Report: ${data.title}`);
-  contentLines.push(`Date: ${data.timestamp}`);
-  contentLines.push(``);
+  const pagesData: { shapes: string[], textLines: { text: string, x: number, y: number, font: 'F1' | 'F2', size: number, r: number, g: number, b: number }[] }[] = [];
   
-  contentLines.push(`METADATA:`);
+  let currentPage = { shapes: [] as string[], textLines: [] as any[] };
+  let currentY = 780;
+  
+  const addPage = () => {
+    pagesData.push(currentPage);
+    currentPage = { shapes: [], textLines: [] };
+    currentY = 780;
+    
+    currentPage.shapes.push(`0.05 0.43 0.99 rg\n0 790 595.28 52 re f`); 
+    currentPage.textLines.push({ text: "Pixel Punch", x: 30, y: 810, font: 'F2', size: 18, r: 1, g: 1, b: 1 });
+    const subtitle = data.reportType === "cost" ? "AI COST AUDIT REPORT" : "AI OPPORTUNITY AUDIT REPORT";
+    currentPage.textLines.push({ text: subtitle, x: 400, y: 812, font: 'F2', size: 10, r: 0.9, g: 0.9, b: 0.9 });
+  };
+  
+  addPage();
+  currentY = 740;
+  
+  const checkSpace = (needed: number) => {
+    if (currentY - needed < 40) {
+      addPage();
+    }
+  };
+
+  const drawText = (text: string, x: number, font: 'F1'|'F2', size: number, r: number, g: number, b: number) => {
+    currentPage.textLines.push({ text, x, y: currentY, font, size, r, g, b });
+  };
+  
+  drawText(data.title.replace(/^-+\s*/, ''), 30, 'F2', 20, 0.06, 0.09, 0.16);
+  currentY -= 20;
+  drawText(`Generated: ${data.timestamp}`, 30, 'F1', 10, 0.39, 0.45, 0.54);
+  currentY -= 30;
+  
+  let metaX = 30;
   for (const [k, v] of Object.entries(data.metadata || {})) {
     if (k === "Company") continue;
-    contentLines.push(`- ${k}: ${v}`);
+    const txt = `${k}: ${v}`;
+    if (metaX > 400) { metaX = 30; currentY -= 15; }
+    drawText(txt, metaX, 'F1', 10, 0.2, 0.25, 0.33);
+    metaX += 180;
   }
-  contentLines.push(``);
+  currentY -= 40;
   
   if (data.scorecard?.dimensions) {
-    contentLines.push(`SCORECARD:`);
+    checkSpace(120);
+    drawText("RAG SCORECARD OVERVIEW", 30, 'F2', 10, 0.39, 0.45, 0.54);
+    currentY -= 20;
+    
+    let cardX = 30;
+    const cardW = 170;
     for (const dim of data.scorecard.dimensions) {
-      const statusText = dim.value === "red" ? "HIGH RISK" : dim.value === "amber" ? "NEEDS ATTENTION" : "LOW RISK";
-      contentLines.push(`- ${dim.label}: ${statusText}`);
+       let rBg=0.97, gBg=0.98, bBg=0.99;
+       let rBord=0.88, gBord=0.91, bBord=0.94;
+       let rT=0.39, gT=0.45, bT=0.54;
+       
+       if (dim.value === 'red') { rBg=0.99; gBg=0.88; bBg=0.88; rBord=0.98; gBord=0.64; bBord=0.64; rT=0.86; gT=0.15; bT=0.15; }
+       else if (dim.value === 'amber') { rBg=1; gBg=0.95; bBg=0.78; rBord=0.98; gBord=0.82; bBord=0.30; rT=0.85; gT=0.46; bT=0.03; }
+       else if (dim.value === 'green') { rBg=0.86; gBg=0.98; bBg=0.90; rBord=0.52; gBord=0.93; bBord=0.67; rT=0.08; gT=0.63; bT=0.29; }
+       
+       const cardY = currentY - 80;
+       currentPage.shapes.push(`${rBg} ${gBg} ${bBg} rg\n${cardX} ${cardY} ${cardW} 80 re f`);
+       currentPage.shapes.push(`${rBord} ${gBord} ${bBord} RG\n1 w\n${cardX} ${cardY} ${cardW} 80 re S`);
+       
+       let labelStr = dim.label;
+       if (labelStr.length > 25) labelStr = labelStr.substring(0, 22) + "...";
+       currentPage.textLines.push({ text: labelStr, x: cardX + 10, y: cardY + 60, font: 'F2', size: 9, r: 0.39, g: 0.45, b: 0.54 });
+       const statusText = dim.value === "red" ? "HIGH RISK" : dim.value === "amber" ? "NEEDS ATTENTION" : "LOW RISK";
+       currentPage.textLines.push({ text: statusText, x: cardX + 10, y: cardY + 45, font: 'F2', size: 10, r: rT, g: gT, b: bT });
+       currentPage.textLines.push({ text: dim.value.toUpperCase(), x: cardX + 10, y: cardY + 20, font: 'F2', size: 20, r: rT, g: gT, b: bT });
+       
+       cardX += cardW + 10;
     }
-    contentLines.push(``);
+    currentY -= 110;
   }
   
   if (data.confidenceScore) {
-    contentLines.push(`Confidence Score: ${data.confidenceScore}`);
-    contentLines.push(``);
+    checkSpace(80);
+    drawText("AUDIT CONFIDENCE SCORE", 30, 'F2', 10, 0.39, 0.45, 0.54);
+    currentY -= 15;
+    currentPage.shapes.push(`0.93 0.96 1.0 rg\n0.74 0.85 0.99 RG\n30 ${currentY-50} 120 50 re B`);
+    currentPage.textLines.push({ text: data.confidenceScore, x: 50, y: currentY - 35, font: 'F2', size: 28, r: 0.14, g: 0.38, b: 0.92 });
+    currentY -= 80;
   }
   
   for (const sec of data.sections || []) {
-    contentLines.push(`---------------------------------`);
-    contentLines.push(sec.title.toUpperCase());
-    contentLines.push(`---------------------------------`);
+    checkSpace(50);
+    drawText(sec.title.toUpperCase(), 30, 'F2', 12, 0.06, 0.09, 0.16);
+    currentY -= 20;
+    
     for (const item of sec.items || []) {
       const itemText = String(item.content || "");
       const lines = itemText.split("\n");
       for (const line of lines) {
         if (!line.trim() && item.type !== "paragraph") continue;
-        contentLines.push(line.trim());
+        
+        const words = line.trim().split(" ");
+        let currentLine = "";
+        for (const word of words) {
+           if ((currentLine + " " + word).length > 90) {
+              checkSpace(20);
+              drawText(currentLine, 30, 'F1', 10, 0.27, 0.33, 0.41);
+              currentY -= 15;
+              currentLine = word;
+           } else {
+              currentLine += (currentLine ? " " : "") + word;
+           }
+        }
+        if (currentLine) {
+           checkSpace(20);
+           drawText(currentLine, 30, 'F1', 10, 0.27, 0.33, 0.41);
+           currentY -= 15;
+        }
       }
+      currentY -= 10;
     }
-    contentLines.push(``);
+    currentY -= 10;
   }
   
-  const wrappedLines: string[] = [];
-  for (const line of contentLines) {
-    if (line.length <= 80) {
-      wrappedLines.push(line);
-    } else {
-      let remaining = line;
-      while (remaining.length > 80) {
-        let spaceIdx = remaining.lastIndexOf(" ", 80);
-        if (spaceIdx === -1 || spaceIdx < 40) spaceIdx = 80;
-        wrappedLines.push(remaining.substring(0, spaceIdx));
-        remaining = remaining.substring(spaceIdx).trim();
-      }
-      if (remaining) wrappedLines.push(remaining);
-    }
-  }
-  
-  const linesPerPage = 45;
-  const pages: string[][] = [];
-  for (let i = 0; i < wrappedLines.length; i += linesPerPage) {
-    pages.push(wrappedLines.slice(i, i + linesPerPage));
-  }
-  if (pages.length === 0) pages.push(["No report content generated."]);
-  
-  const pageCount = pages.length;
-  const kidsStr = pages.map((_, i) => `${3 + i} 0 R`).join(" ");
+  const pageCount = pagesData.length;
+  const kidsStr = pagesData.map((_, i) => `${3 + i} 0 R`).join(" ");
   objects.push({ id: 1, data: `<< /Type /Catalog /Pages 2 0 R >>` });
   objects.push({ id: 2, data: `<< /Type /Pages /Kids [${kidsStr}] /Count ${pageCount} >>` });
   
-  const fontObjId = pageCount + 3;
-  objects.push({ id: fontObjId, data: `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>` });
+  const fontF1Id = pageCount + 3;
+  const fontF2Id = pageCount + 4;
+  objects.push({ id: fontF1Id, data: `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>` });
+  objects.push({ id: fontF2Id, data: `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>` });
   
-  pages.forEach((pageLines, pageIdx) => {
+  pagesData.forEach((pageData, pageIdx) => {
     const pageId = 3 + pageIdx;
-    const contentId = 3 + pageCount + 1 + pageIdx;
+    const contentId = 3 + pageCount + 2 + pageIdx;
     
     objects.push({
       id: pageId,
-      data: `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents ${contentId} 0 R /Resources << /Font << /F1 ${fontObjId} 0 R >> >> >>`
+      data: `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents ${contentId} 0 R /Resources << /Font << /F1 ${fontF1Id} 0 R /F2 ${fontF2Id} 0 R >> >> >>`
     });
     
-    let streamText = `BT\n/F1 10 Tf\n20 TL\n50 780 Td\n`;
-    for (const line of pageLines) {
-      const escapedLine = line
+    let streamText = ``;
+    
+    if (pageData.shapes.length > 0) {
+       streamText += pageData.shapes.join("\n") + "\n";
+    }
+    
+    streamText += `BT\n`;
+    let lastFont = '';
+    let lastSize = 0;
+    let lastR = -1, lastG = -1, lastB = -1;
+    
+    for (const line of pageData.textLines) {
+      if (line.font !== lastFont || line.size !== lastSize) {
+         streamText += `/${line.font} ${line.size} Tf\n`;
+         lastFont = line.font;
+         lastSize = line.size;
+      }
+      if (line.r !== lastR || line.g !== lastG || line.b !== lastB) {
+         streamText += `${line.r.toFixed(3)} ${line.g.toFixed(3)} ${line.b.toFixed(3)} rg\n`;
+         lastR = line.r; lastG = line.g; lastB = line.b;
+      }
+      
+      const escapedLine = line.text
         .replace(/\\/g, "\\\\")
         .replace(/\(/g, "\\(")
         .replace(/\)/g, "\\)");
-      streamText += `(${escapedLine}) Tj\nT*\n`;
+        
+      streamText += `${line.x.toFixed(2)} ${line.y.toFixed(2)} Td\n(${escapedLine}) Tj\n-${line.x.toFixed(2)} -${line.y.toFixed(2)} Td\n`;
     }
     streamText += `ET`;
     
