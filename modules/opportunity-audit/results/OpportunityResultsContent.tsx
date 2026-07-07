@@ -246,6 +246,8 @@ export default function OpportunityResultsContent() {
                   insights={result.insights}
                   submissionId={submissionId as string}
                   scanType="opportunity"
+                  isUnlocked={isUnlocked}
+                  onUnlock={() => setEmailModalOpen(true)}
                 />
               </div>
               {!isUnlocked && (

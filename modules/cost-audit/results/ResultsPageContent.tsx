@@ -225,6 +225,8 @@ export default function ResultsPageContent() {
                  insights={result.insights}
                  submissionId={submissionId as string}
                  scanType="cost"
+                 isUnlocked={isUnlocked}
+                 onUnlock={() => setEmailModalOpen(true)}
                />
              </div>
          )}

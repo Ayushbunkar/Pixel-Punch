@@ -303,12 +303,6 @@ ${parsedFilesInfo.length > 0 ? `    *   **Uploaded Resources**:\n${parsedFilesIn
 
 ---
 
-### Confidence Level
-*   **Audit Confidence**: **${confidenceScore || "20%"}**
-*   *Confidence Attribution*: Questionnaire data (20%), Website data (${websiteUrl ? "15%" : "0%"}), AI stack (${(aiStack.providers?.length ?? 0) > 0 || aiStack.models ? "15%" : "0%"}), Documents (${files.length > 0 ? "20%" : "0%"}), Architecture diagram (${architectureAnalysis?.summary && architectureAnalysis.summary !== "No architecture documentation was supplied for analysis." ? "15%" : "0%"}), Cost Evidence (${costAnalysis?.summary && costAnalysis.summary !== "No invoice or billing documents were uploaded for validation." ? "15%" : "0%"}).
-
----
-
 ### Key Findings
 ${findings.map(f => `- ${f}`).join("\n")}
 
@@ -401,9 +395,6 @@ Here is the context provided about the company:
   * Latency Requirements: ${usageMetrics?.latency_requirements || "Unspecified"}
   * User Volume: ${usageMetrics?.user_volume || "Unspecified"}
 
-- Audit Confidence Score:
-  * Confidence Level: ${confidenceScore || "20%"}
-
 Please perform a detailed cost audit. You must:
 1. Act as a senior AI cost and infrastructure auditor.
 2. Address the company's specific architecture details, files, and cost evidence.
@@ -418,7 +409,6 @@ Please perform a detailed cost audit. You must:
    - ### Optimization Opportunities
    - ### Quick Wins
    - ### Long-Term Recommendations
-   - ### Confidence Level
    - ### Key Findings (List exactly 3-5 bullet points starting with "-" here)
    - ### Expert Recommendations (List exactly 3-5 bullet points starting with "-" here)
 `;

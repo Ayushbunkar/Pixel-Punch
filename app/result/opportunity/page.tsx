@@ -14,7 +14,6 @@ export default function OpportunityResultPage() {
   Logger.info("[OpportunityResultPage] Rendering");
   return (
     <div>
-      <h1>Hello from OpportunityResultPage!</h1>
       <DynamicOpportunityResultsContent />
     </div>
   );

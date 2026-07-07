@@ -122,15 +122,6 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
     currentY -= 110;
   }
   
-  if (data.confidenceScore) {
-    checkSpace(80);
-    drawText("AUDIT CONFIDENCE SCORE", 30, 'F2', 10, 0.39, 0.45, 0.54);
-    currentY -= 15;
-    currentPage.shapes.push(`0.93 0.96 1.0 rg\n0.74 0.85 0.99 RG\n30 ${currentY-50} 120 50 re B`);
-    currentPage.textLines.push({ text: data.confidenceScore, x: 50, y: currentY - 35, font: 'F2', size: 28, r: 0.14, g: 0.38, b: 0.92 });
-    currentY -= 80;
-  }
-  
   for (const sec of data.sections || []) {
     checkSpace(50);
     drawText(sec.title.toUpperCase(), 30, 'F2', 12, 0.06, 0.09, 0.16);
