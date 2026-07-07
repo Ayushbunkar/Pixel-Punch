@@ -53,9 +53,11 @@ export async function generatePdf(data: ReportData): Promise<Buffer> {
     } else if (os.platform() === "darwin") {
       executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
     } else {
-      executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/google-chrome";
+      executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || (os.platform() === "win32" ? "C:\Program Files\Google\Chrome\Application\chrome.exe" : (os.platform() === "darwin" ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" : "/usr/bin/google-chrome"));
     }
   }
+
+  console.log(`[pdf-generator] Using executablePath: ${executablePath}`);
 
   const browser = await puppeteer.launch({
     args: launchArgs,
