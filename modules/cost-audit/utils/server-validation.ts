@@ -34,8 +34,8 @@ export function validateSubmission(body: unknown): FieldError[] {
   const data = hasAnswers ? (bodyRecord.answers as Record<string, unknown>) : bodyRecord;
 
   // ── Helper functions ──────────────────────────────────────────────────────
-  const required = (field: string, label: string) => {
-    if (data[field] === undefined || data[field] === null || data[field] === "") {
+  const required = (field: string, label: string, source: Record<string, unknown> = data) => {
+    if (source[field] === undefined || source[field] === null || source[field] === "") {
       errors.push({ field, message: `${label} is required.` });
       return false;
     }
@@ -76,13 +76,13 @@ export function validateSubmission(body: unknown): FieldError[] {
     return true;
   };
 
-  const stringField = (field: string, label: string, opts?: { maxLength?: number; format?: "email" }) => {
-    if (!required(field, label)) return false;
-    if (typeof data[field] !== "string") {
+  const stringField = (field: string, label: string, opts?: { maxLength?: number; format?: "email" }, source: Record<string, unknown> = data) => {
+    if (!required(field, label, source)) return false;
+    if (typeof source[field] !== "string") {
       errors.push({ field, message: `${label} must be a string.` });
       return false;
     }
-    const val = (data[field] as string).trim();
+    const val = (source[field] as string).trim();
     if (opts?.maxLength && val.length > opts.maxLength) {
       errors.push({ field, message: `${label} must be at most ${opts.maxLength} characters.` });
       return false;
@@ -147,21 +147,21 @@ export function validateSubmission(body: unknown): FieldError[] {
   }
 
   // ── Lead capture ──────────────────────────────────────────────────────────
-  if (data["firstname"] !== undefined && data["firstname"] !== null && data["firstname"] !== "") {
-    stringField("firstname", "First name", { maxLength: 100 });
+  if (bodyRecord["firstname"] !== undefined && bodyRecord["firstname"] !== null && bodyRecord["firstname"] !== "") {
+    stringField("firstname", "First name", { maxLength: 100 }, bodyRecord);
   }
-  if (data["email"] !== undefined && data["email"] !== null && data["email"] !== "") {
-    stringField("email",     "Email",      { maxLength: 254, format: "email" });
+  if (bodyRecord["email"] !== undefined && bodyRecord["email"] !== null && bodyRecord["email"] !== "") {
+    stringField("email",     "Email",      { maxLength: 254, format: "email" }, bodyRecord);
   }
 
-  if (data["lastname"] !== undefined && data["lastname"] !== null && data["lastname"] !== "") {
-    stringField("lastname",  "Last name",  { maxLength: 100 });
+  if (bodyRecord["lastname"] !== undefined && bodyRecord["lastname"] !== null && bodyRecord["lastname"] !== "") {
+    stringField("lastname",  "Last name",  { maxLength: 100 }, bodyRecord);
   }
-  if (data["company"] !== undefined && data["company"] !== null && data["company"] !== "") {
-    stringField("company",   "Company",    { maxLength: 200 });
+  if (bodyRecord["company"] !== undefined && bodyRecord["company"] !== null && bodyRecord["company"] !== "") {
+    stringField("company",   "Company",    { maxLength: 200 }, bodyRecord);
   }
-  if (data["job_title"] !== undefined && data["job_title"] !== null && data["job_title"] !== "") {
-    stringField("job_title", "Job title",  { maxLength: 150 });
+  if (bodyRecord["job_title"] !== undefined && bodyRecord["job_title"] !== null && bodyRecord["job_title"] !== "") {
+    stringField("job_title", "Job title",  { maxLength: 150 }, bodyRecord);
   }
 
   // ── Technical audit fields validation (if nested payload) ─────────────────
@@ -331,11 +331,11 @@ export function castToFormState(data: Record<string, unknown>): FormState {
     optimization_done:  (answersData.optimization_done || INITIAL_FORM_STATE.optimization_done) as FormState["optimization_done"],
     savings_threshold:  (answersData.savings_threshold || INITIAL_FORM_STATE.savings_threshold) as FormState["savings_threshold"],
     extra_context:      (answersData.extra_context as string || INITIAL_FORM_STATE.extra_context),
-    firstname:          (answersData.firstname as string || INITIAL_FORM_STATE.firstname).trim(),
-    lastname:           (answersData.lastname  as string || INITIAL_FORM_STATE.lastname).trim(),
-    email:              (answersData.email     as string || INITIAL_FORM_STATE.email).trim().toLowerCase(),
-    company:            (answersData.company   as string || INITIAL_FORM_STATE.company).trim(),
-    job_title:          (answersData.job_title as string || INITIAL_FORM_STATE.job_title).trim(),
+    firstname:          ((data.firstname || answersData.firstname) as string || INITIAL_FORM_STATE.firstname).trim(),
+    lastname:           ((data.lastname || answersData.lastname)  as string || INITIAL_FORM_STATE.lastname).trim(),
+    email:              ((data.email || answersData.email)     as string || INITIAL_FORM_STATE.email).trim().toLowerCase(),
+    company:            ((data.company || answersData.company)   as string || INITIAL_FORM_STATE.company).trim(),
+    job_title:          ((data.job_title || answersData.job_title) as string || INITIAL_FORM_STATE.job_title).trim(),
     ref:                (answersData.ref       as string || INITIAL_FORM_STATE.ref),
 
     website_url:        (techCtx.websiteUrl || (isNested ? data.websiteUrl : null) || answersData.website_url || INITIAL_FORM_STATE.website_url) as string,
