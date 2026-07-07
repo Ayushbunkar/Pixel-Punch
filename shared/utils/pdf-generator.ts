@@ -36,46 +36,44 @@ export async function generatePdf(data: ReportData): Promise<Buffer> {
   const logoBase64 = data.logoBase64 || "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wgARCAIyBQADASIAAREBAxEB/8QAGwABAAIDAQEA";
   
   // Determine executable path and args for chromium based on serverless vs local environment
-  let executablePath = "";
+  let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || "";
   let launchArgs = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
   
-  const os = require("os"); // Move this to the top of the function
+  const os = require("os");
 
-  console.log(`[pdf-generator] NODE_ENV: ${process.env.NODE_ENV}, VERCEL: ${process.env.VERCEL}, OS Platform: ${os.platform()}`);
+  console.log(`[pdf-generator] NODE_ENV: ${process.env.NODE_ENV}, VERCEL: ${process.env.VERCEL}, OS Platform: ${os.platform()}, PUPPETEER_EXECUTABLE_PATH: ${process.env.PUPPETEER_EXECUTABLE_PATH}`);
+  console.log(`[pdf-generator] puppeteer-core version: ${require('puppeteer-core/package.json').version}`);
+
   if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
     // Vercel serverless environment
     executablePath = await chromium.executablePath(
       "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar"
     );
     launchArgs = [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
-  } else {
-    // Local environment - locate chrome executable
-    executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || ""; // Initialize with empty string if undefined
-
-    if (!executablePath) { // If environment variable is not set, then determine based on OS
-      if (os.platform() === "win32") {
-        executablePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-      } else if (os.platform() === "darwin") {
-        executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-      } else {
-        executablePath = "/usr/bin/google-chrome"; // Default for Linux
-      }
+  } else if (!executablePath) {
+    // Local environment - locate chrome executable if PUPPETEER_EXECUTABLE_PATH is not set
+    if (os.platform() === "win32") {
+      executablePath = "C:\Program Files\Google\Chrome\Application\chrome.exe";
+    } else if (os.platform() === "darwin") {
+      executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+    } else {
+      executablePath = "/usr/bin/google-chrome"; // Default for Linux
     }
   }
 
   console.log(`[pdf-generator] Using executablePath: ${executablePath}`);
 
-  const browser = await puppeteer.launch({
-    args: launchArgs,
-    executablePath,
-    headless: true,
-  });
-
+  let browser;
   try {
+    browser = await puppeteer.launch({
+      args: launchArgs,
+      executablePath,
+      headless: true,
+    });
+
     const page = await browser.newPage();
     
-    // The previous line 'const genericReportData = convertPdfReportToGenericReportData(data);' is removed
-        const html = renderReportToHtml(data, { mode: 'pdf' }); // Directly use 'data' (which is ReportData)
+    const html = renderReportToHtml(data, { mode: 'pdf' });
 
     await page.setContent(html, { waitUntil: "domcontentloaded" });
 
@@ -86,7 +84,13 @@ export async function generatePdf(data: ReportData): Promise<Buffer> {
     });
 
     return Buffer.from(pdf);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`[pdf-generator] Error launching Puppeteer or generating PDF: ${errorMessage}`);
+    throw new Error(`Failed to generate PDF: ${errorMessage}`);
   } finally {
-    await browser.close();
+    if (browser) {
+      await browser.close();
+    }
   }
 }
