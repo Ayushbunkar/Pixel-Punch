@@ -43,8 +43,24 @@ export class BrowserFactory {
       }
     }
 
+    // Fallback for Windows if executablePath is still undefined
+    if (!executablePath && process.platform === 'win32') {
+      Logger.info("[BrowserFactory] Attempting Windows-specific Chrome path detection.");
+      const chromePaths = [
+        "C:\Program Files\Google\Chrome\Application\chrome.exe",
+        "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+      ];
+      for (const p of chromePaths) {
+        if (fs.existsSync(p)) {
+          executablePath = p;
+          Logger.info(`[BrowserFactory] Found Chrome at Windows default path: ${executablePath}`);
+          break;
+        }
+      }
+    }
+
     if (!executablePath) {
-      const errorMessage = `Chromium executable path is undefined. Please ensure PUPPETEER_EXECUTABLE_PATH is set or @sparticuz/chromium-min is configured.`;
+      const errorMessage = `Chromium executable path is undefined. Please ensure PUPPETEER_EXECUTABLE_PATH is set to the path of your Chrome/Chromium executable, or that Chrome/Chromium is installed in a standard location.`;
       Logger.error(`[BrowserFactory] ${errorMessage}`);
       throw new Error(errorMessage);
     }
