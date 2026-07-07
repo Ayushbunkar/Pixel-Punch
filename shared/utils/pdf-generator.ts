@@ -39,6 +39,9 @@ export async function generatePdf(data: ReportData): Promise<Buffer> {
   let executablePath = "";
   let launchArgs = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
   
+  const os = require("os"); // Move this to the top of the function
+
+  console.log(`[pdf-generator] NODE_ENV: ${process.env.NODE_ENV}, VERCEL: ${process.env.VERCEL}, OS Platform: ${os.platform()}`);
   if (process.env.NODE_ENV === "production" || process.env.VERCEL) {
     // Vercel serverless environment
     executablePath = await chromium.executablePath(
@@ -47,8 +50,6 @@ export async function generatePdf(data: ReportData): Promise<Buffer> {
     launchArgs = [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
   } else {
     // Local environment - locate chrome executable
-    const os = require("os"); // Move this outside
-
     executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || ""; // Initialize with empty string if undefined
 
     if (!executablePath) { // If environment variable is not set, then determine based on OS
