@@ -10,5 +10,8 @@ const nextConfig = {
     }
     return config;
   },
+  experimental: {
+    turbopack: {},
+  },
 };
 module.exports = nextConfig;
