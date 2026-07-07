@@ -36,7 +36,7 @@ export function EmailModal({ isOpen, onClose, submissionId, scanType, onSuccess,
 
       setLoading(true);
       try {
-        const response = await fetch("/api/cost-scan/submit", {
+        const response = await fetch("/api/notify/email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ submissionId, email: email.trim(), scanType }),
