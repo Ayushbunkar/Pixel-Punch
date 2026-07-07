@@ -47,13 +47,18 @@ export async function generatePdf(data: ReportData): Promise<Buffer> {
     launchArgs = [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
   } else {
     // Local environment - locate chrome executable
-    const os = require("os");
-    if (os.platform() === "win32") {
-      executablePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-    } else if (os.platform() === "darwin") {
-      executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-    } else {
-      executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || (os.platform() === "win32" ? "C:\Program Files\Google\Chrome\Application\chrome.exe" : (os.platform() === "darwin" ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" : "/usr/bin/google-chrome"));
+    const os = require("os"); // Move this outside
+
+    executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || ""; // Initialize with empty string if undefined
+
+    if (!executablePath) { // If environment variable is not set, then determine based on OS
+      if (os.platform() === "win32") {
+        executablePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+      } else if (os.platform() === "darwin") {
+        executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+      } else {
+        executablePath = "/usr/bin/google-chrome"; // Default for Linux
+      }
     }
   }
 

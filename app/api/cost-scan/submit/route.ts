@@ -315,14 +315,8 @@ export async function POST(req: NextRequest) {
       // Conditionally require email based on whether it's a new submission or an update
       // If submissionId is NOT present, it's a new submission, so email is required.
       // If submissionId IS present, it's an update, so email can be optional.
-      if (!submissionId || (submissionId && !emailToSave)) { // If new submission OR existing submission with no email
-        if (!emailToSave) { // If email is still missing, then it's an error for new submissions
-          console.error("[Cost Submit API] Email is missing from submission, cannot save to database due to RLS policy.");
-          return NextResponse.json(
-            { error: "Email address is required for submission." },
-            { status: 400 }
-          );
-        }
+      if (!emailToSave) {
+        console.warn("[Cost Submit API] Email is missing from submission. Proceeding without email for database save.");
       }
 
       // Update dbPayload with the ensured email value

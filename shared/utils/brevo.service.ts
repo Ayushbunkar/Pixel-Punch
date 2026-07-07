@@ -256,6 +256,13 @@ export async function syncToBrevo(payload: BrevoSyncPayload): Promise<BrevoResul
   let upsertOk = false;
   let tagsOk   = false;
 
+  const email = payload.input.email;
+
+  if (!email) {
+    console.warn("[brevo.service] Email missing in payload — skipping Brevo sync.");
+    return { success: false, error: "Email missing, Brevo sync skipped" };
+  }
+
   // ── 1. Upsert contact ───────────────────────────────────────────────────
   try {
     await upsertContact(payload);
@@ -268,7 +275,7 @@ export async function syncToBrevo(payload: BrevoSyncPayload): Promise<BrevoResul
   // ── 2. Apply tags ────────────────────────────────────────────────────────
   try {
     const tags = buildTags(payload.tier);
-    await applyTags(payload.input.email, tags);
+    await applyTags(email, tags);
     tagsOk = true;
   } catch (err) {
     console.error("[brevo.service] Tag application failed:", err);
