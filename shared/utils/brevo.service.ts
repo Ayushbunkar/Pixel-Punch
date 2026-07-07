@@ -178,7 +178,7 @@ async function applyTags(email: string, tags: string[]): Promise<void> {
 
   const updateBody = {
     attributes: {
-      TAGS: tags.join(','), // Join tags into a comma-separated string for a text attribute
+      TAGS: tags.join(','), // Store tags as a comma-separated string in a custom attribute
     },
   };
 

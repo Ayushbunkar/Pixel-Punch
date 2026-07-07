@@ -341,6 +341,13 @@ export async function POST(req: NextRequest) {
     const teamEmail = process.env.TEAM_EMAIL_ADDRESS;
     const telegramChatIdTeam = process.env.TELEGRAM_CHAT_ID_TEAM;
 
+    console.log(`[Cost Submit API] TELEGRAM_CHAT_ID_TEAM: ${telegramChatIdTeam ? 'Set' : 'Not Set'}`);
+    if (telegramChatIdTeam) {
+      console.log(`[Cost Submit API] Using Telegram Chat ID: ${telegramChatIdTeam}`);
+    } else {
+      console.warn("[Cost Submit API] TELEGRAM_CHAT_ID_TEAM is not set. Telegram notifications will be skipped.");
+    }
+
     // Send user email
     console.log(`[Cost Submit API] User email: ${userEmail}`);
     if (userEmail) {

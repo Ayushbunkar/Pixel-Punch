@@ -46,7 +46,12 @@ export async function sendTelegramNotification(message: string, chatId: string):
     console.log(`[telegram.provider] Telegram API Response Body: ${responseText}`);
 
     if (!response.ok) {
-      console.error("[telegram.provider] Telegram API error:", response.status, responseText);
+      const errorResponse = JSON.parse(responseText);
+      if (response.status === 400 && errorResponse.description && errorResponse.description.includes("chat not found")) {
+        console.error(`[telegram.provider] Telegram API error: Chat not found for chat ID: ${chatId}. Please ensure the chat ID is correct and the bot has access to the chat.`);
+      } else {
+        console.error("[telegram.provider] Telegram API error:", response.status, responseText);
+      }
       return { success: false, error: `Telegram API returned status ${response.status}: ${responseText}` };
     }
 
