@@ -43,24 +43,26 @@ export class BrowserFactory {
       }
     }
 
-    // Fallback for Windows if executablePath is still undefined
-    if (!executablePath && process.platform === 'win32') {
-      Logger.info("[BrowserFactory] Attempting Windows-specific Chrome path detection.");
-      const chromePaths = [
-        "C:\Program Files\Google\Chrome\Application\chrome.exe",
-        "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-      ];
-      for (const p of chromePaths) {
-        if (fs.existsSync(p)) {
-          executablePath = p;
-          Logger.info(`[BrowserFactory] Found Chrome at Windows default path: ${executablePath}`);
-          break;
-        }
+    // General fallback if executablePath is still undefined (for non-Vercel, non-Windows environments or if auto-detection failed)
+    if (!executablePath) {
+      Logger.info("[BrowserFactory] executablePath still undefined. Attempting to use @sparticuz/chromium as a fallback.");
+      try {
+        executablePath = await chromium.executablePath();
+        launchArgs = [...chromium.args, ...launchArgs];
+        Logger.info(`[BrowserFactory] Using @sparticuz/chromium as fallback at: ${executablePath}`);
+      } catch (e: any) {
+        Logger.error(`[BrowserFactory] @sparticuz/chromium fallback failed: ${e.message}`);
+        const errorMessage = `Chromium executable path is undefined. Please ensure PUPPETEER_EXECUTABLE_PATH is set to the path of your Chrome/Chromium executable, or that Chrome/Chromium is installed in a standard location.`;
+        Logger.error(`[BrowserFactory] ${errorMessage}`);
+        throw new Error(errorMessage);
       }
     }
 
-    if (!executablePath) {
-      const errorMessage = `Chromium executable path is undefined. Please ensure PUPPETEER_EXECUTABLE_PATH is set to the path of your Chrome/Chromium executable, or that Chrome/Chromium is installed in a standard location.`;
+    // The fs.existsSync check is now inside the fallback logic or handled by the initial executablePath assignment.
+    // If executablePath is defined here, it should be valid or an error would have been thrown.
+    // However, we still need to ensure the file actually exists on disk.
+    if (!fs.existsSync(executablePath)) {
+      const errorMessage = `Chromium executable not found at: ${executablePath}. Please ensure the path is correct.`;
       Logger.error(`[BrowserFactory] ${errorMessage}`);
       throw new Error(errorMessage);
     }
