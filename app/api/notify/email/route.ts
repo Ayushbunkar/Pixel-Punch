@@ -84,18 +84,11 @@ export async function POST(req: NextRequest) {
     const emailResult = emailResults.find(r => r.error !== "Telegram provider does not handle this notification type.");
     if (emailResult && !emailResult.success) {
       Logger.error(`[Notify Email API] Email provider returned failure: ${emailResult.error}`);
-      return NextResponse.json(
-        { error: emailResult.error || "Failed to send email. Please try again." },
-        { status: 500 }
-      );
+    } else {
+      Logger.info("[Notify Email API] User email sent successfully.");
     }
-    Logger.info("[Notify Email API] User email sent successfully.");
   } catch (err) {
     Logger.error("[Notify Email API] Failed to send user email:", err);
-    return NextResponse.json(
-      { error: "Failed to send email. Please try again." },
-      { status: 500 }
-    );
   }
 
   // ── Send team email (non-blocking) ────────────────────────────────────────
