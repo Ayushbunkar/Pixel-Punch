@@ -373,6 +373,19 @@ export async function POST(req: NextRequest) {
         .catch(err => console.error("[Cost Submit API] Error sending team email notification:", err));
     }
 
+    // Helper to get the base URL dynamically
+    const getBaseUrl = (req: NextRequest) => {
+      const vercelUrl = process.env.VERCEL_URL;
+      if (vercelUrl) {
+        return `https://${vercelUrl}`;
+      }
+      // Fallback for local development
+      const host = req.headers.get("host");
+      return `http://${host}`;
+    };
+
+    const baseUrl = getBaseUrl(req);
+
     // Send Telegram notification to team
     if (telegramChatIdTeam) {
       const telegramMessage = `New Cost Scan Submission!
@@ -382,7 +395,7 @@ Company: ${castedInput.company}
 Contact: ${castedInput.firstname} ${castedInput.lastname} (${castedInput.email})
 Tier: ${scores.tier}
  
-View Report: http://localhost:3000/ai/cost-scan/results?id=${submissionId}`;
+View Report: ${baseUrl}/ai/cost-scan/results?id=${submissionId}`;
       notificationService.sendNotification("telegram_team", {
         message: telegramMessage,
         chatId: telegramChatIdTeam,
