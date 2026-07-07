@@ -49,7 +49,7 @@ const cleanMarkdownForPdf = (md: string) => {
       trimmed = trimmed.replace(/`([^`]+)`/g, "$1");
       trimmed = trimmed.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
       trimmed = trimmed.replace(/^[-*_]{3,}$/, "");
-      trimmed = trimmed.replace(/^[*-_>]+\s*/, "");
+      trimmed = trimmed.replace(/^[-*_>]+\s*/, "");
       trimmed = trimmed.replace(/\*\*/g, "").replace(/\*/g, "");
       return trimmed;
     })
@@ -262,9 +262,9 @@ export default function OpportunityResultsContent() {
              <div className="mt-6">
                <h2 className="text-xl font-bold text-slate-900 mb-4">Full Technical Audit Report</h2>
                <div className="border border-slate-200 rounded-lg overflow-hidden relative">
-                 <div className="bg-white p-4 rounded-lg shadow-sm">
-                   <MarkdownBody markdown={result.auditReport} />
-                 </div>
+                  <div className="bg-white p-4 rounded-lg shadow-sm prose prose-sm prose-slate max-w-none">
+                    <ReactMarkdown>{result.auditReport || ""}</ReactMarkdown>
+                  </div>
                  {!isUnlocked && (
                    <LockOverlay
                      onUnlock={() => setEmailModalOpen(true)}

@@ -1,0 +1,1 @@
+import { generateBasicTextPdf } from './shared/utils/pdf-generator'; import fs from 'fs'; const data = { title: 'Test', timestamp: '2026', reportType: 'opportunity' as const, sections: [ { id: 't', title: 'T', items: [ { type: 'paragraph', content: '### Executive Summary\nAnalyzed the provided...' } ] } ] }; fs.writeFileSync('test.pdf', generateBasicTextPdf(data as any)); 

@@ -17,7 +17,10 @@ export async function sendTelegramNotification(message: string, chatId?: string)
     const url = `${TELEGRAM_API_BASE_URL}${botToken}/sendMessage`;
     const requestBody = {
       chat_id: String(targetChatId),
-      text: message
+      text: message,
+      link_preview_options: {
+        is_disabled: true
+      }
     };
 
     // Log request details

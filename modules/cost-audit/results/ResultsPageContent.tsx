@@ -50,7 +50,7 @@ const cleanMarkdownForPdf = (md: string) => {
       trimmed = trimmed.replace(/`([^`]+)`/g, "$1");
       trimmed = trimmed.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
       trimmed = trimmed.replace(/^[-*_]{3,}$/, "");
-      trimmed = trimmed.replace(/^[*-_>]+\s*/, "");
+      trimmed = trimmed.replace(/^[-*_>]+\s*/, "");
       trimmed = trimmed.replace(/\*\*/g, "").replace(/\*/g, "");
       return trimmed;
     })
@@ -251,10 +251,9 @@ export default function ResultsPageContent() {
          )}
 
          <div className="border border-slate-200 rounded-lg overflow-hidden relative">
-            <div className="bg-white p-3 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[300px]">
-             {/* Using MarkdownBody here if it was extracted to a shared utility or if a simple raw string display is fine */}
-             {result.auditReport}
-           </div>
+            <div className="bg-white p-4 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[300px] prose prose-sm prose-slate max-w-none">
+              <ReactMarkdown>{result.auditReport || ""}</ReactMarkdown>
+            </div>
 
            {!isUnlocked && <LockOverlay onUnlock={() => setUnlockModalOpen(true)} />}
          </div>

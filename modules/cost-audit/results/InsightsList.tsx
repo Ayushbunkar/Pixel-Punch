@@ -27,7 +27,7 @@ export function InsightsList({ insights, onUnlock, isUnlocked, submissionId, sca
         </h2>
       </div>
       
-      <div className="relative">
+      <div className={`relative ${!isUnlocked ? 'min-h-[140px]' : ''}`}>
         {/* Insights list blurred container */}
         <div className={`space-y-3 p-1 transition-all duration-500 ${!isUnlocked ? "blur-md select-none pointer-events-none opacity-30" : ""}`}>
           {insights.map((insight, i) => (
