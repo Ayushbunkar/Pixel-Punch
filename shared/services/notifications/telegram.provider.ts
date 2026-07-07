@@ -4,6 +4,10 @@ const TELEGRAM_API_BASE_URL = "https://api.telegram.org/bot";
 
 export async function sendTelegramNotification(message: string, chatId: string): Promise<{ success: boolean; error?: string }> {
   try {
+    if (!chatId) {
+      console.error("[telegram.provider] Chat ID is missing for Telegram notification.");
+      return { success: false, error: "Telegram chat ID is missing." };
+    }
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     if (!botToken) {
       console.error("Telegram service is not configured (TELEGRAM_BOT_TOKEN is missing).");
@@ -31,7 +35,6 @@ export async function sendTelegramNotification(message: string, chatId: string):
       return { success: false, error: `Telegram API returned status ${response.status}.` };
     }
 
-    console.log(`[telegram.provider] Telegram message sent successfully to chat ID ${chatId}.`);
     return { success: true };
 
   } catch (error: any) {

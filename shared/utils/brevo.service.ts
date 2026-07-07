@@ -172,16 +172,25 @@ function buildListIds(tier: 1 | 2 | 3 | 4): number[] {
 }
 
 async function applyTags(email: string, tags: string[]): Promise<void> {
-  // Brevo v3 — POST /contacts/tags adds tags to matching contacts
-  const res = await fetch(`${BREVO_API_BASE}/contacts/tags`, {
-    method:  "POST",
+  // Brevo v3 - Update a contact with new tags by updating a custom attribute.
+  // This assumes 'TAGS' is a custom attribute of type 'text' that can store a comma-separated string of tags.
+  // If Brevo has a dedicated API for managing tags as distinct entities, this approach might need adjustment.
+
+  const updateBody = {
+    attributes: {
+      TAGS: tags.join(','), // Join tags into a comma-separated string for a text attribute
+    },
+  };
+
+  const putRes = await fetch(`${BREVO_API_BASE}/contacts/${encodeURIComponent(email)}`, {
+    method:  "PUT",
     headers: brevoHeaders(),
-    body:    JSON.stringify({ emails: [email], tags }),
+    body:    JSON.stringify(updateBody),
   });
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "unknown");
-    throw new Error(`Brevo tag application failed: ${res.status} — ${text}`);
+  if (!putRes.ok) {
+    const text = await putRes.text().catch(() => "unknown");
+    throw new Error(`Brevo tag application failed: ${putRes.status} — ${text}`);
   }
 }
 
@@ -208,14 +217,12 @@ function scheduleRetry(operation: string, payload: BrevoSyncPayload, error: unkn
   // Fire-and-forget retry after delay
   setTimeout(async () => {
     try {
-      console.log(`[brevo.service] Retry attempt for ${operation}:`, payload.submissionId);
       if (operation === "upsert") {
         await upsertContact(payload);
       } else if (operation === "tags") {
         const tags = buildTags(payload.tier);
         await applyTags(payload.input.email, tags);
       }
-      console.log(`[brevo.service] Retry succeeded for ${operation}:`, payload.submissionId);
     } catch (retryErr) {
       // Log final failure — needs manual intervention or persistent queue
       console.error(

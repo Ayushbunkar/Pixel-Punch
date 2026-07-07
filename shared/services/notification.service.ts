@@ -55,8 +55,8 @@ export class EmailNotificationProvider implements INotificationProvider {
 export class TelegramNotificationProvider implements INotificationProvider {
   async send(type: NotificationType, data: NotificationData): Promise<{ success: boolean; error?: string }> {
     if (type === "telegram_team") {
-      if (!data.message || !data.chatId) {
-        return { success: false, error: "Missing required data for Telegram notification." };
+      if (!data.message || !data.chatId || data.chatId.trim() === "") {
+        return { success: false, error: "Missing or invalid chat ID for Telegram notification." };
       }
       return sendTelegramNotification(data.message, data.chatId);
     }

@@ -53,7 +53,7 @@ export async function generatePdf(data: ReportData): Promise<Buffer> {
     } else if (os.platform() === "darwin") {
       executablePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
     } else {
-      executablePath = "/usr/bin/google-chrome";
+      executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/google-chrome";
     }
   }
 
