@@ -176,19 +176,29 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         
         const words = lineText.split(" ");
         let currentLine = "";
+        let isFirstWrap = true;
+        
         for (const word of words) {
-           if ((currentLine + " " + word).length > 90) {
+           let indent = 0;
+           if (isList) {
+             if (isFirstWrap) indent = 0;
+             else indent = 15;
+           }
+           // approximate character limit per line for width
+           const maxChars = isBold ? 85 : 95;
+           if ((currentLine + " " + word).length > (maxChars - (indent/2))) {
               checkSpace(20);
-              drawText(currentLine, 30, isBold ? 'F2' : 'F1', 10, 0.27, 0.33, 0.41);
+              drawText(currentLine, 30 + (isFirstWrap ? 0 : (isList ? 12 : 0)), isBold ? 'F2' : 'F1', 10, 0.27, 0.33, 0.41);
               currentY -= 15;
               currentLine = word;
+              isFirstWrap = false;
            } else {
               currentLine += (currentLine ? " " : "") + word;
            }
         }
         if (currentLine) {
            checkSpace(20);
-           drawText(currentLine, 30, isBold ? 'F2' : 'F1', 10, 0.27, 0.33, 0.41);
+           drawText(currentLine, 30 + (isFirstWrap ? 0 : (isList ? 12 : 0)), isBold ? 'F2' : 'F1', 10, 0.27, 0.33, 0.41);
            currentY -= 15;
         }
       }
@@ -204,8 +214,8 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
   
   const fontF1Id = pageCount + 3;
   const fontF2Id = pageCount + 4;
-  objects.push({ id: fontF1Id, data: `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>` });
-  objects.push({ id: fontF2Id, data: `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>` });
+  objects.push({ id: fontF1Id, data: `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>` });
+  objects.push({ id: fontF2Id, data: `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>` });
   
   let nextObjId = pageCount + 5;
   let logoObjId = -1;

@@ -1,6 +1,7 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import toast from "react-hot-toast";
 
 import { useSearchParams, useRouter } from "next/navigation";
@@ -374,8 +375,8 @@ export default function ResultsPageContent() {
              <div style={{ fontSize: "14px", fontWeight: 700, color: "#1e293b", marginBottom: "8px" }}>
                Full Technical Audit
              </div>
-             <div style={{ fontSize: "11px", color: "#475569", whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
-               {/* Removed MarkdownBody usage */ result.auditReport}
+             <div className="prose prose-sm prose-slate max-w-none" style={{ fontSize: "11px", color: "#475569", lineHeight: 1.6 }}>
+               <ReactMarkdown>{result.auditReport}</ReactMarkdown>
              </div>
            </div>
          )}
