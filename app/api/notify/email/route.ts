@@ -91,17 +91,19 @@ export async function POST(req: NextRequest) {
     Logger.error("[Notify Email API] Failed to send user email:", err);
   }
 
-  // ── Send team email (non-blocking) ────────────────────────────────────────
+  // ── Send team email ────────────────────────────────────────
   if (teamEmail) {
-    notificationService
-      .sendNotification("team_email", {
+    try {
+      await notificationService.sendNotification("team_email", {
         submissionId,
         email: teamEmail,
         scanType: scanType as "cost" | "opportunity",
         recipientName: "Pixel Punch Team",
-      })
-      .then(() => Logger.info("[Notify Email API] Team email sent."))
-      .catch((err) => Logger.error("[Notify Email API] Team email error:", err));
+      });
+      Logger.info("[Notify Email API] Team email sent.");
+    } catch (err) {
+      Logger.error("[Notify Email API] Team email error:", err);
+    }
   }
 
   // ── Send Telegram notification to team ────────────────────────────────────
@@ -116,13 +118,15 @@ export async function POST(req: NextRequest) {
       ` \n` +
       `View Report: ${baseUrl}/${reportPath}`;
 
-    notificationService
-      .sendNotification("telegram_team", {
+    try {
+      await notificationService.sendNotification("telegram_team", {
         message: telegramMessage,
         chatId: telegramChatIdTeam,
-      })
-      .then(() => Logger.info("[Notify Email API] Telegram notification sent."))
-      .catch((err) => Logger.error("[Notify Email API] Telegram error:", err));
+      });
+      Logger.info("[Notify Email API] Telegram notification sent.");
+    } catch (err) {
+      Logger.error("[Notify Email API] Telegram error:", err);
+    }
   } else {
     Logger.warn("[Notify Email API] TELEGRAM_CHAT_ID_TEAM not set — Telegram skipped.");
   }

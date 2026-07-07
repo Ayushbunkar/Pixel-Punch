@@ -364,13 +364,17 @@ export async function POST(req: NextRequest) {
     // Send team email
     console.log(`[Cost Submit API] Team email: ${teamEmail}`);
     if (teamEmail) {
-      notificationService.sendNotification("team_email", {
-        submissionId,
-        email: teamEmail,
-        scanType: "cost",
-        recipientName: "Pixel Punch Team",
-      }).then(res => console.log("[Cost Submit API] Team email notification result:", res))
-        .catch(err => console.error("[Cost Submit API] Error sending team email notification:", err));
+      try {
+        const res = await notificationService.sendNotification("team_email", {
+          submissionId,
+          email: teamEmail,
+          scanType: "cost",
+          recipientName: "Pixel Punch Team",
+        });
+        console.log("[Cost Submit API] Team email notification result:", res);
+      } catch (err) {
+        console.error("[Cost Submit API] Error sending team email notification:", err);
+      }
     }
 
     // Helper to get the base URL dynamically
@@ -400,11 +404,15 @@ Contact: ${castedInput.firstname || ""} ${castedInput.lastname || ""} (${userEma
 Tier: ${scores.tier}
  
 View Report: ${baseUrl}/${reportPath}`;
-      notificationService.sendNotification("telegram_team", {
-        message: telegramMessage,
-        chatId: telegramChatIdTeam,
-      }).then(res => console.log("[Cost Submit API] Telegram notification result:", res))
-        .catch(err => console.error("[Cost Submit API] Error sending Telegram notification:", err));
+      try {
+        const res = await notificationService.sendNotification("telegram_team", {
+          message: telegramMessage,
+          chatId: telegramChatIdTeam,
+        });
+        console.log("[Cost Submit API] Telegram notification result:", res);
+      } catch (err) {
+        console.error("[Cost Submit API] Error sending Telegram notification:", err);
+      }
     }
  
     return NextResponse.json(

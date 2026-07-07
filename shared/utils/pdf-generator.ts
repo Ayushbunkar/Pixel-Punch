@@ -145,14 +145,19 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         
         let isBold = false;
         
+        let isList = false;
+        let isHeading = false;
+        
         if (lineText.startsWith('#')) {
            lineText = lineText.replace(/^#+\s*/, '');
            isBold = true;
+           isHeading = true;
            currentY -= 5;
         }
         
         if (lineText.startsWith('- ') || lineText.startsWith('* ')) {
-           lineText = "__BULLET__ " + lineText.substring(2);
+           lineText = lineText.substring(2);
+           isList = true;
         }
         
         if (lineText.startsWith('**')) {
@@ -160,6 +165,14 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         }
         
         lineText = lineText.replace(/\*\*/g, '').replace(/\*/g, '');
+        
+        if (!isList && !isHeading && lineText.match(/^([a-zA-Z0-9\s&_]+):(\s|$)/)) {
+           isList = true;
+        }
+        
+        if (isList) {
+           lineText = "__BULLET__ " + lineText;
+        }
         
         const words = lineText.split(" ");
         let currentLine = "";

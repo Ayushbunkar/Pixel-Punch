@@ -16,9 +16,8 @@ export async function sendTelegramNotification(message: string, chatId?: string)
 
     const url = `${TELEGRAM_API_BASE_URL}${botToken}/sendMessage`;
     const requestBody = {
-      chat_id: String(targetChatId), // Ensure chat_id is always a string
-      text: message,
-      parse_mode: "HTML", // or MarkdownV2
+      chat_id: String(targetChatId),
+      text: message
     };
 
     // Log request details

@@ -245,23 +245,31 @@ export async function POST(req: NextRequest) {
     // Send team email
     Logger.info(`[Opportunity Submit API] Team email: ${teamEmail}`);
     if (teamEmail) {
-      notificationService.sendNotification("team_email", {
-        submissionId,
-        email: teamEmail,
-        scanType: "opportunity",
-        recipientName: "Pixel Punch Team",
-      }).then(res => Logger.info("[Opportunity Submit API] Team email notification result:", res))
-        .catch(err => Logger.error("[Opportunity Submit API] Error sending team email notification:", err));
+      try {
+        const res = await notificationService.sendNotification("team_email", {
+          submissionId,
+          email: teamEmail,
+          scanType: "opportunity",
+          recipientName: "Pixel Punch Team",
+        });
+        Logger.info("[Opportunity Submit API] Team email notification result:", res);
+      } catch (err) {
+        Logger.error("[Opportunity Submit API] Error sending team email notification:", err);
+      }
     }
 
     // Send Telegram notification to team (only if user provided their email address)
     if (telegramChatIdTeam && userEmail) {
       const telegramMessage = `New Opportunity Scan Submission!\n \nSubmission ID: ${submissionId}\nCompany: ${input.company}\nContact: ${input.firstname} ${input.lastname} (${input.email})\nTier: ${results.tier}\n \nView Report: ${baseUrl}/result/opportunity?id=${submissionId}&unlock=true`;
-      notificationService.sendNotification("telegram_team", {
-        message: telegramMessage,
-        chatId: telegramChatIdTeam,
-      }).then(res => Logger.info("[Opportunity Submit API] Telegram notification result:", res))
-        .catch(err => Logger.error("[Opportunity Submit API] Error sending Telegram notification:", err));
+      try {
+        const res = await notificationService.sendNotification("telegram_team", {
+          message: telegramMessage,
+          chatId: telegramChatIdTeam,
+        });
+        Logger.info("[Opportunity Submit API] Telegram notification result:", res);
+      } catch (err) {
+        Logger.error("[Opportunity Submit API] Error sending Telegram notification:", err);
+      }
     }
 
     return NextResponse.json(
