@@ -254,8 +254,8 @@ export async function POST(req: NextRequest) {
         .catch(err => Logger.error("[Opportunity Submit API] Error sending team email notification:", err));
     }
 
-    // Send Telegram notification to team
-    if (telegramChatIdTeam) {
+    // Send Telegram notification to team (only if user provided their email address)
+    if (telegramChatIdTeam && userEmail) {
       const telegramMessage = `New Opportunity Scan Submission!\n \nSubmission ID: ${submissionId}\nCompany: ${input.company}\nContact: ${input.firstname} ${input.lastname} (${input.email})\nTier: ${results.tier}\n \nView Report: ${baseUrl}/result/opportunity?id=${submissionId}`;
       notificationService.sendNotification("telegram_team", {
         message: telegramMessage,

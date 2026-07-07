@@ -260,25 +260,8 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
 
   let bodyContent = "";
 
-  if (mode === "email") {
-    // Assuming report.submissionId is available to construct the URL
-    // You might need to adjust this URL based on your actual application's routing
-    const viewReportLink = `https://app.pixelpunch.org/reports/${report.submissionId || 'default-report-id'}`;
-
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Your Report is Ready</title>
-  <style>
-    body { margin:0; padding:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f1f5f9; }
-    p { margin:0; }
-  </style>
-</head>
-</html>`;
-  }
-
+  const host = process.env.NEXT_PUBLIC_APP_URL || "https://pixelpunch.org";
+  const viewReportLink = `${host}/ai/${report.reportType === "cost" ? "cost-scan" : "opportunity-scan"}/results?id=${report.submissionId}`;
 
   // ── Header bar
   bodyContent += `
@@ -307,12 +290,18 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
   <div style="padding:28px 32px 20px;text-align:center;background:#fff;border-bottom:1px solid #e2e8f0;">
     <h1 style="font-size:${isPdf ? "24px" : "28px"};font-weight:800;color:#0f172a;margin:0 0 6px;line-height:1.2;">${stripLeadingHyphens(report.title)}</h1>
     <p style="font-size:12px;color:#64748b;margin:0 0 12px;">Generated: ${report.timestamp}</p>
-    <div style="display:inline-flex;flex-wrap:wrap;gap:12px;justify-content:center;background:#f8fafc;border-radius:8px;padding:10px 20px;border:1px solid #e2e8f0;">
+    <div style="display:inline-flex;flex-wrap:wrap;gap:12px;justify-content:center;background:#f8fafc;border-radius:8px;padding:10px 20px;border:1px solid #e2e8f0;margin-bottom:14px;">
       ${Object.keys(report.metadata).map(key =>
         `<span style="font-size:11px;color:#475569;"><strong style="color:#0f172a;">${key}:</strong> ${report.metadata[key]}</span>`
       ).join('<span style="color:#cbd5e1;font-size:11px;">|</span>')}
     </div>
-
+    ${mode === "email" ? `
+      <div style="margin-top:14px;">
+        <a href="${viewReportLink}" style="background:#0d6efd;color:#fff;padding:10px 20px;border-radius:6px;font-weight:700;font-size:12px;text-decoration:none;display:inline-block;box-shadow:0 2px 4px rgba(13,110,253,0.2);">
+          View Live Interactive Dashboard
+        </a>
+      </div>
+    ` : ""}
   </div>`;
 
   // ── Scorecard Section

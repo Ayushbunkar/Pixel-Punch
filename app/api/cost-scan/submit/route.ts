@@ -386,8 +386,8 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = getBaseUrl(req);
 
-    // Send Telegram notification to team
-    if (telegramChatIdTeam) {
+    // Send Telegram notification to team (only if user provided their email address)
+    if (telegramChatIdTeam && userEmail) {
       const telegramMessage = `New Cost Scan Submission!
  
 Submission ID: ${submissionId}
