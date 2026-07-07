@@ -29,22 +29,17 @@ export class BrowserFactory {
         Logger.error(`[BrowserFactory] chromium.executablePath() failed in Vercel environment: ${e.message}`);
         throw new Error(`Failed to find Chromium executable for Vercel: ${e.message}`);
       }
-    } else if (!executablePath) {
-      // Non-Vercel, and PUPPETEER_EXECUTABLE_PATH not explicitly set: try bundled or auto-detect
-      Logger.info("[BrowserFactory] PUPPETEER_EXECUTABLE_PATH not set. Attempting to use bundled or auto-detected Chromium.");
+    } else if (!executablePath) { // Only try auto-detection if PUPPETEER_EXECUTABLE_PATH is not set
+      Logger.info("[BrowserFactory] PUPPETEER_EXECUTABLE_PATH not set. Attempting to auto-detect Chromium.");
       try {
-        // This path is for local development with puppeteer's bundled browser
-        const defaultExecutablePath = puppeteerCoreExecutablePath(); // Use the imported executablePath
-        if (defaultExecutablePath && fs.existsSync(defaultExecutablePath)) {
-          executablePath = defaultExecutablePath;
-          Logger.info(`[BrowserFactory] Using Puppeteer's bundled Chromium at: ${executablePath}`);
-        } else {
-          // Fallback to puppeteer-core's executablePath for auto-detection
-          executablePath = puppeteerCoreExecutablePath(); // Use puppeteer-core's executablePath variable
+        executablePath = puppeteerCoreExecutablePath();
+        if (executablePath) {
           Logger.info(`[BrowserFactory] Using puppeteer-core auto-detected Chromium at: ${executablePath}`);
+        } else {
+          Logger.warn("[BrowserFactory] puppeteer-core could not auto-detect Chromium executable.");
         }
       } catch (e: any) {
-        Logger.warn(`[BrowserFactory] Could not find Puppeteer's bundled Chromium: ${e.message}`);
+        Logger.warn(`[BrowserFactory] Error during puppeteer-core auto-detection: ${e.message}`);
       }
     }
 
