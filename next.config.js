@@ -13,7 +13,6 @@ const nextConfig = {
   experimental: {
     workerThreads: false,
     cpus: 1,
-    turbopack: {},
   },
 };
 module.exports = nextConfig;

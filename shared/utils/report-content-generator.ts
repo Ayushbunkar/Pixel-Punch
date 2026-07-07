@@ -288,7 +288,7 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
       <tr>
         <td style="padding:8px 0;width:50%;text-align:left;vertical-align:middle;background-color:#0d6efd;">
           <div style="padding-left:16px;">
-          ${(report.logoBase64 && mode !== "email")
+          ${report.logoBase64
         ? `<img src="${report.logoBase64}" alt="Pixel Punch" style="height:32px;width:auto;object-fit:contain;">`
         : `<span style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Pixel Punch</span>`
       }
