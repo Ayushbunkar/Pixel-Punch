@@ -147,12 +147,8 @@ export function validateSubmission(body: unknown): FieldError[] {
   }
 
   // ── Lead capture ──────────────────────────────────────────────────────────
-  if (bodyRecord["firstname"] !== undefined && bodyRecord["firstname"] !== null && bodyRecord["firstname"] !== "") {
-    stringField("firstname", "First name", { maxLength: 100 }, bodyRecord);
-  }
-  if (bodyRecord["email"] !== undefined && bodyRecord["email"] !== null && bodyRecord["email"] !== "") {
-    stringField("email",     "Email",      { maxLength: 254, format: "email" }, bodyRecord);
-  }
+  stringField("firstname", "First name", { maxLength: 100 }, bodyRecord);
+  stringField("email",     "Email",      { maxLength: 254, format: "email" }, bodyRecord);
 
   if (bodyRecord["lastname"] !== undefined && bodyRecord["lastname"] !== null && bodyRecord["lastname"] !== "") {
     stringField("lastname",  "Last name",  { maxLength: 100 }, bodyRecord);
