@@ -298,24 +298,9 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
     bodyContent += `
     <div style="padding:20px 32px;margin-bottom:24px;border-bottom:1px solid #e2e8f0;">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#64748b;margin-bottom:12px;">Audit Confidence Score</div>
-      ${isPdf ? `
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;">
-        <tr>
-          <td style="padding-right:20px;">
-            <div style="text-align:center;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 24px;">
-              <div style="font-size:36px;font-weight:900;color:#2563eb;line-height:1;">${report.confidenceScore}</div>
-              <div style="font-size:9px;text-transform:uppercase;font-weight:700;color:#2563eb;margin-top:4px;">${depth}</div>
-            </div>
-          </td>
-        </tr>
-      </table>
-      ` : `
-      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">`}
-
-        <div style="text-align:center;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 24px;">
-          <div style="font-size:${isPdf ? "28px" : "36px"};font-weight:900;color:#2563eb;line-height:1;">${report.confidenceScore}</div>
-          <div style="font-size:9px;text-transform:uppercase;font-weight:700;color:#2563eb;margin-top:4px;">${depth}</div>
-        </div>
+      <div style="display:inline-block;text-align:center;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 24px;">
+        <div style="font-size:36px;font-weight:900;color:#2563eb;line-height:1;">${report.confidenceScore}</div>
+        <div style="font-size:9px;text-transform:uppercase;font-weight:700;color:#2563eb;margin-top:4px;">${depth}</div>
       </div>
     </div>`;
   }

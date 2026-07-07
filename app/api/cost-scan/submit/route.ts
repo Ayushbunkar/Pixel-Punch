@@ -388,14 +388,18 @@ export async function POST(req: NextRequest) {
 
     // Send Telegram notification to team (only if user provided their email address)
     if (telegramChatIdTeam && userEmail) {
-      const telegramMessage = `New Cost Scan Submission!
+      const isOpportunity = body.scanType === "opportunity";
+      const reportName = isOpportunity ? "Opportunity Scan" : "Cost Scan";
+      const reportPath = isOpportunity ? `result/opportunity?id=${submissionId}` : `ai/cost-scan/results?id=${submissionId}`;
+
+      const telegramMessage = `New ${reportName} Submission!
  
 Submission ID: ${submissionId}
-Company: ${castedInput.company}
-Contact: ${castedInput.firstname} ${castedInput.lastname} (${castedInput.email})
+Company: ${castedInput.company || "N/A"}
+Contact: ${castedInput.firstname || ""} ${castedInput.lastname || ""} (${userEmail})
 Tier: ${scores.tier}
  
-View Report: ${baseUrl}/ai/cost-scan/results?id=${submissionId}`;
+View Report: ${baseUrl}/${reportPath}`;
       notificationService.sendNotification("telegram_team", {
         message: telegramMessage,
         chatId: telegramChatIdTeam,
