@@ -82,15 +82,13 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
   drawText(`Generated: ${data.timestamp}`, 30, 'F1', 10, 0.39, 0.45, 0.54);
   currentY -= 30;
   
-  let metaX = 30;
   for (const [k, v] of Object.entries(data.metadata || {})) {
     if (k === "Company") continue;
     const txt = `${k}: ${v}`;
-    if (metaX > 400) { metaX = 30; currentY -= 15; }
-    drawText(txt, metaX, 'F1', 10, 0.2, 0.25, 0.33);
-    metaX += 180;
+    drawText(txt, 30, 'F1', 10, 0.2, 0.25, 0.33);
+    currentY -= 15;
   }
-  currentY -= 40;
+  currentY -= 25;
   
   if (data.scorecard?.dimensions) {
     checkSpace(120);
@@ -154,7 +152,7 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         }
         
         if (lineText.startsWith('- ') || lineText.startsWith('* ')) {
-           lineText = "• " + lineText.substring(2);
+           lineText = "__BULLET__ " + lineText.substring(2);
         }
         
         if (lineText.startsWith('**')) {
@@ -244,10 +242,12 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
          lastR = line.r; lastG = line.g; lastB = line.b;
       }
       
-      const escapedLine = line.text
+      let escapedLine = line.text
         .replace(/\\/g, "\\\\")
         .replace(/\(/g, "\\(")
         .replace(/\)/g, "\\)");
+        
+      escapedLine = escapedLine.replace(/__BULLET__/g, "\\225");
         
       streamText += `${line.x.toFixed(2)} ${line.y.toFixed(2)} Td\n(${escapedLine}) Tj\n-${line.x.toFixed(2)} -${line.y.toFixed(2)} Td\n`;
     }
