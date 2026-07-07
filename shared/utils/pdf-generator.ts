@@ -35,24 +35,37 @@ export async function loadLogoBase64(): Promise<string> {
 export function generateBasicTextPdf(data: ReportData): Buffer {
   const objects: { id: number; data: string | Buffer }[] = [];
   
+  let logoBuffer: Buffer | null = null;
+  if (data.logoBase64 && data.logoBase64.startsWith("data:image/jpeg;base64,")) {
+    logoBuffer = Buffer.from(data.logoBase64.split(",")[1], "base64");
+  }
+  
   const pagesData: { shapes: string[], textLines: { text: string, x: number, y: number, font: 'F1' | 'F2', size: number, r: number, g: number, b: number }[] }[] = [];
   
   let currentPage = { shapes: [] as string[], textLines: [] as any[] };
   let currentY = 780;
   
   const addPage = () => {
-    pagesData.push(currentPage);
+    if (currentPage.shapes.length > 0 || currentPage.textLines.length > 0) {
+      pagesData.push(currentPage);
+    }
     currentPage = { shapes: [], textLines: [] };
-    currentY = 780;
+    currentY = 720; // Added more space below header
     
     currentPage.shapes.push(`0.05 0.43 0.99 rg\n0 790 595.28 52 re f`); 
-    currentPage.textLines.push({ text: "Pixel Punch", x: 30, y: 810, font: 'F2', size: 18, r: 1, g: 1, b: 1 });
+    
+    if (logoBuffer) {
+      currentPage.shapes.push(`q 73 0 0 32 30 800 cm /Im1 Do Q`);
+    } else {
+      currentPage.textLines.push({ text: "Pixel Punch", x: 30, y: 810, font: 'F2', size: 18, r: 1, g: 1, b: 1 });
+    }
+    
     const subtitle = data.reportType === "cost" ? "AI COST AUDIT REPORT" : "AI OPPORTUNITY AUDIT REPORT";
     currentPage.textLines.push({ text: subtitle, x: 400, y: 812, font: 'F2', size: 10, r: 0.9, g: 0.9, b: 0.9 });
   };
   
   addPage();
-  currentY = 740;
+  currentY = 690;
   
   const checkSpace = (needed: number) => {
     if (currentY - needed < 40) {
@@ -129,14 +142,33 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
       const itemText = String(item.content || "");
       const lines = itemText.split("\n");
       for (const line of lines) {
-        if (!line.trim() && item.type !== "paragraph") continue;
+        let lineText = line.trim();
+        if (!lineText && item.type !== "paragraph") continue;
         
-        const words = line.trim().split(" ");
+        let isBold = false;
+        
+        if (lineText.startsWith('#')) {
+           lineText = lineText.replace(/^#+\s*/, '');
+           isBold = true;
+           currentY -= 5;
+        }
+        
+        if (lineText.startsWith('- ') || lineText.startsWith('* ')) {
+           lineText = "• " + lineText.substring(2);
+        }
+        
+        if (lineText.startsWith('**')) {
+           isBold = true;
+        }
+        
+        lineText = lineText.replace(/\*\*/g, '').replace(/\*/g, '');
+        
+        const words = lineText.split(" ");
         let currentLine = "";
         for (const word of words) {
            if ((currentLine + " " + word).length > 90) {
               checkSpace(20);
-              drawText(currentLine, 30, 'F1', 10, 0.27, 0.33, 0.41);
+              drawText(currentLine, 30, isBold ? 'F2' : 'F1', 10, 0.27, 0.33, 0.41);
               currentY -= 15;
               currentLine = word;
            } else {
@@ -145,7 +177,7 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         }
         if (currentLine) {
            checkSpace(20);
-           drawText(currentLine, 30, 'F1', 10, 0.27, 0.33, 0.41);
+           drawText(currentLine, 30, isBold ? 'F2' : 'F1', 10, 0.27, 0.33, 0.41);
            currentY -= 15;
         }
       }
@@ -164,13 +196,30 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
   objects.push({ id: fontF1Id, data: `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>` });
   objects.push({ id: fontF2Id, data: `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>` });
   
+  let nextObjId = pageCount + 5;
+  let logoObjId = -1;
+  
+  if (logoBuffer) {
+    logoObjId = nextObjId++;
+    objects.push({
+      id: logoObjId,
+      data: Buffer.concat([
+        Buffer.from(`<< /Type /XObject /Subtype /Image /Width 1280 /Height 562 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${logoBuffer.length} >>\nstream\n`),
+        logoBuffer,
+        Buffer.from(`\nendstream`)
+      ])
+    });
+  }
+  
+  const resourcesObj = `<< /Font << /F1 ${fontF1Id} 0 R /F2 ${fontF2Id} 0 R >> ${logoObjId !== -1 ? `/XObject << /Im1 ${logoObjId} 0 R >>` : ''} >>`;
+  
   pagesData.forEach((pageData, pageIdx) => {
     const pageId = 3 + pageIdx;
-    const contentId = 3 + pageCount + 2 + pageIdx;
+    const contentId = nextObjId++;
     
     objects.push({
       id: pageId,
-      data: `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents ${contentId} 0 R /Resources << /Font << /F1 ${fontF1Id} 0 R /F2 ${fontF2Id} 0 R >> >> >>`
+      data: `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents ${contentId} 0 R /Resources ${resourcesObj} >>`
     });
     
     let streamText = ``;
