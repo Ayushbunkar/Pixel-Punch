@@ -269,8 +269,8 @@ export async function sendReportEmail(
 
     console.log(`[email.provider] Generated PDF (${(pdfBuffer.length / 1024).toFixed(2)} KB) for submission ${submissionId}`);
 
-    const senderEmail = process.env.BREVO_SENDER_EMAIL || "consulting@pixelpunch.org";
-    const senderName  = process.env.BREVO_SENDER_NAME  || "Pixel Punch Consulting";
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || "ayushbunkar100@gmail.com";
+    const senderName  = process.env.BREVO_SENDER_NAME  || "PixelPunch Audit Team";
 
     const requestBody = JSON.stringify({
       sender: { name: senderName, email: senderEmail },
