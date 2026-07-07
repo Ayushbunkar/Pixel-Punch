@@ -390,7 +390,7 @@ export async function POST(req: NextRequest) {
     if (telegramChatIdTeam && userEmail) {
       const isOpportunity = body.scanType === "opportunity";
       const reportName = isOpportunity ? "Opportunity Scan" : "Cost Scan";
-      const reportPath = isOpportunity ? `result/opportunity?id=${submissionId}` : `ai/cost-scan/results?id=${submissionId}`;
+      const reportPath = isOpportunity ? `result/opportunity?id=${submissionId}&unlock=true` : `ai/cost-scan/results?id=${submissionId}&unlock=true`;
 
       const telegramMessage = `New ${reportName} Submission!
  

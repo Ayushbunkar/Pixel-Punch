@@ -87,7 +87,7 @@ export default function ResultsPageContent() {
 
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [unlockModalOpen, setUnlockModalOpen] = useState(false);
-  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(searchParams.get("unlock") === "true");
 
   console.log("[Cost Frontend] Loading");
 

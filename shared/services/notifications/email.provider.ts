@@ -321,15 +321,11 @@ export async function sendReportEmail(
            });
 
            console.log(`[email.provider] Brevo API response status: ${response.status}`);
-           if (!response.ok) {
-             const errorText = await response.text();
-             console.error(`[email.provider] Brevo API error response body: ${errorText}`);
-           }
 
     if (!response.ok) {
-      const text = await response.text();
-      console.error("[email.provider] Brevo API error:", response.status, text);
-      return { success: false, error: `Brevo API returned status ${response.status}.` };
+      const errorText = await response.text();
+      console.error("[email.provider] Brevo API error:", response.status, errorText);
+      return { success: false, error: `Brevo API returned status ${response.status}: ${errorText}` };
     }
 
     console.log(`[email.provider] Email sent successfully to ${email} with attachment ${pdfFileName} for submission ${submissionId}`);

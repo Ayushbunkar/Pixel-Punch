@@ -67,19 +67,28 @@ export async function POST(req: NextRequest) {
 
   const isOpportunity = scanType === "opportunity";
   const reportPath    = isOpportunity
-    ? `result/opportunity?id=${submissionId}`
-    : `ai/cost-scan/results?id=${submissionId}`;
+    ? `result/opportunity?id=${submissionId}&unlock=true`
+    : `ai/cost-scan/results?id=${submissionId}&unlock=true`;
   const reportName    = isOpportunity ? "Opportunity Scan" : "Cost Scan";
 
   // ── Send user email (PDF attachment) ──────────────────────────────────────
   Logger.info(`[Notify Email API] Sending user email to: ${userEmail}`);
   try {
-    await notificationService.sendNotification("user_email", {
+    const emailResults = await notificationService.sendNotification("user_email", {
       submissionId,
       email: userEmail,
       scanType: scanType as "cost" | "opportunity",
       recipientName: `${firstname} ${lastname}`.trim() || userEmail,
     });
+    // Check if the email provider reported success
+    const emailResult = emailResults.find(r => r.error !== "Telegram provider does not handle this notification type.");
+    if (emailResult && !emailResult.success) {
+      Logger.error(`[Notify Email API] Email provider returned failure: ${emailResult.error}`);
+      return NextResponse.json(
+        { error: emailResult.error || "Failed to send email. Please try again." },
+        { status: 500 }
+      );
+    }
     Logger.info("[Notify Email API] User email sent successfully.");
   } catch (err) {
     Logger.error("[Notify Email API] Failed to send user email:", err);

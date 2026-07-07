@@ -85,7 +85,7 @@ export default function OpportunityResultsContent() {
   const [loading, setLoading] = useState(true);
 
   const [emailModalOpen, setEmailModalOpen] = useState(false);
-  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(searchParams.get("unlock") === "true");
 
   console.log("[Opportunity Frontend] Loading");
 
