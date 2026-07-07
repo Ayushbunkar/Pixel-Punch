@@ -1,6 +1,7 @@
 import type { FormState, Rag } from "@/modules/cost-audit/types";
 
 import { getStorageService } from "@/shared/services/storage/storage-provider.service";
+import { Logger } from "@/shared/utils/logger";
 
 interface AuditInput {
   answers: FormState;
@@ -76,7 +77,7 @@ async function generateFallbackReport(input: AuditInput): Promise<AuditOutput> {
       const fileBuffer = await storageService.downloadFile(file.path);
       filesWithContent.push({ name: file.name, content: fileBuffer.toString('utf8') });
     } catch (error: unknown) {
-      console.error(`[audit.service] Failed to download file ${file.path}:`, error);
+      Logger.error(`[audit.service] Failed to download file ${file.path}:`, error);
       filesWithContent.push({ name: file.name, content: `Error downloading file: ${(error as Error).message}` });
     }
   }
@@ -334,7 +335,7 @@ export async function generateAuditReport(input: AuditInput): Promise<AuditOutpu
   const mistralKey = process.env.MISTRAL_API_KEY;
 
   if (!geminiKey && !openaiKey && !mistralKey) {
-    console.log("[audit.service] No AI API keys found. Running fallback generator.");
+    Logger.info("[audit.service] No AI API keys found. Running fallback generator.");
     return generateFallbackReport(input);
   }
 
@@ -345,7 +346,7 @@ export async function generateAuditReport(input: AuditInput): Promise<AuditOutpu
       const fileBuffer = await storageService.downloadFile(file.path);
       filesWithContent.push({ name: file.name, content: fileBuffer.toString('utf8') });
     } catch (error: unknown) {
-      console.error(`[audit.service] Failed to download file ${file.path}:`, error);
+      Logger.error(`[audit.service] Failed to download file ${file.path}:`, error);
       filesWithContent.push({ name: file.name, content: `Error downloading file: ${(error as Error).message}` });
     }
   }
@@ -426,7 +427,7 @@ Please perform a detailed cost audit. You must:
     let reportText = "";
 
     if (geminiKey) {
-      console.log("[audit.service] Generating report using Gemini...");
+      Logger.info("[audit.service] Generating report using Gemini...");
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -449,7 +450,7 @@ Please perform a detailed cost audit. You must:
       }
       reportText = text;
     } else if (openaiKey) {
-      console.log("[audit.service] Generating report using OpenAI...");
+      Logger.info("[audit.service] Generating report using OpenAI...");
       const res = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -477,7 +478,7 @@ Please perform a detailed cost audit. You must:
       }
       reportText = text;
     } else if (mistralKey) {
-      console.log("[audit.service] Generating report using Mistral...");
+      Logger.info("[audit.service] Generating report using Mistral...");
       const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -517,7 +518,7 @@ Please perform a detailed cost audit. You must:
     };
 
   } catch (err: unknown) {
-    console.error("[audit.service] AI API failed. Running fallback report generator. Error:", err);
+    Logger.error("[audit.service] AI API failed. Running fallback report generator. Error:", err);
     return generateFallbackReport(input);
   }
 }

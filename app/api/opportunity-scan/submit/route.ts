@@ -6,6 +6,7 @@ import { qualifyLead } from "@/modules/opportunity-audit/scoring/opportunity-lea
 import { generateAIRecommendations } from "@/modules/opportunity-audit/scoring/opportunity-recommendation-engine";
 import { generateOpportunityReport } from "@/modules/opportunity-audit/scoring/opportunity-report-generator";
 import { saveSubmission } from "@/shared/database/db.service";
+import { Logger } from "@/shared/utils/logger";
 
 // ── Helper: Remove duplicate recommendations ───────────────────────────────────
 function deduplicateRecommendations(recommendations: string[]): string[] {
@@ -49,12 +50,12 @@ function getClientIP(req: NextRequest): string {
 }
 
 export async function POST(req: NextRequest) {
-  console.log("[Opportunity Submit API] Received request");
+  Logger.info("[Opportunity Submit API] Received request");
   // ── Rate limiting ──────────────────────────────────────────────────────────
   const ip = getClientIP(req);
   const rateCheck = checkRateLimit(ip);
   if (!rateCheck.allowed) {
-    console.log("[Opportunity Submit API] Rate limited.");
+    Logger.info("[Opportunity Submit API] Rate limited.");
     return NextResponse.json(
       { error: "Too many submissions. Please try again later." },
       {
@@ -68,9 +69,9 @@ export async function POST(req: NextRequest) {
   let body: unknown;
   try {
     body = await req.json();
-    console.log("[Opportunity Submit API] Body parsed.");
+    Logger.info("[Opportunity Submit API] Body parsed.");
   } catch {
-    console.error("[Opportunity Submit API] Failed to parse JSON body.");
+    Logger.error("[Opportunity Submit API] Failed to parse JSON body.");
     return NextResponse.json(
       { errors: [{ field: "_root", message: "Request body must be valid JSON." }] },
       { status: 400 },
@@ -80,29 +81,29 @@ export async function POST(req: NextRequest) {
   // ── Validation ─────────────────────────────────────────────────────────────
   const validationErrors = validateSubmission(body);
   if (validationErrors.length > 0) {
-    console.log("[Opportunity Submit API] Validation failed.", validationErrors);
+    Logger.info("[Opportunity Submit API] Validation failed.", validationErrors);
     return NextResponse.json({ errors: validationErrors }, { status: 400 });
   }
-  console.log("[Opportunity Submit API] Validation passed.");
+  Logger.info("[Opportunity Submit API] Validation passed.");
 
   // ── Cast inputs ────────────────────────────────────────────────────────────
   const input = castToFormState(body as Record<string, any>);
   const submissionId = randomUUID();
-  console.log(`[Opportunity Submit API] Generated ID: ${submissionId}`);
+  Logger.info(`[Opportunity Submit API] Generated ID: ${submissionId}`);
 
   // ── Run scoring ────────────────────────────────────────────────────────────
   try {
     const results = runScoringEngine(input, submissionId);
-    console.log("[Opportunity Submit API] Generated report");
+    Logger.info("[Opportunity Submit API] Generated report");
 
     // ── AI Recommendations and Report Generation ──────────────────────────────
     const aiRecommendations = await generateAIRecommendations(input, results.categories);
     const reportResult = await generateOpportunityReport(input, results.categories, aiRecommendations);
-    console.log("[Opportunity Submit API] AI Recommendations and Report Generated.");
+    Logger.info("[Opportunity Submit API] AI Recommendations and Report Generated.");
 
     // ── Lead Qualification Logic ───────────────────────────────────────────────
     const leadResult = qualifyLead(input, submissionId);
-    console.log("[Opportunity Submit API] Lead Qualified.");
+    Logger.info("[Opportunity Submit API] Lead Qualified.");
 
     // ── Model mapping (Database Schema representation) ─────────────────────────
     const dbPayload = {
@@ -188,9 +189,9 @@ export async function POST(req: NextRequest) {
     // ── Database persistence ───────────────────────────────────────────────────
     try {
       await saveSubmission(submissionId, dbPayload);
-      console.log(`[Opportunity Submit API] Saved to Supabase: ${submissionId}`);
+      Logger.info(`[Opportunity Submit API] Saved to Supabase: ${submissionId}`);
     } catch (err) {
-      console.error("[submit] Failed to save submission to JSON database:", err);
+      Logger.error("[submit] Failed to save submission to JSON database:", err);
     }
 
     return NextResponse.json(
@@ -198,7 +199,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("[Opportunity Submit API] Unhandled error during processing:", error);
+    Logger.error("[Opportunity Submit API] Unhandled error during processing:", error);
     return NextResponse.json(
       { error: "An internal server error occurred." },
       { status: 500 }

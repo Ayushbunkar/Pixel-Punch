@@ -5,15 +5,15 @@
 
 import type { FormState } from "@/modules/cost-audit/types";
 import type { Rag }       from "@/modules/cost-audit/types";
+import { Logger } from './logger';
+import config from '../config';
 
 // ── Config ─────────────────────────────────────────────────────────────────────
 
 const BREVO_API_BASE = "https://api.brevo.com/v3";
 
 function getApiKey(): string {
-  const key = process.env.BREVO_API_KEY;
-  if (!key) throw new Error("BREVO_API_KEY is not set in environment variables.");
-  return key;
+  return config.brevo.apiKey;
 }
 
 function brevoHeaders(): HeadersInit {
@@ -128,25 +128,6 @@ async function upsertContact(payload: BrevoSyncPayload): Promise<void> {
 
 // ── Step 3: Apply tags ─────────────────────────────────────────────────────────
 
-function buildTags(tier: 1 | 2 | 3 | 4): string[] {
-  const tags = [
-    "seg_cost",
-    "co_active",
-    "co_state_new",
-    "co_scan_complete",
-    `co_tier_${tier}`,
-  ];
-
-  if (tier === 1) {
-    tags.push("co_tier1_qualified", "co_state_hot");
-  }
-  if (tier === 4) {
-    tags.push("co_state_excluded");
-  }
-
-  return tags;
-}
-
 function buildListIds(tier: 1 | 2 | 3 | 4): number[] {
   const listIds: number[] = [];
   
@@ -171,30 +152,7 @@ function buildListIds(tier: 1 | 2 | 3 | 4): number[] {
   return listIds;
 }
 
-async function applyTags(email: string, tags: string[]): Promise<void> {
-  // Brevo v3 - Update a contact with new tags by updating a custom attribute.
-  // This assumes 'TAGS' is a custom attribute of type 'text' that can store a comma-separated string of tags.
-  // If Brevo has a dedicated API for managing tags as distinct entities, this approach might need adjustment.
-
-  const updateBody = {
-    attributes: {
-      TAGS: tags.join(','), // Store tags as a comma-separated string in a custom attribute
-    },
-  };
-
-  const putRes = await fetch(`${BREVO_API_BASE}/contacts/${encodeURIComponent(email)}`, {
-    method:  "PUT",
-    headers: brevoHeaders(),
-    body:    JSON.stringify(updateBody),
-  });
-
-  if (!putRes.ok) {
-    const text = await putRes.text().catch(() => "unknown");
-    throw new Error(`Brevo tag application failed: ${putRes.status} — ${text}`);
-  }
-}
-
-// ── Retry queue (best-effort, fire-and-forget) ─────────────────────────────────
+// ── Retry queue (best-effor, fire-and-forget) ─────────────────────────────────
 
 /**
  * scheduleRetry — fires one retry attempt after a delay.
@@ -212,20 +170,17 @@ function scheduleRetry(operation: string, payload: BrevoSyncPayload, error: unkn
   };
 
   // Log for observability (replace with queue write in production)
-  console.error("[brevo.service] Scheduling retry:", JSON.stringify(retryPayload));
+  Logger.error("[brevo.service] Scheduling retry:", JSON.stringify(retryPayload));
 
   // Fire-and-forget retry after delay
   setTimeout(async () => {
     try {
       if (operation === "upsert") {
         await upsertContact(payload);
-      } else if (operation === "tags") {
-        const tags = buildTags(payload.tier);
-        await applyTags(payload.input.email, tags);
       }
     } catch (retryErr) {
       // Log final failure — needs manual intervention or persistent queue
-      console.error(
+      Logger.error(
         `[brevo.service] Retry failed for ${operation}:`,
         payload.submissionId,
         retryErr,
@@ -249,17 +204,16 @@ export async function syncToBrevo(payload: BrevoSyncPayload): Promise<BrevoResul
   try {
     getApiKey();
   } catch {
-    console.warn("[brevo.service] BREVO_API_KEY not set — skipping sync (dev mode).");
+    Logger.warn("[brevo.service] BREVO_API_KEY not set — skipping sync (dev mode).");
     return { success: false, error: "BREVO_API_KEY not configured" };
   }
 
   let upsertOk = false;
-  let tagsOk   = false;
 
   const email = payload.input.email;
 
   if (!email) {
-    console.warn("[brevo.service] Email missing in payload — skipping Brevo sync.");
+    Logger.warn("[brevo.service] Email missing in payload — skipping Brevo sync.");
     return { success: false, error: "Email missing, Brevo sync skipped" };
   }
 
@@ -268,25 +222,15 @@ export async function syncToBrevo(payload: BrevoSyncPayload): Promise<BrevoResul
     await upsertContact(payload);
     upsertOk = true;
   } catch (err) {
-    console.error("[brevo.service] Upsert failed:", err);
+    Logger.error("[brevo.service] Upsert failed:", err);
     scheduleRetry("upsert", payload, err);
   }
 
-  // ── 2. Apply tags ────────────────────────────────────────────────────────
-  try {
-    const tags = buildTags(payload.tier);
-    await applyTags(email, tags);
-    tagsOk = true;
-  } catch (err) {
-    console.error("[brevo.service] Tag application failed:", err);
-    scheduleRetry("tags", payload, err);
-  }
-
-  const success = upsertOk && tagsOk;
+  const success = upsertOk;
   if (!success) {
-    console.warn(
+    Logger.warn(
       `[brevo.service] Partial sync for ${payload.submissionId}:`,
-      { upsertOk, tagsOk },
+      { upsertOk },
     );
   }
 

@@ -11,6 +11,7 @@ import { ArrowLeft } from "lucide-react";
 import { StatCard } from "@/shared/components/StatCard";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { Logger } from "@/shared/utils/logger";
 import { UnlockModal } from "@/shared/components/UnlockModal"; // Added
 import { LockOverlay } from "@/shared/components/LockOverlay"; // Added
 
@@ -56,7 +57,7 @@ export default function ResultPage() {
   const [isUnlocked, setIsUnlocked] = useState(false); // Added
   const [unlockModalOpen, setUnlockModalOpen] = useState(false); // Added
 
-  console.log("[Opportunity Frontend] Loading");
+  Logger.info("[Opportunity Frontend] Loading");
 
   useEffect(() => {
     if (!id) {
@@ -67,14 +68,14 @@ export default function ResultPage() {
 
     const fetchResult = async () => {
       try {
-        console.log(`[Opportunity Frontend] Fetching data for ID: ${id}`);
+        Logger.info(`[Opportunity Frontend] Fetching data for ID: ${id}`);
         const response = await fetch(`/api/opportunity-scan/result?id=${id}`);
         if (!response.ok) {
           throw new Error("Result not found.");
         }
         const json = await response.json();
         setResultData(json);
-        console.log("[Opportunity Frontend] Success");
+        Logger.info("[Opportunity Frontend] Success");
       } catch (err: any) {
         toast.error(err.message || "Failed to load result data. Redirecting...");
         router.push("/"); // Redirect to home or a suitable error page
@@ -106,7 +107,7 @@ export default function ResultPage() {
     );
   }
 
-  console.log("[Opportunity Frontend] Rendering");
+  Logger.info("[Opportunity Frontend] Rendering");
 
   return (
     <main className="min-h-screen bg-[#fafbff] pb-12 overflow-x-hidden">

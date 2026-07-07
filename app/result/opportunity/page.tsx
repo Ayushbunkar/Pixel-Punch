@@ -2,6 +2,7 @@
 
 // app/result/opportunity/page.tsx
 import { Suspense } from 'react';
+import { Logger } from '@/shared/utils/logger';
 import dynamic from 'next/dynamic';
 
 const DynamicOpportunityResultsContent = dynamic(
@@ -10,7 +11,7 @@ const DynamicOpportunityResultsContent = dynamic(
 );
 
 export default function OpportunityResultPage() {
-  console.log("[OpportunityResultPage] Rendering");
+  Logger.info("[OpportunityResultPage] Rendering");
   return (
     <div>
       <h1>Hello from OpportunityResultPage!</h1>

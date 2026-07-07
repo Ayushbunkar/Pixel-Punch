@@ -6,6 +6,7 @@
 import type { FormState } from "../types";
 import type { ConfigScoringResult } from "./opportunity-score-engine";
 import type { AIRecommendation } from "./opportunity-recommendation-engine";
+import { Logger } from "@/shared/utils/logger";
 
 export interface ReportOutput {
   reportText: string;
@@ -192,7 +193,7 @@ export async function generateOpportunityReport(
   const mistralKey = process.env.MISTRAL_API_KEY;
 
   if (!geminiKey && !openaiKey && !mistralKey) {
-    console.log("[opportunity-report] No API keys configured. Using fallback report generator.");
+    Logger.info("[opportunity-report] No API keys configured. Using fallback report generator.");
     return generateFallbackReport(input, scores, recommendations);
   }
 
@@ -202,7 +203,7 @@ export async function generateOpportunityReport(
     let reportText = "";
 
     if (geminiKey) {
-      console.log("[opportunity-report] Generating report via Gemini...");
+      Logger.info("[opportunity-report] Generating report via Gemini...");
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -223,7 +224,7 @@ export async function generateOpportunityReport(
       reportText = json.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
     } else if (openaiKey) {
-      console.log("[opportunity-report] Generating report via OpenAI...");
+      Logger.info("[opportunity-report] Generating report via OpenAI...");
       const res = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -274,7 +275,7 @@ export async function generateOpportunityReport(
       };
     }
   } catch (err) {
-    console.error("[opportunity-report] Error running LLM report generator:", err);
+    Logger.error("[opportunity-report] Error running LLM report generator:", err);
   }
 
   return generateFallbackReport(input, scores, recommendations);
