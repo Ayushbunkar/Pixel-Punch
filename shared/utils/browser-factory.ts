@@ -9,18 +9,20 @@ import config from "../config";
 
 export class BrowserFactory {
   public static async create(): Promise<Browser> {
-    let executablePath: string | undefined = config.pdf.puppeteerExecutablePath;
+    let executablePath: string | undefined;
     let launchArgs: string[] = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
     let browserInstance: Browser;
 
-    Logger.debug(`[BrowserFactory] NODE_ENV: ${process.env.NODE_ENV}, VERCEL: ${process.env.VERCEL}, PUPPETEER_EXECUTABLE_PATH (from config): ${executablePath}`);
+    Logger.debug(`[BrowserFactory] NODE_ENV: ${process.env.NODE_ENV}, VERCEL: ${process.env.VERCEL}, PUPPETEER_EXECUTABLE_PATH (from config): ${config.pdf.puppeteerExecutablePath}`);
 
-    // Determine environment
     const isVercel = process.env.VERCEL === '1';
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isDevelopment = process.env.NODE_ENV === 'development' && !isVercel;
 
-    if (isVercel) {
-      // Vercel environment: use @sparticuz/chromium
+    if (isDevelopment) {
+      Logger.info("[BrowserFactory] Detected development environment. Launching Puppeteer without explicit executablePath.");
+      // In development, Puppeteer uses its bundled Chromium. No explicit executablePath needed.
+      // We still need to ensure the args are set.
+    } else if (isVercel) {
       Logger.info("[BrowserFactory] Detected Vercel environment. Using @sparticuz/chromium.");
       try {
         executablePath = await chromium.executablePath();
@@ -29,62 +31,52 @@ export class BrowserFactory {
         Logger.error(`[BrowserFactory] chromium.executablePath() failed in Vercel environment: ${e.message}`);
         throw new Error(`Failed to find Chromium executable for Vercel: ${e.message}`);
       }
-    } else if (!executablePath) { // Only try auto-detection if PUPPETEER_EXECUTABLE_PATH is not set
-      Logger.info("[BrowserFactory] PUPPETEER_EXECUTABLE_PATH not set. Attempting to auto-detect Chromium.");
-      try {
-        executablePath = puppeteerCoreExecutablePath();
-        if (executablePath) {
-          Logger.info(`[BrowserFactory] Using puppeteer-core auto-detected Chromium at: ${executablePath}`);
-        } else {
-          Logger.warn("[BrowserFactory] puppeteer-core could not auto-detect Chromium executable.");
-        }
-      } catch (e: any) {
-        Logger.warn(`[BrowserFactory] Error during puppeteer-core auto-detection: ${e.message}`);
-      }
-    }
+    } else { // Production (non-Vercel) or explicit PUPPETEER_EXECUTABLE_PATH provided
+      Logger.info("[BrowserFactory] Detected non-development, non-Vercel environment. Attempting to resolve executablePath.");
+      executablePath = config.pdf.puppeteerExecutablePath;
 
-    // General fallback if executablePath is still undefined (for non-Vercel, non-Windows environments or if auto-detection failed)
-    if (!executablePath) {
-      Logger.info("[BrowserFactory] executablePath still undefined. Attempting to use @sparticuz/chromium as a fallback.");
-      try {
-        executablePath = await chromium.executablePath();
-        launchArgs = [...chromium.args, ...launchArgs];
-        Logger.info(`[BrowserFactory] Using @sparticuz/chromium as fallback at: ${executablePath}`);
-      } catch (e: any) {
-        Logger.error(`[BrowserFactory] @sparticuz/chromium fallback failed: ${e.message}`);
-        const errorMessage = `Chromium executable path is undefined. Please ensure PUPPETEER_EXECUTABLE_PATH is set to the path of your Chrome/Chromium executable, or that Chrome/Chromium is installed in a standard location.`;
+      if (!executablePath) {
+        Logger.info("[BrowserFactory] PUPPETEER_EXECUTABLE_PATH not set. Attempting to auto-detect Chromium.");
+        try {
+          executablePath = puppeteerCoreExecutablePath();
+          if (executablePath) {
+            Logger.info(`[BrowserFactory] Using puppeteer-core auto-detected Chromium at: ${executablePath}`);
+          } else {
+            Logger.warn("[BrowserFactory] puppeteer-core could not auto-detect Chromium executable.");
+          }
+        } catch (e: any) {
+          Logger.warn(`[BrowserFactory] Error during puppeteer-core auto-detection: ${e.message}`);
+        }
+      }
+
+      if (!executablePath) {
+        const errorMessage = `Chromium executable path is undefined. For non-development, non-Vercel environments, please ensure PUPPETEER_EXECUTABLE_PATH is set or Chromium is installed in a standard location.`;
+        Logger.error(`[BrowserFactory] ${errorMessage}`);
+        throw new Error(errorMessage);
+      }
+
+      if (!fs.existsSync(executablePath)) {
+        const errorMessage = `Chromium executable not found at: ${executablePath}. Please ensure the path is correct.`;
         Logger.error(`[BrowserFactory] ${errorMessage}`);
         throw new Error(errorMessage);
       }
     }
 
-    // The fs.existsSync check is now inside the fallback logic or handled by the initial executablePath assignment.
-    // If executablePath is defined here, it should be valid or an error would have been thrown.
-    // However, we still need to ensure the file actually exists on disk.
-    if (!fs.existsSync(executablePath)) {
-      const errorMessage = `Chromium executable not found at: ${executablePath}. Please ensure the path is correct.`;
-      Logger.error(`[BrowserFactory] ${errorMessage}`);
-      throw new Error(errorMessage);
-    }
-
-    if (!fs.existsSync(executablePath)) {
-      const errorMessage = `Chromium executable not found at: ${executablePath}. Please ensure the path is correct.`;
-      Logger.error(`[BrowserFactory] ${errorMessage}`);
-      throw new Error(errorMessage);
-    }
-
-    Logger.info(`[BrowserFactory] Resolved executablePath: ${executablePath}`);
+    Logger.info(`[BrowserFactory] Resolved executablePath: ${executablePath || 'N/A (development)'}`);
     Logger.info(`[BrowserFactory] Launch args: ${JSON.stringify(launchArgs)}`);
-    // Note: Puppeteer and Chromium versions are not directly available here without additional imports or checks.
-    // We rely on the environment to provide compatible versions.
-    Logger.info(`[BrowserFactory] Launching Puppeteer with executablePath: ${executablePath}`);
+    Logger.info(`[BrowserFactory] Launching Puppeteer with executablePath: ${executablePath || 'N/A (development)'}`);
 
     try {
-      browserInstance = await launch({
+      const launchOptions: Parameters<typeof launch>[0] = {
         args: launchArgs,
-        executablePath,
         headless: true,
-      });
+      };
+
+      if (executablePath) {
+        launchOptions.executablePath = executablePath;
+      }
+
+      browserInstance = await launch(launchOptions);
       Logger.info(`[BrowserFactory] BrowserFactory result: Browser launched successfully.`);
       return browserInstance;
     } catch (error: any) {
