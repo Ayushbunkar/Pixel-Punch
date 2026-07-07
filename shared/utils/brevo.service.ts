@@ -13,13 +13,18 @@ import config from '../config';
 const BREVO_API_BASE = "https://api.brevo.com/v3";
 
 function getApiKey(): string {
-  return config.brevo.apiKey;
+  const apiKey = config.brevo.apiKey;
+  if (!apiKey || apiKey === "YOUR_BREVO_API_KEY") { // Check for empty or placeholder key
+    throw new Error("Brevo API key is missing or invalid. Please set BREVO_API_KEY in your environment variables.");
+  }
+  return apiKey;
 }
 
 function brevoHeaders(): HeadersInit {
+  const apiKey = getApiKey(); // Ensure API key is valid before creating headers
   return {
     "Content-Type": "application/json",
-    "api-key":       getApiKey(),
+    "api-key":       apiKey,
   };
 }
 
@@ -119,6 +124,9 @@ async function upsertContact(payload: BrevoSyncPayload): Promise<void> {
 
   if (!res.ok) {
     const text = await res.text().catch(() => "unknown");
+    if (res.status === 401) {
+      throw new Error(`Brevo upsert failed: ${res.status} Unauthorized. Please check your BREVO_API_KEY. — ${text}`);
+    }
     throw new Error(`Brevo upsert failed: ${res.status} — ${text}`);
   }
 }
@@ -142,6 +150,9 @@ async function updateContactLists(email: string, listIds: number[]): Promise<voi
 
   if (!res.ok) {
     const text = await res.text().catch(() => "unknown");
+    if (res.status === 401) {
+      throw new Error(`Brevo list update failed: ${res.status} Unauthorized. Please check your BREVO_API_KEY. — ${text}`);
+    }
     throw new Error(`Brevo list update failed: ${res.status} — ${text}`);
   }
 }

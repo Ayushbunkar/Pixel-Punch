@@ -55,7 +55,7 @@ export async function sendReportEmail(
 
     // Ensure scorecard and score are present to avoid errors
     if (!submission.scorecard && !submission.score) {
-      console.error(`[email.provider] Submission ${submissionId} is missing scorecard/score data.`);
+      console.error(`[email.provider] Submission ${submissionId} is missing scorecard/score data. Full submission object: ${JSON.stringify(submission, null, 2)}`);
       return { success: false, error: "Submission missing scorecard/score data." };
     }
 
