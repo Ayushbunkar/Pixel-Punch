@@ -48,6 +48,23 @@ export class BrowserFactory {
           Logger.warn(`[BrowserFactory] Error during puppeteer-core auto-detection: ${e.message}`);
         }
       }
+ 
+      if (!executablePath && process.platform === "win32") {
+        Logger.info("[BrowserFactory] Running on Windows. Searching standard Google Chrome install locations...");
+        const standardWindowsPaths = [
+          "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+          `${process.env.LOCALAPPDATA || "C:\\Users\\Default\\AppData\\Local"}\\Google\\Chrome\\Application\\chrome.exe`,
+          `${process.env.USERPROFILE || "C:\\Users\\Default"}\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe`
+        ];
+        for (const p of standardWindowsPaths) {
+          if (fs.existsSync(p)) {
+            executablePath = p;
+            Logger.info(`[BrowserFactory] Auto-detected Google Chrome at: ${executablePath}`);
+            break;
+          }
+        }
+      }
 
       if (!executablePath) {
         const errorMessage = `Chromium executable path is undefined. For non-development, non-Vercel environments, please ensure PUPPETEER_EXECUTABLE_PATH is set or Chromium is installed in a standard location.`;

@@ -1,3 +1,5 @@
+import scoreDescriptions from "../config/score-descriptions.json";
+
 interface ReportItem {
   type: 'paragraph' | 'list' | 'image' | 'code';
   content: string;
@@ -182,60 +184,38 @@ function renderScorecardHtml(
 ): string {
   const isCost = reportType === "cost";
 
-  // Label mapping to match web UI dfsfds
+  // Label mapping to match web UI
   const labelMap: Record<string, string> = isCost
-    ? { 0: "Spend & Visibility", 1: "Architecture Risk", 2: "Business Pain & Urgency" }
-    : { 0: "Technical AI Readiness", 1: "Business Value Potential", 2: "Automation Opportunity" };
+    ? { 0: "Spend Risk", 1: "Architecture Risk", 2: "Pain Risk" }
+    : { 0: "Readiness Risk", 1: "Value Risk", 2: "Opportunity Risk" };
 
-  // Sub-text descriptions for each card dimension (matching web UI)
-  const subtextMap: Record<string, Record<string, string>> = {
-    cost: {
-      0: "Measures your cloud & AI spend efficiency and visibility gaps across providers.",
-      1: "Evaluates architectural decisions that drive unnecessary cost or technical debt.",
-      2: "Assesses operational pain, urgency, and business impact of current inefficiencies."
-    },
-    opportunity: {
-      0: "Evaluates your data infrastructure, tooling, and team capability for AI adoption.",
-      1: "Measures the ROI potential and strategic alignment of AI across your operations.",
-      2: "Identifies how much workflow automation can realistically be implemented today."
-    }
-  };
-  const subtextGroup = subtextMap[isCost ? "cost" : "opportunity"];
+  const dimensionKeys = isCost
+    ? ["spend", "architecture", "pain"]
+    : ["readiness", "value", "opportunity"];
 
   const cardsHtml = dimensions.map((dim, idx) => {
     const val = dim.value;
     const displayLabel = labelMap[idx] ?? dim.label;
-    const subtext = subtextGroup?.[idx] ?? "";
+    const dimKey = dimensionKeys[idx] || "spend";
+    const dynamicDescription = (scoreDescriptions as Record<string, Record<string, string>>)[dimKey]?.[val] || "";
+
     const bg    = ragBg(val);
     const color = ragColor(val);
-    const txt   = ragText(val);
     const bord  = ragBorder(val);
-    const badge = ragLabel(val);
-    const flag  = ragFlag(val);
+    const statusText = val === "red" ? "HIGH RISK" : val === "amber" ? "NEEDS ATTENTION" : "LOW RISK";
+    const statusIcon = val === "green" ? "✅" : "⚠️";
 
     return `
-    <td style="width:${Math.floor(100 / dimensions.length)}%;padding:0 6px;vertical-align:top;">
-      <div style="background:${bg};border:1.5px solid ${bord};border-radius:12px;padding:16px 14px;box-sizing:border-box;">
-        <div style="font-size:${mode === "pdf" ? "8px" : "10px"};font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px;">${displayLabel}</div>
-        ${mode === "email" ? `
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin-bottom:6px;mso-table-lspace:0pt;mso-table-rspace:0pt;">
+    <td style="width:${Math.floor(100 / dimensions.length)}%;padding:0 6px;vertical-align:top;height:100%;">
+      <div style="background:${bg};border:1.5px solid ${bord};border-radius:12px;padding:20px 16px;box-sizing:border-box;height:100%;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin-bottom:10px;mso-table-lspace:0pt;mso-table-rspace:0pt;">
           <tr>
-            <td style="font-size:14px;line-height:1;padding-right:6px;">${flag}</td>
-            <td style="font-size:11px;font-weight:700;color:${color};">${badge}</td>
+            <td style="font-size:14px;line-height:1;padding-right:6px;vertical-align:middle;">${statusIcon}</td>
+            <td style="font-size:10px;font-weight:800;color:${color};text-transform:uppercase;letter-spacing:0.8px;vertical-align:middle;">${statusText}</td>
           </tr>
         </table>
-        ` : `
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-          <span style="font-size:14px;line-height:1;">${flag}</span>
-          <span style="font-size:${mode === "pdf" ? "10px" : "11px"};font-weight:700;color:${color};">${badge}</span>
-        </div>
-        `}
-
-        <div style="font-size:${mode === "pdf" ? "22px" : "28px"};font-weight:900;color:${color};letter-spacing:-0.5px;line-height:1;margin-bottom:8px;">${val.toUpperCase()}</div>
-        <div style="margin-bottom:10px;display:inline-block;background:${txt === "#991b1b" ? "#fef2f2" : txt === "#b45309" ? "#fffbeb" : "#f0fdf4"};border:1px solid ${bord};border-radius:4px;padding:2px 8px;">
-          <span style="font-size:${mode === "pdf" ? "8px" : "9px"};font-weight:700;color:${txt};text-transform:uppercase;letter-spacing:0.5px;">${val.toUpperCase()}</span>
-        </div>
-        ${subtext ? `<div style="font-size:${mode === "pdf" ? "8px" : "10px"};color:#64748b;line-height:1.5;margin-top:8px;padding-top:8px;border-top:1px solid ${bord}80;">${subtext}</div>` : ""}
+        <div style="font-size:16px;font-weight:800;color:#0f172a;margin-bottom:10px;line-height:1.2;">${displayLabel}</div>
+        <div style="font-size:11px;color:#475569;line-height:1.5;">${dynamicDescription}</div>
       </div>
     </td>`;
   }).join("");
@@ -245,8 +225,8 @@ function renderScorecardHtml(
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#64748b;margin-bottom:16px;">
       RAG Scorecard Overview
     </div>
-    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:separate;border-spacing:8px 0;">
-      <tr>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout:fixed;height:100%;border-collapse:separate;border-spacing:8px 0;margin:0 -8px;">
+      <tr style="vertical-align:stretch;">
         ${cardsHtml}
       </tr>
     </table>
@@ -291,9 +271,11 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
     <h1 style="font-size:${isPdf ? "24px" : "28px"};font-weight:800;color:#0f172a;margin:0 0 6px;line-height:1.2;">${stripLeadingHyphens(report.title)}</h1>
     <p style="font-size:12px;color:#64748b;margin:0 0 12px;">Generated: ${report.timestamp}</p>
     <div style="display:inline-flex;flex-wrap:wrap;gap:12px;justify-content:center;background:#f8fafc;border-radius:8px;padding:10px 20px;border:1px solid #e2e8f0;margin-bottom:14px;">
-      ${Object.keys(report.metadata).map(key =>
-        `<span style="font-size:11px;color:#475569;"><strong style="color:#0f172a;">${key}:</strong> ${report.metadata[key]}</span>`
-      ).join('<span style="color:#cbd5e1;font-size:11px;">|</span>')}
+      ${Object.keys(report.metadata)
+        .filter(key => !(isPdf && key === "Company"))
+        .map(key =>
+          `<span style="font-size:11px;color:#475569;"><strong style="color:#0f172a;">${key}:</strong> ${report.metadata[key]}</span>`
+        ).join('<span style="color:#cbd5e1;font-size:11px;">|</span>')}
     </div>
     ${mode === "email" ? `
       <div style="margin-top:14px;">

@@ -249,13 +249,36 @@ export async function sendReportEmail(
 
     console.log(`[email.provider] ReportData constructed: ${JSON.stringify(reportData, null, 2)}`);
 
-    let htmlContent: string;
-    try {
-      htmlContent = renderReportToHtml(reportData, { mode: 'email' });
-    } catch (err) {
-      console.error("[email.provider] Error rendering report to HTML:", err);
-      return { success: false, error: "Failed to render report HTML." };
-    }
+    const host = process.env.NEXT_PUBLIC_APP_URL || "https://pixelpunch.org";
+    const viewReportLink = `${host}/ai/${isCost ? "cost-scan" : "opportunity-scan"}/results?id=${submissionId}`;
+
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background-color:#f8fafc;padding:40px 20px;color:#1e293b;margin:0;">
+  <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;border:1px solid #e2e8f0;padding:40px;box-shadow:0 4px 6px rgba(0,0,0,0.02);">
+    <div style="margin-bottom:24px;border-bottom:1px solid #e2e8f0;padding-bottom:20px;">
+      <span style="font-size:22px;font-weight:900;color:#0d6efd;letter-spacing:-0.5px;">Pixel Punch</span>
+    </div>
+    <h2 style="font-size:20px;font-weight:700;color:#0f172a;margin-top:0;margin-bottom:12px;">Your Audit Report is Ready</h2>
+    <p style="font-size:14px;line-height:1.6;color:#475569;margin-bottom:20px;">
+      Hello ${recipientName || 'there'},
+    </p>
+    <p style="font-size:14px;line-height:1.6;color:#475569;margin-bottom:24px;">
+      Thank you for choosing Pixel Punch. We have completed your <strong>${reportTitle}</strong>. 
+      The complete, detailed PDF report has been generated and is attached directly to this email.
+    </p>
+    <p style="font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:20px;margin-top:0;line-height:1.5;">
+      If you have any questions or would like to discuss the findings with our consulting team, please reply directly to this email.
+      <br><br>
+      Best regards,<br>
+      <strong>PixelPunch Audit Team</strong>
+    </p>
+  </div>
+</body>
+</html>`;
 
     let pdfBuffer: Buffer;
     try {
