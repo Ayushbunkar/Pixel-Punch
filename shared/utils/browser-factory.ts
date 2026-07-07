@@ -34,16 +34,14 @@ export class BrowserFactory {
       Logger.info("[BrowserFactory] PUPPETEER_EXECUTABLE_PATH not set. Attempting to use bundled or auto-detected Chromium.");
       try {
         // This path is for local development with puppeteer's bundled browser
-        const puppeteerCoreExecutablePath = executablePath; // Renaming to avoid confusion
-        if (puppeteerCoreExecutablePath && fs.existsSync(puppeteerCoreExecutablePath)) {
-          executablePath = puppeteerCoreExecutablePath;
+        const defaultExecutablePath = executablePath;
+        if (defaultExecutablePath && fs.existsSync(defaultExecutablePath)) {
+          executablePath = defaultExecutablePath;
           Logger.info(`[BrowserFactory] Using Puppeteer's bundled Chromium at: ${executablePath}`);
         } else {
-          // Fallback for Docker/VPS if chromium is installed globally
-          Logger.warn("[BrowserFactory] Puppeteer's bundled Chromium not found or executablePath is undefined. Attempting to auto-detect system Chromium.");
-          // This might require a more sophisticated detection for different OS/installations
-          // For now, we'll rely on the user setting PUPPETEER_EXECUTABLE_PATH for Docker/VPS if not found here.
-          // Or, if puppeteer-core can find it, it will.
+          // Fallback to puppeteer-core's executablePath for auto-detection
+          executablePath = executablePath; // Use puppeteer-core's executablePath variable
+          Logger.info(`[BrowserFactory] Using puppeteer-core auto-detected Chromium at: ${executablePath}`);
         }
       } catch (e: any) {
         Logger.warn(`[BrowserFactory] Could not find Puppeteer's bundled Chromium: ${e.message}`);

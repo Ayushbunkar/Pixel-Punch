@@ -110,10 +110,7 @@ async function upsertContact(payload: BrevoSyncPayload): Promise<void> {
     attributes,
   };
 
-  if (listIds.length > 0) {
-    body.listIds = listIds;
-  }
-
+  // Do not include listIds in the initial upsert. We will update lists separately.
   const res = await fetch(`${BREVO_API_BASE}/contacts`, {
     method:  "POST",
     headers: brevoHeaders(),
@@ -126,7 +123,28 @@ async function upsertContact(payload: BrevoSyncPayload): Promise<void> {
   }
 }
 
-// ── Step 3: Apply tags ─────────────────────────────────────────────────────────
+// ── Step 3: Update contact lists (tags) ────────────────────────────────────────
+
+async function updateContactLists(email: string, listIds: number[]): Promise<void> {
+  if (listIds.length === 0) {
+    return; // Nothing to update
+  }
+
+  const body = {
+    listIds,
+  };
+
+  const res = await fetch(`${BREVO_API_BASE}/contacts/${encodeURIComponent(email)}/lists/add`, {
+    method:  "PUT",
+    headers: brevoHeaders(),
+    body:    JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "unknown");
+    throw new Error(`Brevo list update failed: ${res.status} — ${text}`);
+  }
+}
 
 function buildListIds(tier: 1 | 2 | 3 | 4): number[] {
   const listIds: number[] = [];
@@ -209,6 +227,7 @@ export async function syncToBrevo(payload: BrevoSyncPayload): Promise<BrevoResul
   }
 
   let upsertOk = false;
+  let listUpdateOk = false;
 
   const email = payload.input.email;
 
@@ -226,11 +245,23 @@ export async function syncToBrevo(payload: BrevoSyncPayload): Promise<BrevoResul
     scheduleRetry("upsert", payload, err);
   }
 
-  const success = upsertOk;
+  // ── 2. Update contact lists (tags) ──────────────────────────────────────
+  if (upsertOk) { // Only attempt list update if upsert was successful
+    try {
+      const listIds = buildListIds(payload.tier);
+      await updateContactLists(email, listIds);
+      listUpdateOk = true;
+    } catch (err) {
+      Logger.error("[brevo.service] List update failed:", err);
+      scheduleRetry("list-update", payload, err); // Schedule retry for list update
+    }
+  }
+
+  const success = upsertOk && listUpdateOk;
   if (!success) {
     Logger.warn(
       `[brevo.service] Partial sync for ${payload.submissionId}:`,
-      { upsertOk },
+      { upsertOk, listUpdateOk },
     );
   }
 
