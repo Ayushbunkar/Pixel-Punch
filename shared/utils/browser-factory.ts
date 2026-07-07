@@ -1,7 +1,7 @@
 
 // shared/utils/browser-factory.ts
 
-import { Browser, launch, executablePath } from "puppeteer-core";
+import { Browser, launch, executablePath as puppeteerCoreExecutablePath } from "puppeteer-core";
 import chromium from "@sparticuz/chromium-min";
 import fs from "fs";
 import { Logger } from "./logger";
@@ -34,13 +34,13 @@ export class BrowserFactory {
       Logger.info("[BrowserFactory] PUPPETEER_EXECUTABLE_PATH not set. Attempting to use bundled or auto-detected Chromium.");
       try {
         // This path is for local development with puppeteer's bundled browser
-        const defaultExecutablePath = executablePath;
+        const defaultExecutablePath = puppeteerCoreExecutablePath(); // Use the imported executablePath
         if (defaultExecutablePath && fs.existsSync(defaultExecutablePath)) {
           executablePath = defaultExecutablePath;
           Logger.info(`[BrowserFactory] Using Puppeteer's bundled Chromium at: ${executablePath}`);
         } else {
           // Fallback to puppeteer-core's executablePath for auto-detection
-          executablePath = executablePath; // Use puppeteer-core's executablePath variable
+          executablePath = puppeteerCoreExecutablePath(); // Use puppeteer-core's executablePath variable
           Logger.info(`[BrowserFactory] Using puppeteer-core auto-detected Chromium at: ${executablePath}`);
         }
       } catch (e: any) {
