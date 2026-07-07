@@ -23,9 +23,11 @@ export class BrowserFactory {
       // In development, Puppeteer uses its bundled Chromium. No explicit executablePath needed.
       // We still need to ensure the args are set.
     } else if (isVercel) {
-      Logger.info("[BrowserFactory] Detected Vercel environment. Using @sparticuz/chromium.");
+      Logger.info("[BrowserFactory] Detected Vercel environment. Using @sparticuz/chromium-min with remote binary.");
       try {
-        executablePath = await chromium.executablePath();
+        // chromium-min requires a remote URL to download the Chromium binary
+        const chromiumRemoteUrl = "https://github.com/Sparticuz/chromium/releases/download/v149.0.0/chromium-v149.0.0-pack.tar";
+        executablePath = await chromium.executablePath(chromiumRemoteUrl);
         launchArgs = [...chromium.args, ...launchArgs];
       } catch (e: any) {
         Logger.error(`[BrowserFactory] chromium.executablePath() failed in Vercel environment: ${e.message}`);

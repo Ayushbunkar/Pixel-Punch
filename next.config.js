@@ -10,6 +10,7 @@ const nextConfig = {
     }
     return config;
   },
+  serverExternalPackages: ['@sparticuz/chromium-min'],
   experimental: {
     workerThreads: false,
     cpus: 1,
