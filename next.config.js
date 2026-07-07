@@ -11,6 +11,8 @@ const nextConfig = {
     return config;
   },
   experimental: {
+    workerThreads: false,
+    cpus: 1,
     turbopack: {},
   },
 };

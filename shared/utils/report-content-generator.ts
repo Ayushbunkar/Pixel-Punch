@@ -286,12 +286,12 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
     <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td style="padding:0;width:50%;" valign="middle"><![endif]-->
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;table-layout:fixed;">
       <tr>
-        <td style="padding:8px 0;width:50%;text-align:left;vertical-align:middle;background-color:#ffffff;">
+        <td style="padding:8px 0;width:50%;text-align:left;vertical-align:middle;background-color:#0d6efd;">
           <div style="padding-left:16px;">
-          ${report.logoBase64
-            ? `<img src="${report.logoBase64}" alt="Pixel Punch" width="100" height="32" style="height:32px;display:block;">`
-            : `<span style="font-size:20px;font-weight:900;color:#0f172a;letter-spacing:-0.5px;">Pixel Punch</span>`
-          }
+          ${(report.logoBase64 && mode !== "email")
+        ? `<img src="${report.logoBase64}" alt="Pixel Punch" style="height:32px;width:auto;object-fit:contain;">`
+        : `<span style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.5px;">Pixel Punch</span>`
+      }
           </div>
         </td>
         <td style="padding:0;width:50%;text-align:right;vertical-align:middle;">
@@ -384,7 +384,6 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
         item.content.split("\n").map(l => l.replace(/^[-*+]\s*/, "").trim()).filter(Boolean)
       );
       findingsHtml = `
-      <div style="background:#fff;border-radius:10px;border:1px solid #fca5a5;padding:16px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#dc2626;margin-bottom:12px;">⚠ Key Findings</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           ${items.map(text => `
@@ -393,15 +392,13 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
               <p style="font-size:${isPdf ? "10px" : "12px"};color:#475569;line-height:1.6;margin:0;">${text}</p>
             </div>`
           ).join("")}
-        </div>
-      </div>`;
+        </div>`;
 
     } else if (sectionId === "recommendations") {
       const items = section.items.flatMap(item =>
         item.content.split("\n").map(l => l.replace(/^[-*+]\s*/, "").trim()).filter(Boolean)
       );
       recsHtml = `
-      <div style="background:#fff;border-radius:10px;border:1px solid #86efac;padding:16px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#16a34a;margin-bottom:12px;">✓ Expert Recommendations</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           ${items.map(text => `
@@ -410,8 +407,7 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
               <p style="font-size:${isPdf ? "10px" : "12px"};color:#475569;line-height:1.6;margin:0;">${text}</p>
             </div>`
           ).join("")}
-        </div>
-      </div>`;
+        </div>`;
 
     } else if (sectionId === "auditReport") {
       const rawContent = section.items[0]?.content ?? "";
@@ -456,12 +452,32 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
     bodyContent += `
     <div style="padding:20px 32px;margin-bottom:24px;border-bottom:1px solid #e2e8f0;">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#64748b;margin-bottom:16px;">Analysis Summary</div>
-      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout:fixed;mso-table-lspace:0pt;mso-table-rspace:0pt;">
-        <tr style="vertical-align:top;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout:fixed;height:100%;border-collapse:separate;border-spacing:16px 0;margin:0 -16px;mso-table-lspace:0pt;mso-table-rspace:0pt;">
+        <tr style="vertical-align:stretch;">
           ${findingsHtml && recsHtml ? `
-            <td style="width:50%;vertical-align:top;padding-right:8px;">${findingsHtml}</td>
-            <td style="width:50%;vertical-align:top;padding-left:8px;">${recsHtml}</td>
-          ` : findingsHtml ? `<td style="width:100%;vertical-align:top;">${findingsHtml}</td>` : `<td style="width:100%;vertical-align:top;">${recsHtml}</td>`}
+            <td style="width:50%;vertical-align:stretch;padding:0 8px 0 0;height:100%;">
+              <div style="background:#fff;border-radius:10px;border:1px solid #fca5a5;padding:16px;height:100%;box-sizing:border-box;">
+                ${findingsHtml}
+              </div>
+            </td>
+            <td style="width:50%;vertical-align:stretch;padding:0 0 0 8px;height:100%;">
+              <div style="background:#fff;border-radius:10px;border:1px solid #86efac;padding:16px;height:100%;box-sizing:border-box;">
+                ${recsHtml}
+              </div>
+            </td>
+          ` : findingsHtml ? `
+            <td style="width:100%;vertical-align:top;height:100%;">
+              <div style="background:#fff;border-radius:10px;border:1px solid #fca5a5;padding:16px;height:100%;box-sizing:border-box;">
+                ${findingsHtml}
+              </div>
+            </td>
+          ` : `
+            <td style="width:100%;vertical-align:top;height:100%;">
+              <div style="background:#fff;border-radius:10px;border:1px solid #86efac;padding:16px;height:100%;box-sizing:border-box;">
+                ${recsHtml}
+              </div>
+            </td>
+          `}
         </tr>
       </table>
     </div>`;
