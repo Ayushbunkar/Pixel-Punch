@@ -50,12 +50,22 @@ export class BrowserFactory {
       }
     }
 
-    if (!executablePath || !fs.existsSync(executablePath)) {
-      const errorMessage = `Chromium executable not found at: ${executablePath || ''}. Please ensure the path is correct, or @sparticuz/chromium-min is properly configured for Vercel, or Chromium is installed for Docker/VPS, or PUPPETEER_EXECUTABLE_PATH is set.`;
+    if (!executablePath) {
+      const errorMessage = `Chromium executable path is undefined. Please ensure PUPPETEER_EXECUTABLE_PATH is set or @sparticuz/chromium-min is configured.`;
       Logger.error(`[BrowserFactory] ${errorMessage}`);
       throw new Error(errorMessage);
     }
 
+    if (!fs.existsSync(executablePath)) {
+      const errorMessage = `Chromium executable not found at: ${executablePath}. Please ensure the path is correct.`;
+      Logger.error(`[BrowserFactory] ${errorMessage}`);
+      throw new Error(errorMessage);
+    }
+
+    Logger.info(`[BrowserFactory] Resolved executablePath: ${executablePath}`);
+    Logger.info(`[BrowserFactory] Launch args: ${JSON.stringify(launchArgs)}`);
+    // Note: Puppeteer and Chromium versions are not directly available here without additional imports or checks.
+    // We rely on the environment to provide compatible versions.
     Logger.info(`[BrowserFactory] Launching Puppeteer with executablePath: ${executablePath}`);
 
     try {
@@ -64,10 +74,11 @@ export class BrowserFactory {
         executablePath,
         headless: true,
       });
+      Logger.info(`[BrowserFactory] BrowserFactory result: Browser launched successfully.`);
       return browserInstance;
     } catch (error: any) {
       Logger.error(`[BrowserFactory] Error launching Puppeteer: ${error.message}`);
-      throw new Error(`Failed to launch browser: ${error.message}`);
+      throw error; // Re-throw original error
     }
   }
 }

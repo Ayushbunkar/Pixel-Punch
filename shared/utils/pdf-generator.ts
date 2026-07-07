@@ -1,5 +1,6 @@
 import { ReportData, renderReportToHtml } from "./report-content-generator";
 import { BrowserFactory } from "./browser-factory";
+import { Logger } from "./logger";
 import fs from "fs";
 import path from "path";
 
@@ -53,8 +54,14 @@ export async function generatePdf(data: ReportData): Promise<Buffer> {
     return Buffer.from(pdf);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(`[pdf-generator] Error launching Puppeteer or generating PDF: ${errorMessage}`);
-    throw new Error(`Failed to generate PDF: ${errorMessage}`);
+    Logger.error(`[pdf-generator] Original Error: ${error}`);
+    if (error instanceof Error) {
+      Logger.error(`[pdf-generator] Original Stack: ${error.stack}`);
+    }
+    Logger.error(`[pdf-generator] Platform: ${process.platform}`);
+    Logger.error(`[pdf-generator] NODE_ENV: ${process.env.NODE_ENV}`);
+    Logger.error(`[pdf-generator] VERCEL: ${process.env.VERCEL}`);
+    throw error; // Re-throw original error
   } finally {
     if (browser) {
       await browser.close();
