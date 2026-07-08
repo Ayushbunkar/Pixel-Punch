@@ -80,7 +80,7 @@ export async function analyzeArchitecture(
   }
 
   const geminiKey = process.env.GEMINI_API_KEY;
-  const mistralKey = process.env.MISTRAL_API_KEY;
+  const openaiKey = process.env.OPENAI_API_KEY;
   const companyName = answers.company || "Your Company";
   const primaryProvider = aiStack.providers?.[0] || "unspecified provider";
 
@@ -163,7 +163,7 @@ export async function analyzeArchitecture(
     } catch (err) {
       console.error("[medium-analysis] Gemini architecture analysis failed, using fallback:", err);
     }
-  } else if (mistralKey) {
+  } else if (openaiKey) {
     try {
       const fileToAnalyze = files[0];
       const isImage = fileToAnalyze.type.startsWith("image/");
@@ -211,14 +211,16 @@ export async function analyzeArchitecture(
         ];
       }
 
-      const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
+      const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1/chat/completions";
+      const modelName = process.env.OPENAI_MODEL || "gpt-4o-mini";
+      const res = await fetch(baseUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${mistralKey}`
+          "Authorization": `Bearer ${openaiKey}`
         },
         body: JSON.stringify({
-          model: isImage ? "pixtral-12b-2409" : "mistral-large-latest",
+          model: modelName,
           messages,
           response_format: { type: "json_object" },
           temperature: 0.1
@@ -296,7 +298,7 @@ export async function analyzeCostEvidence(
   }
 
   const geminiKey = process.env.GEMINI_API_KEY;
-  const mistralKey = process.env.MISTRAL_API_KEY;
+  const openaiKey = process.env.OPENAI_API_KEY;
   const companyName = answers.company || "Your Company";
   
   // Est. spend from answers
@@ -369,7 +371,7 @@ export async function analyzeCostEvidence(
     } catch (err) {
       console.error("[medium-analysis] Gemini invoice analysis failed, using fallback:", err);
     }
-  } else if (mistralKey) {
+  } else if (openaiKey) {
     try {
       const fileToAnalyze = files[0];
       const isImage = fileToAnalyze.type.startsWith("image/");
@@ -428,14 +430,16 @@ export async function analyzeCostEvidence(
         ];
       }
 
-      const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
+      const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1/chat/completions";
+      const modelName = process.env.OPENAI_MODEL || "gpt-4o-mini";
+      const res = await fetch(baseUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${mistralKey}`
+          "Authorization": `Bearer ${openaiKey}`
         },
         body: JSON.stringify({
-          model: isImage ? "pixtral-12b-2409" : "mistral-large-latest",
+          model: modelName,
           messages,
           response_format: { type: "json_object" },
           temperature: 0.1

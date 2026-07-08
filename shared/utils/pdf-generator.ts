@@ -119,7 +119,6 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
     
     let cardX = 30;
     const cardW = 170;
-    const cardH = 110;
     
     const isCost = data.reportType === "cost";
     const labelMap: Record<number, string> = isCost
@@ -129,15 +128,34 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
       ? ["spend", "architecture", "pain"]
       : ["readiness", "value", "opportunity"];
 
+    // First pass to determine the max height based on wrapped text lines
+    let maxLines = 0;
+    const allDescLines: string[][] = [];
+    for (let i = 0; i < data.scorecard.dimensions.length; i++) {
+       const dim = data.scorecard.dimensions[i];
+       const dimKey = dimensionKeys[i] || "spend";
+       const dynamicDesc = (scoreDescriptions as Record<string, Record<string, string>>)[dimKey]?.[dim.value] || "";
+       const descLines = wrapText(dynamicDesc, 28);
+       allDescLines.push(descLines);
+       if (descLines.length > maxLines) maxLines = descLines.length;
+    }
+    
+    const baseHeight = 60; // top padding + title
+    const bottomPadding = 16;
+    const lineHeight = 12;
+    // ensure minimum 110 height, but expand if text is long
+    const cardH = Math.max(110, baseHeight + (maxLines * lineHeight) + bottomPadding);
+
     for (let i = 0; i < data.scorecard.dimensions.length; i++) {
        const dim = data.scorecard.dimensions[i];
        let rBg=0.97, gBg=0.98, bBg=0.99;
        let rBord=0.88, gBord=0.91, bBord=0.94;
        let rT=0.39, gT=0.45, bT=0.54;
        
-       if (dim.value === 'red') { rBg=0.99; gBg=0.88; bBg=0.88; rBord=0.98; gBord=0.64; bBord=0.64; rT=0.86; gT=0.15; bT=0.15; }
-       else if (dim.value === 'amber') { rBg=1; gBg=0.95; bBg=0.78; rBord=0.98; gBord=0.82; bBord=0.30; rT=0.85; gT=0.46; bT=0.03; }
-       else if (dim.value === 'green') { rBg=0.86; gBg=0.98; bBg=0.90; rBord=0.52; gBord=0.93; bBord=0.67; rT=0.08; gT=0.63; bT=0.29; }
+       // Much lighter pastel colors requested by the user
+       if (dim.value === 'red') { rBg=0.99; gBg=0.94; bBg=0.94; rBord=0.98; gBord=0.74; bBord=0.74; rT=0.86; gT=0.15; bT=0.15; }
+       else if (dim.value === 'amber') { rBg=1; gBg=0.98; bBg=0.92; rBord=0.98; gBord=0.85; bBord=0.50; rT=0.85; gT=0.46; bT=0.03; }
+       else if (dim.value === 'green') { rBg=0.94; gBg=1; bBg=0.95; rBord=0.62; gBord=0.93; bBord=0.77; rT=0.08; gT=0.63; bT=0.29; }
        
        const cardY = currentY - cardH;
        currentPage.shapes.push(`${rBg} ${gBg} ${bBg} rg\n${roundedRectPath(cardX, cardY, cardW, cardH, 12)} f`);
@@ -151,12 +169,11 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
        const displayLabel = labelMap[i] ?? dim.label;
        currentPage.textLines.push({ text: displayLabel, x: cardX + 16, y: cardY + cardH - 42, font: 'F2', size: 14, r: 0.06, g: 0.09, b: 0.16 });
        
-       const dimKey = dimensionKeys[i] || "spend";
-       const dynamicDesc = (scoreDescriptions as Record<string, Record<string, string>>)[dimKey]?.[dim.value] || "";
-       const descLines = wrapText(dynamicDesc, 28);
+       const descLines = allDescLines[i];
        for (let j = 0; j < descLines.length; j++) {
          currentPage.textLines.push({ text: descLines[j], x: cardX + 16, y: cardY + cardH - 60 - (j * 12), font: 'F1', size: 9, r: 0.28, g: 0.33, b: 0.41 });
        }
+       
        
        cardX += cardW + 10;
     }

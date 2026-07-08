@@ -441,14 +441,16 @@ Please perform a detailed cost audit. You must:
       reportText = text;
     } else if (openaiKey) {
       Logger.info("[audit.service] Generating report using OpenAI...");
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1/chat/completions";
+      const modelName = process.env.OPENAI_MODEL || "gpt-4o-mini";
+      const res = await fetch(baseUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${openaiKey}`,
         },
         body: JSON.stringify({
-          model: "gpt-4o-mini",
+          model: modelName,
           messages: [
             { role: "system", content: "You are an AI infrastructure cost auditor." },
             { role: "user", content: prompt },
