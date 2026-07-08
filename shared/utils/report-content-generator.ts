@@ -363,7 +363,7 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
       <div style="padding:20px 32px;margin-bottom:24px;border-bottom:1px solid #e2e8f0;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#64748b;margin-bottom:14px;">📋 Full Technical Audit</div>
         <div style="background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;padding:20px;">
-          ${mdToHtml(rawContent, { pdfMode: isPdf, emailMode: false })}
+          ${rawContent.includes('<div') || rawContent.includes('<h1>') || rawContent.includes('<h3') ? rawContent : mdToHtml(rawContent, { pdfMode: isPdf, emailMode: false })}
         </div>
       </div>`;
 
@@ -446,9 +446,12 @@ export function renderReportToHtml(report: ReportData, options: { mode: "web" | 
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>${report.title} — Pixel Punch</title>
   <style>
-    body { margin:0; padding:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f1f5f9; }
-    p { margin:0; }
-    ul { margin:0; padding:0; list-style:none; }
+    body { margin:0; padding:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background-color:#f8fafc; background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px); background-size: 24px 24px; }
+    .report-container h1 { font-size: 20px; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-top: 0; margin-bottom: 16px; }
+    .report-container h3 { font-size: 14px; color: #334155; margin-top: 20px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .report-container p { font-size: 12px; color: #475569; line-height: 1.6; margin-top: 0; margin-bottom: 12px; }
+    .report-container ul { padding-left: 20px; margin-top: 0; margin-bottom: 16px; list-style-type: disc; }
+    .report-container li { font-size: 12px; color: #475569; line-height: 1.6; margin-bottom: 6px; }
   </style>
 </head>
 <body>

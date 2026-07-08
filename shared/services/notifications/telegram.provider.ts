@@ -18,6 +18,7 @@ export async function sendTelegramNotification(message: string, chatId?: string)
     const requestBody = {
       chat_id: String(targetChatId),
       text: message,
+      parse_mode: "HTML",
       link_preview_options: {
         is_disabled: true
       }

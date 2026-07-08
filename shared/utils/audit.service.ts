@@ -33,33 +33,25 @@ interface AuditOutput {
 }
 
 /**
- * Extracts bullet points under a specific heading from markdown text.
+ * Extracts bullet points under a specific heading from HTML text.
  */
-function extractBulletPoints(text: string, heading: string): string[] {
-  const lines = text.split("\n");
+function extractBulletPoints(reportText: string, heading: string): string[] {
   const result: string[] = [];
-  let inSection = false;
-
-  for (const line of lines) {
-    if (line.toLowerCase().includes(heading.toLowerCase())) {
-      inSection = true;
-      continue;
-    }
-    if (inSection) {
-      if (line.trim().startsWith("#")) {
-        break; // Hit next heading section
-      }
-      const trimmed = line.trim();
-      if (trimmed.startsWith("-") || trimmed.startsWith("*")) {
-        const content = trimmed.replace(/^[-*]\s*/, "").trim();
-        if (content) {
-          result.push(content);
+  const sectionRegex = new RegExp(`<h3[^>]*>\\s*${heading}\\s*<\\/h3>[\\s\\S]*?(?=<h3|$)`, 'i');
+  const sectionMatch = reportText.match(sectionRegex);
+  
+  if (sectionMatch) {
+    const listItems = sectionMatch[0].match(/<li[^>]*>(.*?)<\/li>/gi);
+    if (listItems) {
+      listItems.forEach(item => {
+        const clean = item.replace(/<[^>]+>/g, '').trim();
+        if (clean) {
+          result.push(clean);
         }
-      }
+      });
     }
   }
 
-  // Fallback default list if parser extracts nothing
   return result;
 }
 
@@ -123,7 +115,7 @@ async function generateFallbackReport(input: AuditInput): Promise<AuditOutput> {
     if (snippet.length > 200) {
       snippet = snippet.substring(0, 197) + "...";
     }
-    parsedFilesInfo.push(`*   **Analyzed File [${f.name}]**: Decoded and parsed text context. Detected technical summary: _"${snippet || "(Empty text content detected)"}"_`);
+    parsedFilesInfo.push(`<li><strong>Analyzed File [${f.name}]</strong>: Decoded and parsed text context. Detected technical summary: <em>"${snippet || "(Empty text content detected)"}"</em></li>`);
   });
 
   const providers = aiStack.providers || [];
@@ -140,11 +132,9 @@ async function generateFallbackReport(input: AuditInput): Promise<AuditOutput> {
   const hasGPUs = otherStack.includes("GPU usage");
   const hasNoUnitEconomics = answers.unit_economics.includes("none");
 
-  // Dynamic Findings and Recommendations arrays
   const findings: string[] = [];
   const recommendations: string[] = [];
 
-  // ── Findings logic ────────────────────────────────────────────────────────
   findings.push(`I analyzed the provided technical information for ${companyName}${domain ? ` (associated with domain ${domain})` : ""} and identified critical areas of infrastructure cost leakage.`);
 
   if (hasHighSpend) {
@@ -155,7 +145,6 @@ async function generateFallbackReport(input: AuditInput): Promise<AuditOutput> {
     findings.push("Initial pilots and small deployments lack prompt reuse, resulting in higher cold-start input costs per request.");
   }
 
-  // Include architecture findings
   if (architectureAnalysis?.findings && architectureAnalysis.findings.length > 0) {
     findings.push(...architectureAnalysis.findings);
   } else if (hasRAG || hasVectorDb) {
@@ -174,7 +163,6 @@ async function generateFallbackReport(input: AuditInput): Promise<AuditOutput> {
     findings.push(`Detected signature components in resource files: ${detectedTech.join(", ")}. These present integration-level optimization opportunities.`);
   }
 
-  // Ensure findings length is exactly 3-5
   while (findings.length < 3) {
     findings.push("Under-optimized prompt templates retransmitting identical system instructions repeatedly.");
   }
@@ -182,7 +170,6 @@ async function generateFallbackReport(input: AuditInput): Promise<AuditOutput> {
     findings.splice(5);
   }
 
-  // ── Recommendations logic ──────────────────────────────────────────────────
   if (hasOpenAI || hasAnthropic) {
     recommendations.push(`Implement Semantic Caching: Deploy a caching proxy (such as Redis or Portkey) to intercept identical model queries, targeting the primary provider${providers.length > 1 ? 's' : ''} (${providers.join(", ")}).`);
   }
@@ -207,7 +194,6 @@ async function generateFallbackReport(input: AuditInput): Promise<AuditOutput> {
     recommendations.push("Integrate cost observability gateways (such as Langfuse, LiteLLM, or Helicone) to associate every token call with a unique userId or feature flag.");
   }
 
-  // Add usage metrics optimization recommendations
   if (usageMetrics?.optimizationAreas) {
     usageMetrics.optimizationAreas.forEach((area: string) => {
       if (!recommendations.includes(area)) {
@@ -216,7 +202,6 @@ async function generateFallbackReport(input: AuditInput): Promise<AuditOutput> {
     });
   }
 
-  // Ensure recommendations length is exactly 3-5
   while (recommendations.length < 3) {
     recommendations.push("Enable native provider Prompt Caching (supported by Anthropic and Gemini) for system prompts exceeding 1,024 tokens.");
   }
@@ -226,101 +211,41 @@ async function generateFallbackReport(input: AuditInput): Promise<AuditOutput> {
 
   const costDetails = costAnalysis?.normalizedData || {};
 
-  // Compile final markdown text
-  const markdownReport = `
-# AI Cost Audit & Architecture Report
-
-### Executive Summary
-I analyzed the provided technical information for **${companyName}** to assess cost efficiency, performance risk, and architecture scaling patterns. The audit score indicates a **Tier ${scores.tier}** priority, suggesting specific areas of immediate cost leakage and infrastructure refinement.
-
----
-
-### Current Architecture Analysis
-*   **Known Information**:
-    *   **Primary Providers**: ${providers.length > 0 ? providers.join(", ") : "Not specified"}
-    *   **Models Utilized**: ${models || "Not specified"}
-    *   **Cloud Infrastructure**: ${infrastructure.length > 0 ? infrastructure.join(", ") : "Not specified"}
-    *   **Capabilities & Setup**: ${otherStack.length > 0 ? otherStack.join(", ") : "None specified"}
-    *   **Audited Domain**: ${domain ? `[${domain}](http://${domain})` : "Not provided"}
-    *   **Diagnostic Answers**: Dependence: _${answers.ai_dependence.replace('_', ' ')}_, Spend Band: _${answers.monthly_spend_band.replace('_', ' ')}_, Leakage pattern: _${answers.leakage_pattern.replace('_', ' ')}_.
-${parsedFilesInfo.length > 0 ? `    *   **Uploaded Resources**:\n${parsedFilesInfo.map(info => `        ${info}`).join("\n")}` : "    *   **Uploaded Resources**: No technical documentation was uploaded."}
-
-*   **Architecture Diagram Analysis**:
-    ${architectureAnalysis?.summary || "No architecture diagrams were provided. Analysis based on user questionnaires and notes."}
-
-*   **Assumptions**:
-    *   Orchestration layers likely interface directly with provider SDKs rather than through a proxy gateway, causing vendor lock-in.
-    *   Recurring system prompts and system instructions are likely sent in full on each transaction without leveraging provider prompt caching headers.
-    *   RAG chunking strategies are likely static and uncompressed, resulting in high context window input overhead.
-
----
-
-### Cost Analysis
-*   **Cost Evidence Summary**:
-    ${costAnalysis?.summary || "No invoice or usage evidence was supplied for billing validation."}
-*   **Normalized Cost Metrics**:
-    *   **Monthly Spend**: ${costDetails.monthlySpend || "No direct billing data"}
-    *   **Primary Billing Provider**: ${costDetails.provider || "Not specified"}
-    *   **Service Category Billed**: ${costDetails.serviceUsage || "Not specified"}
-    *   **Model Allocation**: ${costDetails.modelUsage || "Not specified"}
-    *   **Token Volume Billing**: ${costDetails.tokenConsumption || "Not specified"}
-    *   **GPU Hardware Cost**: ${costDetails.gpuCost || "Not specified"}
-    *   **Identified Idle Resource Waste**: ${costDetails.unusedResources || "Not specified"}
-
----
-
-### Detected Risks
-*   **Verified Risks (Based on Uploaded Data)**:
-    ${architectureAnalysis?.risks && architectureAnalysis.risks.length > 0
-      ? architectureAnalysis.risks.map(r => `*   ${r}`).join("\n    ")
-      : "*   High dependency on closed-source model pricing structures."}
-*   **Potential Risks (Based on Operational Patterns)**:
-    *   Single API route dependency without fallback model endpoints risk operational downtime.
-    *   Linear token cost growth matches scaling user volume due to missing semantic caching proxy.
-*   **Assumptions (Missing Data)**:
-    *   Observability platforms (Langfuse, LiteLLM) are assumed missing or non-functional, preventing feature-level ROI metrics.
-
----
-
-### Optimization Opportunities
-*   **Heuristics Findings**:
-    ${findings.map(f => `*   ${f}`).join("\n    ")}
-*   **Key Action Areas**:
-    *   Prompt Caching: Activate cache headers on all system instructions over 1k tokens (saves up to 50% on input costs).
-    *   Model Routing: Set up model routing logic to automatically dispatch simple formatting or classification tasks to cheaper tiers.
-
----
-
-### Quick Wins
-*   Enable native provider Prompt Caching (supported by Anthropic and Gemini) for system prompts exceeding 1,024 tokens.
-*   Adopt Model Tiering: Route simple formatting queries to lighter model weights (e.g. GPT-4o-mini / Claude 3.5 Haiku) which reduces costs by up to 90%.
-
----
-
-### Long-Term Recommendations
-*   Configure a central API wrapper proxy (like LiteLLM or Portkey) to intercept all traffic and log usage tokens.
-*   Establish semantic database caches (e.g., Redis or GPTCache) to resolve repetitive user query inputs.
-
----
-
-### Key Findings
-${findings.map(f => `- ${f}`).join("\n")}
-
-### Expert Recommendations
-${recommendations.map(r => `- ${r}`).join("\n")}
-`;
+  const htmlReport = `
+<div class="report-container">
+  <h1>AI Cost Audit & Architecture Report</h1>
+  <h3>Executive Summary</h3>
+  <p>I analyzed the provided technical information for <strong>${companyName}</strong> to assess cost efficiency, performance risk, and architecture scaling patterns. The audit score indicates a <strong>Tier ${scores.tier}</strong> priority.</p>
+  <h3>Current Architecture Analysis</h3>
+  <ul>
+    <li><strong>Primary Providers</strong>: ${providers.join(", ")}</li>
+    <li><strong>Models</strong>: ${models}</li>
+    <li><strong>Cloud</strong>: ${infrastructure.join(", ")}</li>
+  </ul>
+  ${parsedFilesInfo.length > 0 ? `<ul>${parsedFilesInfo.join("\n")}</ul>` : ""}
+  <h3>Cost Analysis</h3>
+  <p>Monthly Spend: ${costDetails.monthlySpend || "N/A"}</p>
+  <h3>Detected Risks</h3>
+  <ul>${(architectureAnalysis?.risks || ["High dependency on closed-source pricing"]).map(r => `<li>${r}</li>`).join("")}</ul>
+  <h3>Optimization Opportunities</h3>
+  <ul>${findings.map(f => `<li>${f}</li>`).join("")}</ul>
+  <h3>Quick Wins</h3>
+  <ul><li>Enable native provider Prompt Caching.</li><li>Adopt Model Tiering.</li></ul>
+  <h3>Long-Term Recommendations</h3>
+  <ul><li>Configure a central API wrapper proxy.</li></ul>
+  <h3>Key Findings</h3>
+  <ul>${findings.map(f => `<li>${f}</li>`).join("")}</ul>
+  <h3>Expert Recommendations</h3>
+  <ul>${recommendations.map(r => `<li>${r}</li>`).join("")}</ul>
+</div>`;
 
   return {
-    auditReport: markdownReport.trim(),
+    auditReport: htmlReport,
     findings,
     recommendations,
   };
 }
 
-/**
- * Main generator service. Calls Gemini or OpenAI API if configured,
- * otherwise falls back to the deterministic local generator.
- */
 export async function generateAuditReport(input: AuditInput): Promise<AuditOutput> {
   const { answers, scores, websiteUrl, aiStack, technicalNotes, files, architectureAnalysis, costAnalysis, usageMetrics, confidenceScore } = input;
 
@@ -345,72 +270,39 @@ export async function generateAuditReport(input: AuditInput): Promise<AuditOutpu
     }
   }
 
-  // Build the context prompt
-  const prompt = `You are an AI infrastructure cost auditor. Analyze the company's actual technical environment using provided architecture, usage data, cost evidence, and technical information.
- 
-Here is the context provided about the company:
-- Company name: ${answers.company || "unspecified"} (Scan submitted by: ${answers.firstname} ${answers.lastname}, Role: ${answers.job_title})
-- Contact email: ${answers.email}
+  const prompt = `You are an AI infrastructure cost auditor. Analyze the company's actual technical environment.
+
+- Company name: ${answers.company}
 - Website URL: ${websiteUrl || "Not provided"}
-
-- Questionnaire Scan Answers:
-  * AI Dependence level: ${answers.ai_dependence}
-  * Monthly Spend Band: ${answers.monthly_spend_band}
-  * Spend Visibility rating: ${answers.spend_visibility}
-  * Unit Economics tracked: ${answers.unit_economics.join(", ") || "none"}
-  * Primary Cost Pain point: ${answers.main_pain}
-  * Primary Cost Leakage pattern: ${answers.leakage_pattern}
-  * Optimization steps completed: ${answers.optimization_done.join(", ") || "none"}
-  * Savings target threshold: ${answers.savings_threshold}
-  * Diagnostic Scorecard RAG: Spend: ${scores.spend}, Architecture: ${scores.architecture}, Pain: ${scores.pain}
-  * Calculated Priority Tier: Tier ${scores.tier}
-
-- AI Stack Information:
-  * Providers: ${aiStack.providers?.join(", ") || "Not specified"}
-  * Models: ${aiStack.models || "Not specified"}
-  * Infrastructure: ${aiStack.infrastructure?.join(", ") || "Not specified"}
-  * Additional Capabilities: ${aiStack.other?.join(", ") || "none"}
-
-- Additional Technical Notes/Context:
-  ${technicalNotes || "None provided"}
-
-- Extracted Technical Resources & Document Texts:
-  ${filesWithContent.length > 0 ? filesWithContent.map(f => `--- File: ${f.name} ---\n${f.content}`).join("\n\n") : "No documents provided."}
-
-- Architecture Diagram Analysis:
-  ${architectureAnalysis?.summary || "None provided"}
-  * Findings: ${architectureAnalysis?.findings?.join(", ") || "None"}
-  * Risks: ${architectureAnalysis?.risks?.join(", ") || "None"}
-
-- Cost Evidence Analysis:
-  ${costAnalysis?.summary || "None provided"}
-  * Normalized Cost Data: ${JSON.stringify(costAnalysis?.normalizedData || {})}
-
-- AI Usage Metrics Analysis:
-  * Monthly Requests: ${usageMetrics?.monthly_requests || "Unspecified"}
-  * Input Tokens: ${usageMetrics?.input_tokens || "Unspecified"}
-  * Output Tokens: ${usageMetrics?.output_tokens || "Unspecified"}
-  * Model Distribution: ${usageMetrics?.model_distribution || "Unspecified"}
-  * GPU Hours: ${usageMetrics?.gpu_hours || "Unspecified"}
-  * Latency Requirements: ${usageMetrics?.latency_requirements || "Unspecified"}
-  * User Volume: ${usageMetrics?.user_volume || "Unspecified"}
+- AI Stack: ${aiStack.providers?.join(", ")}
 
 Please perform a detailed cost audit. You must:
 1. Act as a senior AI cost and infrastructure auditor.
 2. Address the company's specific architecture details, files, and cost evidence.
-3. Be realistic: distinguish verified findings (based on uploaded data), potential risks (based on patterns), and assumptions (missing information).
+3. Be realistic: distinguish verified findings, potential risks, and assumptions.
 4. Your response MUST include the exact phrase: "I analyzed the provided technical information..." to introduce your findings.
-5. Provide a premium Markdown report with the following exact heading sections:
-   - # AI Cost Audit & Architecture Report
-   - ### Executive Summary
-   - ### Current Architecture Analysis
-   - ### Cost Analysis
-   - ### Detected Risks
-   - ### Optimization Opportunities
-   - ### Quick Wins
-   - ### Long-Term Recommendations
-   - ### Key Findings (List exactly 3-5 bullet points starting with "-" here)
-   - ### Expert Recommendations (List exactly 3-5 bullet points starting with "-" here)
+5. Provide a premium HTML report with the following exact semantic HTML structure (do NOT output markdown):
+   <div class="report-container">
+     <h1>AI Cost Audit & Architecture Report</h1>
+     <h3>Executive Summary</h3>
+     <p>...</p>
+     <h3>Current Architecture Analysis</h3>
+     <p>...</p>
+     <h3>Cost Analysis</h3>
+     <p>...</p>
+     <h3>Detected Risks</h3>
+     <ul>...</ul>
+     <h3>Optimization Opportunities</h3>
+     <ul>...</ul>
+     <h3>Quick Wins</h3>
+     <ul>...</ul>
+     <h3>Long-Term Recommendations</h3>
+     <ul>...</ul>
+     <h3>Key Findings</h3>
+     <ul>...</ul>
+     <h3>Expert Recommendations</h3>
+     <ul>...</ul>
+   </div>
 `;
 
   try {

@@ -152,7 +152,7 @@ export default function OpportunityResultsContent() {
 
    return (
      <Fragment>
-       <main className="min-h-screen bg-[#fafbff] pb-12 overflow-x-hidden">
+       <main className="min-h-screen bg-[#fafbff] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] pb-12 overflow-x-hidden">
        {/* Contact Bar */}
        <ContactBar containerClassName="max-w-4xl" />
 
@@ -266,7 +266,7 @@ export default function OpportunityResultsContent() {
                <h2 className="text-xl font-bold text-slate-900 mb-4">Full Technical Audit Report</h2>
                <div className="border border-slate-200 rounded-lg overflow-hidden relative">
                   <div className="bg-white p-4 rounded-lg shadow-sm prose prose-sm prose-slate max-w-none">
-                    <ReactMarkdown>{result.auditReport || ""}</ReactMarkdown>
+                    <div dangerouslySetInnerHTML={{ __html: result.auditReport || "" }} />
                   </div>
                  {!isUnlocked && (
                    <LockOverlay
@@ -433,7 +433,7 @@ export default function OpportunityResultsContent() {
                 Full Technical Audit
               </div>
               <div className="prose prose-sm prose-slate max-w-none" style={{ fontSize: "11px", color: "#475569", lineHeight: 1.6 }}>
-                <ReactMarkdown>{result.auditReport}</ReactMarkdown>
+                <div dangerouslySetInnerHTML={{ __html: result.auditReport || "" }} />
               </div>
             </div>
           )}

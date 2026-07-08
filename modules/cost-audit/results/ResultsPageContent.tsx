@@ -155,7 +155,7 @@ export default function ResultsPageContent() {
 
    return (
      <Fragment>
-       <main className="min-h-screen bg-[#fafbff] pb-12 overflow-x-hidden">
+       <main className="min-h-screen bg-[#fafbff] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] pb-12 overflow-x-hidden">
        {/* Contact Bar */}
        <ContactBar containerClassName="max-w-4xl" />
 
@@ -255,7 +255,7 @@ export default function ResultsPageContent() {
 
          <div className="border border-slate-200 rounded-lg overflow-hidden relative">
             <div className={`bg-white p-4 prose prose-sm prose-slate max-w-none ${isUnlocked ? "" : "overflow-hidden max-h-[300px] min-h-[300px]"}`}>
-              <ReactMarkdown>{result.auditReport || ""}</ReactMarkdown>
+                <div dangerouslySetInnerHTML={{ __html: result.auditReport || "" }} />
             </div>
 
            {!isUnlocked && <LockOverlay onUnlock={() => setUnlockModalOpen(true)} />}
@@ -386,7 +386,7 @@ export default function ResultsPageContent() {
                Full Technical Audit
              </div>
              <div className="prose prose-sm prose-slate max-w-none" style={{ fontSize: "11px", color: "#475569", lineHeight: 1.6 }}>
-               <ReactMarkdown>{result.auditReport}</ReactMarkdown>
+               <div dangerouslySetInnerHTML={{ __html: result.auditReport || "" }} />
              </div>
            </div>
          )}

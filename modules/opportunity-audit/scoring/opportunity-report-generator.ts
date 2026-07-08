@@ -64,41 +64,48 @@ Calculated Category Scores (out of 100):
 Top Tailored AI Opportunities Selected:
 ${recsStr}
 
-Please write a detailed, professional consultive report in Markdown.
+Please write a detailed, professional consultive report in HTML format.
 Your response MUST include the exact phrase: "I analyzed the provided business information..." to introduce your findings.
-The report must include the following exact headers and format:
+The report must include the following structure and semantic HTML tags (do NOT wrap it in a markdown block, output pure HTML):
 
-# AI Opportunity Audit & Roadmap Report
+<div class="report-container">
+  <h1>AI Opportunity Audit & Roadmap Report</h1>
 
-### Executive Summary
-Provide a professional, tailored summary (2 paragraphs) explaining their current operational posture and how AI can unlock business value specifically for their ${input.business_type} business model.
+  <h3>Executive Summary</h3>
+  <p>Provide a professional, tailored summary (2 paragraphs) explaining their current operational posture and how AI can unlock business value specifically for their ${input.business_type} business model.</p>
 
-### Current Operations & Inefficiencies
-Describe their current operational challenges, manual bottlenecks (specifically addressing ${manualProcessesStr}), and what is blocking automation (Centralization, integrations, etc.).
+  <h3>Current Operations & Inefficiencies</h3>
+  <p>Describe their current operational challenges, manual bottlenecks (specifically addressing ${manualProcessesStr}), and what is blocking automation (Centralization, integrations, etc.).</p>
 
-### AI Readiness & Scorecard Analysis
-Walk through the 6 dimension scores. Provide specific analytical feedback on their AI Readiness, Data Maturity, and Integration Readiness. Highlight the steps they need to take to prep their data stack.
+  <h3>AI Readiness & Scorecard Analysis</h3>
+  <p>Walk through the 6 dimension scores. Provide specific analytical feedback on their AI Readiness, Data Maturity, and Integration Readiness. Highlight the steps they need to take to prep their data stack.</p>
 
-### Top AI Opportunities
-Detail the recommended AI opportunities. For each opportunity, explain the business problem it solves and how to implement it (e.g. RAG, custom email agents, API connections).
+  <h3>Top AI Opportunities</h3>
+  <p>Detail the recommended AI opportunities. For each opportunity, explain the business problem it solves and how to implement it (e.g. RAG, custom email agents, API connections).</p>
 
-### Phased Implementation Roadmap
-Present a phased roadmap:
-- **Phase 1: Quick Wins (0-3 Months)** - low complexity, immediate ROI.
-- **Phase 2: Core Enhancements (3-6 Months)** - integrations, custom chatbots.
-- **Phase 3: Strategic Scaling (6-12+ Months)** - multi-agent systems.
+  <h3>Phased Implementation Roadmap</h3>
+  <p>Present a phased roadmap:</p>
+  <ul>
+    <li><strong>Phase 1: Quick Wins (0-3 Months)</strong> - low complexity, immediate ROI.</li>
+    <li><strong>Phase 2: Core Enhancements (3-6 Months)</strong> - integrations, custom chatbots.</li>
+    <li><strong>Phase 3: Strategic Scaling (6-12+ Months)</strong> - multi-agent systems.</li>
+  </ul>
 
-### Recommended Next Steps
-Provide a list of 3 actionable next steps for the client to proceed with PixelPunch (e.g. Schedule an API architecture review, map SOPs).
+  <h3>Recommended Next Steps</h3>
+  <p>Provide a list of 3 actionable next steps for the client to proceed with PixelPunch (e.g. Schedule an API architecture review, map SOPs).</p>
 
-### Key Findings (List exactly 3-5 bullet points starting with "-" here)
-- Bullet 1
-- Bullet 2
+  <h3>Key Findings</h3>
+  <ul>
+    <li>Bullet 1</li>
+    <li>Bullet 2</li>
+  </ul>
 
-### Expert Recommendations (List exactly 3-5 bullet points starting with "-" here)
-- Bullet 1
-- Bullet 2
-`;
+  <h3>Expert Recommendations</h3>
+  <ul>
+    <li>Bullet 1</li>
+    <li>Bullet 2</li>
+  </ul>
+</div>`;
 }
 
 /**
@@ -113,57 +120,67 @@ export function generateFallbackReport(
   const manualProcessesStr = (input.manual_processes || []).join(", ") || "manual tasks";
   const recsBullets = recommendations && recommendations.length > 0
     ? recommendations
-        .map((r, i) => `- **Opportunity ${i + 1}: ${r.opportunity || 'AI Opportunity'}**\n  * *Problem solved:* ${r.problem || 'N/A'}\n  * *Business Impact:* ${r.impact || 'N/A'}\n  * *Complexity & Priority:* ${r.complexity || 'N/A'} Complexity | ${r.priority || 'N/A'} Priority`)
-        .join("\n\n")
+        .map((r, i) => `<li><strong>Opportunity ${i + 1}: ${r.opportunity || 'AI Opportunity'}</strong><br/><em>Problem solved:</em> ${r.problem || 'N/A'}<br/><em>Business Impact:</em> ${r.impact || 'N/A'}<br/><em>Complexity & Priority:</em> ${r.complexity || 'N/A'} Complexity | ${r.priority || 'N/A'} Priority</li>`)
+        .join("")
     : "";
 
-  const reportText = `# AI Opportunity Audit & Roadmap Report
+  const reportText = `<div class="report-container">
+  <h1>AI Opportunity Audit & Roadmap Report</h1>
 
-### Executive Summary
-I analyzed the provided business information for **${input.company || "the business"}** and generated a customized AI Opportunity Roadmap. Based on their operating profile, there is a clear opportunity to apply intelligent automation to streamline workflows, reduce manual dependencies, and speed up business outcomes.
+  <h3>Executive Summary</h3>
+  <p>I analyzed the provided business information for <strong>${input.company || "the business"}</strong> and generated a customized AI Opportunity Roadmap. Based on their operating profile, there is a clear opportunity to apply intelligent automation to streamline workflows, reduce manual dependencies, and speed up business outcomes.</p>
+  <p>Given that the primary objective is to improve <strong>${(input.main_outcome || "operational efficiency").replace("_", " ")}</strong>, we have aligned this roadmap with their target operational goals and systems context.</p>
 
-Given that the primary objective is to improve **${(input.main_outcome || "operational efficiency").replace("_", " ")}**, we have aligned this roadmap with their target operational goals and systems context.
+  <h3>Current Operations & Inefficiencies</h3>
+  <p>The client currently experiences operational bottlenecks under <strong>${(input.biggest_challenge || " operational challenges").replace("_", " ")}</strong>, with core processes like <strong>${manualProcessesStr}</strong> requiring significant manual, repetitive effort.</p>
+  <p>The primary barrier preventing automation is <strong>${(input.automation_barriers || "lack of infrastructure").replace("_", " ")}</strong>. Because key customer and operational data is stored in <strong>${dataSystemsStr}</strong>, data synchronization and system connectivity represent critical areas of focus.</p>
 
-### Current Operations & Inefficiencies
-The client currently experiences operational bottlenecks under **${(input.biggest_challenge || " operational challenges").replace("_", " ")}**, with core processes like **${manualProcessesStr}** requiring significant manual, repetitive effort. 
+  <h3>AI Readiness & Scorecard Analysis</h3>
+  <p>The 6 category dimensions calculated for ${input.company || "the business"} show:</p>
+  <ul>
+    <li><strong>Automation Opportunity</strong>: ${scores.automation_opportunity?.score || 0}/100 (${scores.automation_opportunity?.classification?.toUpperCase() || "N/A"})</li>
+    <li><strong>AI Readiness</strong>: ${scores.ai_readiness?.score || 0}/100 (${scores.ai_readiness?.classification?.toUpperCase() || "N/A"})</li>
+    <li><strong>Data Maturity</strong>: ${scores.data_maturity?.score || 0}/100 (${scores.data_maturity?.classification?.toUpperCase() || "N/A"})</li>
+    <li><strong>Process Maturity</strong>: ${scores.process_maturity?.score || 0}/100 (${scores.process_maturity?.classification?.toUpperCase() || "N/A"})</li>
+    <li><strong>Integration Readiness</strong>: ${scores.integration_readiness?.score || 0}/100 (${scores.integration_readiness?.classification?.toUpperCase() || "N/A"})</li>
+    <li><strong>Business Impact</strong>: ${scores.business_impact?.score || 0}/100 (${scores.business_impact?.classification?.toUpperCase() || "N/A"})</li>
+  </ul>
+  <p>A lower Data and Integration readiness indicates that before deploying advanced agentic AI, the client should focus on centralizing data pipelines and mapping workflow steps.</p>
 
-The primary barrier preventing automation is **${(input.automation_barriers || "lack of infrastructure").replace("_", " ")}**. Because key customer and operational data is stored in **${dataSystemsStr}**, data synchronization and system connectivity represent critical areas of focus.
+  <h3>Top AI Opportunities</h3>
+  <p>Based on the diagnostic scan, we recommend prioritizing these initiatives:</p>
+  <ul>
+    ${recsBullets || "<li>No specific recommendations available.</li>"}
+  </ul>
 
-### AI Readiness & Scorecard Analysis
-The 6 category dimensions calculated for ${input.company || "the business"} show:
-- **Automation Opportunity**: ${scores.automation_opportunity?.score || 0}/100 (${scores.automation_opportunity?.classification?.toUpperCase() || "N/A"})
-- **AI Readiness**: ${scores.ai_readiness?.score || 0}/100 (${scores.ai_readiness?.classification?.toUpperCase() || "N/A"})
-- **Data Maturity**: ${scores.data_maturity?.score || 0}/100 (${scores.data_maturity?.classification?.toUpperCase() || "N/A"})
-- **Process Maturity**: ${scores.process_maturity?.score || 0}/100 (${scores.process_maturity?.classification?.toUpperCase() || "N/A"})
-- **Integration Readiness**: ${scores.integration_readiness?.score || 0}/100 (${scores.integration_readiness?.classification?.toUpperCase() || "N/A"})
-- **Business Impact**: ${scores.business_impact?.score || 0}/100 (${scores.business_impact?.classification?.toUpperCase() || "N/A"})
+  <h3>Phased Implementation Roadmap</h3>
+  <ul>
+    <li><strong>Phase 1: Quick Wins (0-3 Months)</strong>: Focus on low-complexity automations such as standardizing customer data fields and setting up basic automated alerts.</li>
+    <li><strong>Phase 2: Core Enhancements (3-6 Months)</strong>: Deploy dedicated RAG search systems or support copilots to help team members find documents instantly.</li>
+    <li><strong>Phase 3: Strategic Scaling (6-12+ Months)</strong>: Deploy multi-agent workflow systems to orchestrate reporting and data entry tasks.</li>
+  </ul>
 
-A lower Data and Integration readiness indicates that before deploying advanced agentic AI, the client should focus on centralizing data pipelines and mapping workflow steps.
+  <h3>Recommended Next Steps</h3>
+  <ol>
+    <li>Map and document the exact step-by-step logic of your highest-frequency manual process.</li>
+    <li>Establish API connections between your CRM and spreadsheets to eliminate copy-paste silos.</li>
+    <li>Schedule an AI Architecture Review with the PixelPunch team to outline integration requirements.</li>
+  </ol>
 
-### Top AI Opportunities
-Based on the diagnostic scan, we recommend prioritizing these initiatives:
-${recsBullets || "- No specific recommendations available."}
+  <h3>Key Findings</h3>
+  <ul>
+    <li>Repetitive tasks like ${manualProcessesStr} create operational drag.</li>
+    <li>Systems are partially isolated, requiring manual synchronization steps.</li>
+    <li>Clean data pipelines represent a prerequisite for applying advanced LLM systems.</li>
+  </ul>
 
-### Phased Implementation Roadmap
-- **Phase 1: Quick Wins (0-3 Months)**: Focus on low-complexity automations such as standardizing customer data fields and setting up basic automated alerts.
-- **Phase 2: Core Enhancements (3-6 Months)**: Deploy dedicated RAG search systems or support copilots to help team members find documents instantly.
-- **Phase 3: Strategic Scaling (6-12+ Months)**: Deploy multi-agent workflow systems to orchestrate reporting and data entry tasks.
-
-### Recommended Next Steps
-1. Map and document the exact step-by-step logic of your highest-frequency manual process.
-2. Establish API connections between your CRM and spreadsheets to eliminate copy-paste silos.
-3. Schedule an AI Architecture Review with the PixelPunch team to outline integration requirements.
-
-### Key Findings
-- Repetitive tasks like ${manualProcessesStr} create operational drag.
-- Systems are partially isolated, requiring manual synchronization steps.
-- Clean data pipelines represent a prerequisite for applying advanced LLM systems.
-
-### Expert Recommendations
-- Standardize core workflows into clear SOPs before applying AI agents.
-- Centralize customer records into a single system of truth.
-- Schedule a technical scoping session to outline quick-win AI projects.
-`;
+  <h3>Expert Recommendations</h3>
+  <ul>
+    <li>Standardize core workflows into clear SOPs before applying AI agents.</li>
+    <li>Centralize customer records into a single system of truth.</li>
+    <li>Schedule a technical scoping session to outline quick-win AI projects.</li>
+  </ul>
+</div>`;
 
   return {
     reportText,
@@ -252,19 +269,25 @@ export async function generateOpportunityReport(
       const findings: string[] = [];
       const nextSteps: string[] = [];
 
-      const findingsSection = reportText.match(/### Key Findings[\s\S]*?(?=###|$)/i);
+      const findingsSection = reportText.match(/<h3[^>]*>\s*Key Findings\s*<\/h3>[\s\S]*?(?=<h3|$)/i);
       if (findingsSection) {
-        const bullets = findingsSection[0].match(/-\s*[^\n]+/g);
+        const bullets = findingsSection[0].match(/<li[^>]*>(.*?)<\/li>/gi);
         if (bullets) {
-          bullets.forEach(b => findings.push(b.replace(/^-\s*/, "").trim()));
+          bullets.forEach(b => {
+             const clean = b.replace(/<[^>]+>/g, '').trim();
+             if (clean) findings.push(clean);
+          });
         }
       }
 
-      const nextStepsSection = reportText.match(/### Recommended Next Steps[\s\S]*?(?=###|$)/i);
+      const nextStepsSection = reportText.match(/<h3[^>]*>\s*Recommended Next Steps\s*<\/h3>[\s\S]*?(?=<h3|$)/i);
       if (nextStepsSection) {
-        const items = nextStepsSection[0].match(/(?:\d+\.|\*|-)\s*[^\n]+/g);
+        const items = nextStepsSection[0].match(/<li[^>]*>(.*?)<\/li>/gi);
         if (items) {
-          items.forEach(it => nextSteps.push(it.replace(/^(?:\d+\.|\*|-)\s*/, "").trim()));
+          items.forEach(it => {
+            const clean = it.replace(/<[^>]+>/g, '').trim();
+            if (clean) nextSteps.push(clean);
+          });
         }
       }
 

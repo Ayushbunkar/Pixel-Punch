@@ -396,14 +396,14 @@ export async function POST(req: NextRequest) {
       const reportName = isOpportunity ? "Opportunity Scan" : "Cost Scan";
       const reportPath = isOpportunity ? `result/opportunity?id=${submissionId}&unlock=true` : `ai/cost-scan/results?id=${submissionId}&unlock=true`;
 
-      const telegramMessage = `New ${reportName} Submission!
+      const telegramMessage = `🚨 <b>New ${reportName} Submission!</b>
  
-Submission ID: ${submissionId}
-Company: ${castedInput.company || "N/A"}
-Contact: ${castedInput.firstname || ""} ${castedInput.lastname || ""} (${userEmail})
-Tier: ${scores.tier}
+<b>Submission ID:</b> <code>${submissionId}</code>
+<b>Company:</b> ${castedInput.company || "N/A"}
+<b>Contact:</b> ${castedInput.firstname || ""} ${castedInput.lastname || ""} (<a href="mailto:${userEmail}">${userEmail}</a>)
+<b>Tier:</b> ${scores.tier}
  
-View Report: ${baseUrl}/${reportPath}`;
+<a href="${baseUrl}/${reportPath}">➡️ View Full Technical Audit Report</a>`;
       try {
         const res = await notificationService.sendNotification("telegram_team", {
           message: telegramMessage,
