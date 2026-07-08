@@ -203,7 +203,11 @@ function renderScorecardHtml(
     const color = ragColor(val);
     const bord  = ragBorder(val);
     const statusText = val === "red" ? "HIGH RISK" : val === "amber" ? "NEEDS ATTENTION" : "LOW RISK";
-    const statusIcon = val === "green" ? "✅" : "⚠️";
+    // Use SVG instead of emojis for PDF and Email compatibility
+    const checkCircleSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #16a34a;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>`;
+    const alertTriangleSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: ${val === 'red' ? '#dc2626' : '#d97706'};"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`;
+    
+    const statusIcon = val === "green" ? checkCircleSvg : alertTriangleSvg;
 
     return `
     <td style="width:${Math.floor(100 / dimensions.length)}%;padding:0 6px;vertical-align:top;height:100%;">

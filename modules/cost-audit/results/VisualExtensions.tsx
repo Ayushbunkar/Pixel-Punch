@@ -82,6 +82,21 @@ export const NinetyDayRoadmap = () => {
 };
 
 export const OptimizationOpportunities = () => {
+  // Dynamic architecture data - values can change based on audit input
+  const architectureData = {
+    col1: [
+      { title: "Users", desc: "Requests, prompts, and workflows", borderClass: "border-blue-300", bgClass: "bg-blue-50" },
+    ],
+    col2: [
+      { title: "App Layer", desc: "Chat, API routes, orchestration", borderClass: "border-2 border-emerald-400", bgClass: "bg-emerald-50" },
+      { title: "Vector DB", desc: "Chunking, retrieval, metadata filters", borderClass: "border-emerald-400", bgClass: "bg-emerald-50/50" },
+    ],
+    col3: [
+      { title: "Model Gateway", desc: "LiteLLM / Portkey / router layer", borderClass: "border-indigo-400", bgClass: "bg-indigo-50" },
+      { title: "Azure OpenAI", desc: "Premium calls and token spend", borderClass: "border-red-300", bgClass: "bg-red-50" },
+    ],
+  };
+
   return (
     <div className="mt-12 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
       <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Optimization Opportunities</h2>
@@ -122,45 +137,54 @@ export const OptimizationOpportunities = () => {
         
         <div className="flex flex-col items-center mb-10">
           <div className="flex flex-col md:flex-row items-center gap-6 relative">
-            <div className="border border-blue-300 bg-blue-50 rounded-xl p-4 w-40 text-center relative z-10">
-              <div className="font-bold text-slate-900 text-sm mb-1">Users</div>
-              <div className="text-[10px] text-slate-500">Requests, prompts, and workflows</div>
+            {/* Column 1 */}
+            <div className="flex flex-col gap-6 relative z-10">
+              {architectureData.col1.map((item, idx) => (
+                <div key={idx} className={`border ${item.borderClass} ${item.bgClass} rounded-xl p-4 w-40 text-center relative z-10`}>
+                  <div className="font-bold text-slate-900 text-sm mb-1">{item.title}</div>
+                  <div className="text-[10px] text-slate-500">{item.desc}</div>
+                </div>
+              ))}
             </div>
             
+            {/* Connector */}
             <div className="hidden md:block h-[1px] w-8 bg-slate-300 relative z-0"></div>
             
+            {/* Column 2 */}
             <div className="flex flex-col gap-6 relative z-10">
-              <div className="border-2 border-emerald-400 bg-emerald-50 rounded-xl p-4 w-48 text-center">
-                <div className="font-bold text-slate-900 text-sm mb-1">App Layer</div>
-                <div className="text-[10px] text-slate-500">Chat, API routes, orchestration</div>
-              </div>
-              
-              <div className="flex justify-center">
-                <div className="h-6 w-[1px] bg-slate-300"></div>
-              </div>
-              
-              <div className="border border-emerald-400 bg-emerald-50/50 rounded-xl p-4 w-48 text-center">
-                <div className="font-bold text-slate-900 text-sm mb-1">Vector DB</div>
-                <div className="text-[10px] text-slate-500">Chunking, retrieval, metadata filters</div>
-              </div>
+              {architectureData.col2.map((item, idx) => (
+                <React.Fragment key={idx}>
+                  <div className={`border ${item.borderClass} ${item.bgClass} rounded-xl p-4 w-48 text-center`}>
+                    <div className="font-bold text-slate-900 text-sm mb-1">{item.title}</div>
+                    <div className="text-[10px] text-slate-500">{item.desc}</div>
+                  </div>
+                  {idx < architectureData.col2.length - 1 && (
+                    <div className="flex justify-center">
+                      <div className="h-6 w-[1px] bg-slate-300"></div>
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
             
-            <div className="hidden md:block h-[1px] w-8 bg-slate-300 relative z-0 mt-[-90px]"></div>
+            {/* Connector */}
+            <div className="hidden md:block h-[1px] w-8 bg-slate-300 relative z-0"></div>
             
+            {/* Column 3 */}
             <div className="flex flex-col gap-6 relative z-10">
-              <div className="border border-indigo-400 bg-indigo-50 rounded-xl p-4 w-48 text-center">
-                <div className="font-bold text-slate-900 text-sm mb-1">Model Gateway</div>
-                <div className="text-[10px] text-slate-500">LiteLLM / Portkey / router layer</div>
-              </div>
-              
-              <div className="flex justify-center">
-                <div className="h-6 w-[1px] bg-slate-300"></div>
-              </div>
-              
-              <div className="border border-red-300 bg-red-50 rounded-xl p-4 w-48 text-center">
-                <div className="font-bold text-slate-900 text-sm mb-1">Azure OpenAI</div>
-                <div className="text-[10px] text-slate-500">Premium calls and token spend</div>
-              </div>
+              {architectureData.col3.map((item, idx) => (
+                <React.Fragment key={idx}>
+                  <div className={`border ${item.borderClass} ${item.bgClass} rounded-xl p-4 w-48 text-center`}>
+                    <div className="font-bold text-slate-900 text-sm mb-1">{item.title}</div>
+                    <div className="text-[10px] text-slate-500">{item.desc}</div>
+                  </div>
+                  {idx < architectureData.col3.length - 1 && (
+                    <div className="flex justify-center">
+                      <div className="h-6 w-[1px] bg-slate-300"></div>
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
           </div>
         </div>

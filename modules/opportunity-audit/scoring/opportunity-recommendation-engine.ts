@@ -26,7 +26,7 @@ export function buildRecommendationPrompt(input: FormState, scores: ConfigScorin
 Your task is to analyze a client's assessment data and generate a list of the top 3-4 tailored AI and automation opportunities.
 
 Here is the context about the client's business:
-- Company: ${input.company} (Size: ${input.company_size.replace("_", "-")} employees)
+- Company: ${input.company || "Unknown"} (Size: ${(input.company_size || "").replace("_", "-")} employees)
 - Business Type: ${input.business_type}
 - Role of submission contact: ${input.job_title}
 

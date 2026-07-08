@@ -165,9 +165,8 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
        currentPage.shapes.push(`${rBg} ${gBg} ${bBg} rg\n${roundedRectPath(cardX, cardY, cardW, cardH, 12)} f`);
        currentPage.shapes.push(`${rBord} ${gBord} ${bBord} RG\n1 w\n${roundedRectPath(cardX, cardY, cardW, cardH, 12)} S`);
        
-       const statusIcon = dim.value === "green" ? "(v)" : "[!]";
        const statusText = dim.value === "red" ? "HIGH RISK" : dim.value === "amber" ? "NEEDS ATTENTION" : "LOW RISK";
-       const badgeText = `${statusIcon} ${statusText}`;
+       const badgeText = `__BULLET__ ${statusText}`;
        currentPage.textLines.push({ text: badgeText, x: cardX + 16, y: cardY + cardH - 24, font: 'F2', size: 9, r: rT, g: gT, b: bT });
        
        const displayLabel = labelMap[i] ?? dim.label;
@@ -191,7 +190,16 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
     
     for (const item of sec.items || []) {
       const itemText = String(item.content || "");
-      const lines = itemText.split("\n");
+      // Convert basic HTML to plain text equivalents before splitting
+      let parsedText = itemText
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>/gi, '\n\n')
+        .replace(/<\/li>/gi, '\n')
+        .replace(/<li[^>]*>/gi, '__BULLET__ ')
+        .replace(/<[^>]+>/g, '') // Strip remaining HTML tags
+        .trim();
+        
+      const lines = parsedText.split("\n");
       for (const line of lines) {
         let lineText = line.trim();
         if (!lineText && item.type !== "paragraph") continue;
@@ -393,9 +401,10 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
            currentPage.shapes.push(`0.8 0.8 0.8 RG\n1 w\n${xA} ${yA} m ${xB} ${yB} l S`);
         };
         
-        drawLine(nodeX1+nW, cy+bh/2, nodeX2, cy+bh/2); 
+        // Center Users vertically between the two rows
+        const usersCenterY = cy - (30 + bh) / 2;
+        drawLine(nodeX1+nW, usersCenterY+bh/2, nodeX2, cy+bh/2); 
         drawLine(nodeX2+nW, cy+bh/2, nodeX3, cy+bh/2); 
-        drawLine(nodeX1+nW/2, cy, nodeX1+nW/2, cy-30);
         drawLine(nodeX2+nW/2, cy, nodeX2+nW/2, cy-30); 
         drawLine(nodeX3+nW/2, cy, nodeX3+nW/2, cy-30); 
         
@@ -409,7 +418,7 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
            }
         };
         
-        drawBox(nodeX1, cy, "Users", "Requests, prompts, and workflows", "0.6 0.7 0.9", "0.96 0.98 1");
+        drawBox(nodeX1, usersCenterY, "Users", "Requests, prompts, and workflows", "0.6 0.7 0.9", "0.96 0.98 1");
         drawBox(nodeX2, cy, "App Layer", "Client APIs, routes, auth", "0.2 0.8 0.6", "0.92 0.99 0.95");
         drawBox(nodeX3, cy, "Model Gateway", "LiteLLM, Portkey, Cloudflare", "0.6 0.5 0.9", "0.96 0.94 1");
         drawBox(nodeX2, cy-30-bh, "Vector DB", "Pinecone, Weaviate, metadata filters", "0.2 0.8 0.6", "0.92 0.99 0.95");
@@ -613,11 +622,13 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
            currentPage.shapes.push(`0.8 0.8 0.8 RG\n1 w\n${xA} ${yA} m ${xB} ${yB} l S`);
         };
         
-        drawLine(nodeX1+nW, cy+bh/2, nodeX2, cy+bh/2); 
-        drawLine(nodeX2+nW, cy+bh/2, nodeX3, cy+bh/2); 
-        drawLine(nodeX1+nW/2, cy, nodeX1+nW/2, cy-30);
-        drawLine(nodeX2+nW/2, cy, nodeX2+nW/2, cy-30); 
-        drawLine(nodeX3+nW/2, cy, nodeX3+nW/2, cy-30); 
+         // Col1 has 2 items stacked, connect from their midpoint
+         const col1MidY = cy - (30 + bh) / 2 + bh / 2;
+         drawLine(nodeX1+nW, col1MidY, nodeX2, cy+bh/2); 
+         drawLine(nodeX2+nW, cy+bh/2, nodeX3, cy+bh/2); 
+         drawLine(nodeX1+nW/2, cy, nodeX1+nW/2, cy-30);
+         drawLine(nodeX2+nW/2, cy, nodeX2+nW/2, cy-30); 
+         drawLine(nodeX3+nW/2, cy, nodeX3+nW/2, cy-30); 
         
         const drawBox = (x: number, y: number, title: string, subtitle: string, bCol: string, bgCol: string) => {
            currentPage.shapes.push(`${bgCol} rg\n${roundedRectPath(x, y, nW, bh, 4)} f`);

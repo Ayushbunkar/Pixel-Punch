@@ -108,13 +108,13 @@ export function qualifyLead(input: FormState, submissionId: string): CRMLeadPayl
     leadStatus = "SQL";
     routingDestination = "sales_priority_inbox";
     tags.push("LEAD_SQL", "HIGH_PRIORITY");
-    notes = `High-value SQL target. ${input.company} has a mature process fit and high automation potential. Main goal is ${input.main_outcome.replace("_", " ")}.`;
+    notes = `High-value SQL target. ${input.company || "Company"} has a mature process fit and high automation potential. Main goal is ${(input.main_outcome || "").replace("_", " ")}.`;
   } else if (leadScore >= 50 && !isSmallBiz) {
     qualificationTier = "Tier 2: Good Fit";
     leadStatus = "MQL";
     routingDestination = "sales_standard_inbox";
     tags.push("LEAD_MQL");
-    notes = `Qualified MQL. Good process fit but has minor constraints (e.g. Blocker: ${input.adoption_blocker.replace("_", " ")}). Recommended for direct sales reachout.`;
+    notes = `Qualified MQL. Good process fit but has minor constraints (e.g. Blocker: ${(input.adoption_blocker || "").replace("_", " ")}). Recommended for direct sales reachout.`;
   } else if (isSmallBiz && hasBudgetBlocker) {
     qualificationTier = "Tier 4: Not Ready";
     leadStatus = "DISQUALIFIED";

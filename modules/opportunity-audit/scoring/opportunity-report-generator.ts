@@ -32,7 +32,7 @@ export function buildReportPrompt(
 Your task is to analyze the client's operational context, systems, data, and calculated scores, and write a premium, detailed AI Opportunity Audit & Roadmap Report.
 
 Here is the context provided about the client's business:
-- Company name: ${input.company} (Size: ${input.company_size.replace("_", "-")} employees)
+- Company name: ${input.company || "Unknown"} (Size: ${(input.company_size || "").replace("_", "-")} employees)
 - Business Type: ${input.business_type}
 - Contact Person: ${input.firstname} ${input.lastname} (Role: ${input.job_title})
 
