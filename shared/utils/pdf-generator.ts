@@ -216,8 +216,11 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
            currentY -= 5;
         }
         
-        if (lineText.startsWith('- ') || lineText.startsWith('* ')) {
-           lineText = lineText.substring(2);
+        if (lineText.startsWith('__BULLET__ ')) {
+            isList = true;
+            lineText = lineText.substring(11).trim();
+        } else if (lineText.startsWith('- ') || lineText.startsWith('* ')) {
+           lineText = lineText.substring(2).trim();
            isList = true;
         }
         
@@ -260,6 +263,9 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
            drawText(currentLine, 30, isBold ? 'F2' : 'F1', 10, 0.27, 0.33, 0.41);
            currentY -= 15;
         }
+        
+        // Add paragraph spacing
+        currentY -= 6;
       }
       currentY -= 10;
     }
@@ -391,7 +397,7 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         currentY -= 20;
         
         const cy = currentY - 50;
-        const bh = 45;
+        const bh = 55;
         const nW = 115;
         const nodeX1 = 50;
         const nodeX2 = 200;
@@ -401,10 +407,13 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
            currentPage.shapes.push(`0.8 0.8 0.8 RG\n1 w\n${xA} ${yA} m ${xB} ${yB} l S`);
         };
         
+        // Midpoint between the two rows for horizontal connectors
+        const midY = cy - 15;
+        
         // Center Users vertically between the two rows
-        const usersCenterY = cy - (30 + bh) / 2;
-        drawLine(nodeX1+nW, usersCenterY+bh/2, nodeX2, cy+bh/2); 
-        drawLine(nodeX2+nW, cy+bh/2, nodeX3, cy+bh/2); 
+        const usersCenterY = midY - bh/2;
+        drawLine(nodeX1+nW, midY, nodeX2, midY); 
+        drawLine(nodeX2+nW, midY, nodeX3, midY); 
         drawLine(nodeX2+nW/2, cy, nodeX2+nW/2, cy-30); 
         drawLine(nodeX3+nW/2, cy, nodeX3+nW/2, cy-30); 
         
@@ -612,7 +621,7 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         currentY -= 20;
         
         const cy = currentY - 50;
-        const bh = 45;
+        const bh = 55;
         const nW = 115;
         const nodeX1 = 50;
         const nodeX2 = 200;
@@ -622,10 +631,10 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
            currentPage.shapes.push(`0.8 0.8 0.8 RG\n1 w\n${xA} ${yA} m ${xB} ${yB} l S`);
         };
         
-         // Col1 has 2 items stacked, connect from their midpoint
-         const col1MidY = cy - (30 + bh) / 2 + bh / 2;
-         drawLine(nodeX1+nW, col1MidY, nodeX2, cy+bh/2); 
-         drawLine(nodeX2+nW, cy+bh/2, nodeX3, cy+bh/2); 
+         // Midpoint between the two rows for horizontal connectors
+         const midY = cy - 15;
+         drawLine(nodeX1+nW, midY, nodeX2, midY); 
+         drawLine(nodeX2+nW, midY, nodeX3, midY); 
          drawLine(nodeX1+nW/2, cy, nodeX1+nW/2, cy-30);
          drawLine(nodeX2+nW/2, cy, nodeX2+nW/2, cy-30); 
          drawLine(nodeX3+nW/2, cy, nodeX3+nW/2, cy-30); 
