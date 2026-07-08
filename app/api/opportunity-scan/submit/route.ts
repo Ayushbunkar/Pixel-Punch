@@ -16,8 +16,9 @@ import {
 // ── Helper: Remove duplicate recommendations ───────────────────────────────────
 function deduplicateRecommendations(recommendations: string[]): string[] {
   const seen = new Set<string>();
-  return recommendations.filter((rec) => {
-    const normalized = rec.toLowerCase().trim();
+  return (recommendations || []).filter((rec) => {
+    if (!rec) return false;
+    const normalized = String(rec).toLowerCase().trim();
     if (seen.has(normalized)) return false;
     seen.add(normalized);
     return true;

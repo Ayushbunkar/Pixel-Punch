@@ -429,17 +429,17 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n290 ${ty} m 290 ${currentY} l S`);
         currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n${40+tW2} ${ty} m ${40+tW2} ${currentY} l S`);
         
-        drawText("Observed Risks", 50, 'F2', 10, 0.2, 0.25, 0.33);
-        drawText("What to fix first", 300, 'F2', 10, 0.2, 0.25, 0.33);
+        currentPage.textLines.push({ text: "Observed Risks", x: 50, y: currentY - 14, font: 'F2', size: 10, r: 0.2, g: 0.25, b: 0.33 });
+        currentPage.textLines.push({ text: "What to fix first", x: 300, y: currentY - 14, font: 'F2', size: 10, r: 0.2, g: 0.25, b: 0.33 });
         
         const risk1Lines = [
            "1. Direct provider calls likely increase vendor lock-in.",
            "2. Repeated system instructions ship in full each request.",
            "3. Static chunking can bloat prompt windows."
         ];
-        let ry1 = currentY - 35;
+        let ry1 = currentY - 32;
         for (const line of risk1Lines) {
-           drawText(line, 50, 'F1', 9, 0.28, 0.33, 0.41);
+           currentPage.textLines.push({ text: line, x: 50, y: ry1, font: 'F1', size: 9, r: 0.28, g: 0.33, b: 0.41 });
            ry1 -= 12;
         }
         
@@ -448,9 +448,9 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
            "2. Enable native prompt caching.",
            "3. Reduce retrieval context with filters."
         ];
-        let ry2 = currentY - 35;
+        let ry2 = currentY - 32;
         for (const line of fix1Lines) {
-           drawText(line, 300, 'F1', 9, 0.28, 0.33, 0.41);
+           currentPage.textLines.push({ text: line, x: 300, y: ry2, font: 'F1', size: 9, r: 0.28, g: 0.33, b: 0.41 });
            ry2 -= 12;
         }
         currentY = ty - 20;
@@ -650,17 +650,17 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n290 ${ty} m 290 ${currentY} l S`);
         currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n${40+tW2} ${ty} m ${40+tW2} ${currentY} l S`);
         
-        drawText("Observed Gaps", 50, 'F2', 10, 0.2, 0.25, 0.33);
-        drawText("What to build first", 300, 'F2', 10, 0.2, 0.25, 0.33);
+        currentPage.textLines.push({ text: "Observed Gaps", x: 50, y: currentY - 14, font: 'F2', size: 10, r: 0.2, g: 0.25, b: 0.33 });
+        currentPage.textLines.push({ text: "What to build first", x: 300, y: currentY - 14, font: 'F2', size: 10, r: 0.2, g: 0.25, b: 0.33 });
         
         const risk1Lines = [
            "1. No mechanism to retrieve unstructured data.",
            "2. Core application lacks AI orchestration logic.",
            "3. Manual workflows bottleneck growth."
         ];
-        let ry1 = currentY - 35;
+        let ry1 = currentY - 32;
         for (const line of risk1Lines) {
-           drawText(line, 50, 'F1', 9, 0.28, 0.33, 0.41);
+           currentPage.textLines.push({ text: line, x: 50, y: ry1, font: 'F1', size: 9, r: 0.28, g: 0.33, b: 0.41 });
            ry1 -= 12;
         }
         
@@ -669,9 +669,9 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
            "2. Integrate an Agent Framework.",
            "3. Build pilot for highest-friction workflow."
         ];
-        let ry2_opp = currentY - 35;
+        let ry2_opp = currentY - 32;
         for (const line of fix1Lines_opp) {
-           drawText(line, 300, 'F1', 9, 0.28, 0.33, 0.41);
+           currentPage.textLines.push({ text: line, x: 300, y: ry2_opp, font: 'F1', size: 9, r: 0.28, g: 0.33, b: 0.41 });
            ry2_opp -= 12;
         }
         currentY = ty - 20;
