@@ -13,6 +13,7 @@
     "@google-cloud/storage": "^7.21.0",
     "@sparticuz/chromium-min": "^149.0.0",
     "@supabase/supabase-js": "^2.110.0",
+    "@tailwindcss/typography": "^0.5.20",
     "formdata-node": "^6.0.3",
     "framer-motion": "^12.41.0",
     "html2pdf.js": "^0.14.0",
