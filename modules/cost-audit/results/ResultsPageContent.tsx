@@ -32,6 +32,7 @@ import { ResultsSkeleton } from "./ResultsSkeleton";
 import { EmailModal } from "@/shared/components/EmailModal";
 import { UnlockModal } from "@/shared/components/UnlockModal";
 import { LockOverlay } from "@/shared/components/LockOverlay";
+import { SavingsProjection, NinetyDayRoadmap, OptimizationOpportunities } from "./VisualExtensions";
 
 // Strips markdown syntax down to plain text (used for the plain-text PDF body).
 const cleanMarkdownForPdf = (md: string) => {
@@ -253,12 +254,20 @@ export default function ResultsPageContent() {
          )}
 
          <div className="border border-slate-200 rounded-lg overflow-hidden relative">
-            <div className="bg-white p-4 overflow-y-auto scrollbar-thin max-h-[300px] min-h-[300px] prose prose-sm prose-slate max-w-none">
+            <div className={`bg-white p-4 prose prose-sm prose-slate max-w-none ${isUnlocked ? "" : "overflow-hidden max-h-[300px] min-h-[300px]"}`}>
               <ReactMarkdown>{result.auditReport || ""}</ReactMarkdown>
             </div>
 
            {!isUnlocked && <LockOverlay onUnlock={() => setUnlockModalOpen(true)} />}
          </div>
+
+         {isUnlocked && (
+           <Fragment>
+             <SavingsProjection />
+             <OptimizationOpportunities />
+             <NinetyDayRoadmap />
+           </Fragment>
+         )}
 
 
          <div>

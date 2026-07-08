@@ -254,6 +254,221 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
     currentY -= 10;
   }
   
+  if (data.reportType === "cost") {
+    checkSpace(250);
+    drawText("SAVINGS PROJECTION AND NEXT STEPS", 30, 'F2', 14, 0.06, 0.09, 0.16);
+    currentY -= 20;
+    
+    const projDesc = "The audit summary suggests meaningful savings are available once repeated token waste, unnecessary context injection, and un-routed model calls are reduced.";
+    const projDescLines = wrapText(projDesc, 90);
+    for (const line of projDescLines) {
+      drawText(line, 30, 'F1', 10, 0.28, 0.33, 0.41);
+      currentY -= 15;
+    }
+    currentY -= 10;
+    
+    const startY = currentY;
+    const rowH = 28;
+    const rows = [
+      { label: "Current monthly AI spend", val: "$12,500", bg: "0.97 0.98 0.99" },
+      { label: "Month 1 after quick wins", val: "$10,400", bg: "1.0 1.0 1.0" },
+      { label: "Month 2 after routing + caching", val: "$8,900", bg: "0.97 0.98 0.99" },
+      { label: "Month 3 after full optimisation", val: "$7,600", bg: "1.0 1.0 1.0" },
+      { label: "Estimated annual savings", val: "$54,000", bg: "0.94 0.99 0.95" }
+    ];
+    
+    const tW = 535;
+    for (let i = 0; i < rows.length; i++) {
+       const bg = rows[i].bg;
+       currentPage.shapes.push(`${bg} rg\n30 ${currentY - rowH} ${tW} ${rowH} re f`);
+       currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n30 ${currentY} m ${30 + tW} ${currentY} l S`);
+       
+       drawText(rows[i].label, 40, 'F2', 10, 0.2, 0.25, 0.33);
+       drawText(rows[i].val, 300, 'F2', 11, 0.06, 0.09, 0.16);
+       
+       currentY -= rowH;
+    }
+    currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n30 ${currentY} m ${30 + tW} ${currentY} l S`);
+    currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n30 ${startY} m 30 ${currentY} l S`);
+    currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n290 ${startY} m 290 ${currentY} l S`);
+    currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n${30+tW} ${startY} m ${30+tW} ${currentY} l S`);
+    
+    currentY -= 40;
+    
+    checkSpace(200);
+    drawText("90-DAY ROADMAP", 30, 'F2', 14, 0.06, 0.09, 0.16);
+    currentY -= 20;
+    
+    const rW = 171;
+    const rH = 90;
+    const roadmaps = [
+      { title: "Immediate", items: ["Prompt caching", "Model routing", "RAG pruning"], bg: "0.91 0.96 1", border: "0.75 0.86 0.98" },
+      { title: "30 Days", items: ["LiteLLM gateway", "Langfuse observability", "Semantic cache"], bg: "0.93 0.94 1", border: "0.82 0.85 0.98" },
+      { title: "90 Days", items: ["Centralized governance", "Automated routing", "ROI dashboard"], bg: "0.91 0.99 0.91", border: "0.67 0.95 0.72" }
+    ];
+    
+    for (let i = 0; i < roadmaps.length; i++) {
+       const rx = 30 + i * (rW + 11);
+       const ry = currentY - rH;
+       currentPage.shapes.push(`${roadmaps[i].bg} rg\n${rx} ${ry} ${rW} ${rH} re f`);
+       currentPage.shapes.push(`${roadmaps[i].border} RG\n1 w\n${rx} ${ry} ${rW} ${rH} re S`);
+       
+       drawText(roadmaps[i].title, rx + 12, 'F2', 11, 0.06, 0.09, 0.16);
+       
+       let ix = rx + 12;
+       let iy = ry + rH - 35;
+       for (const item of roadmaps[i].items) {
+          currentPage.textLines.push({ text: "__BULLET__ " + item, x: ix, y: iy, font: 'F1', size: 9, r: 0.2, g: 0.25, b: 0.33 });
+          iy -= 15;
+       }
+    }
+    currentY -= (rH + 30);
+    
+    drawText("Why this matters", 30, 'F2', 11, 0.06, 0.09, 0.16);
+    currentY -= 15;
+    const matterLines = wrapText("This roadmap is sequenced to create fast savings first, then better routing, then governance and reporting. That order usually improves ROI while keeping implementation risk low.", 95);
+    for (const line of matterLines) {
+      drawText(line, 30, 'F1', 10, 0.28, 0.33, 0.41);
+      currentY -= 15;
+    }
+    
+    currentY -= 40;
+    
+    checkSpace(280);
+    drawText("OPTIMIZATION OPPORTUNITIES", 30, 'F2', 14, 0.06, 0.09, 0.16);
+    currentY -= 20;
+    const oppDescLines = wrapText("These are the highest-leverage moves based on the audit pattern. The goal is to reduce token waste without changing the product experience.", 95);
+    for (const line of oppDescLines) {
+      drawText(line, 30, 'F1', 10, 0.28, 0.33, 0.41);
+      currentY -= 15;
+    }
+    currentY -= 10;
+    
+    const ow = 171;
+    const oh = 90;
+    const opps = [
+      { title: "Prompt Caching", desc: "Activate cache headers on all system instructions over 1k tokens. This can cut repeated input cost significantly.", border: "0.23 0.51 0.96", bg: "0.94 0.97 1" },
+      { title: "Model Tiering", desc: "Route simple formatting, classification, and low-complexity actions to lighter models automatically.", border: "0.66 0.33 0.83", bg: "0.96 0.94 1" },
+      { title: "RAG Pruning", desc: "Shrink chunk sizes, remove duplicate context, and add hybrid reranking before prompt assembly.", border: "0.13 0.77 0.36", bg: "0.94 0.99 0.95" }
+    ];
+    
+    for (let i = 0; i < opps.length; i++) {
+       const ox = 30 + i * (ow + 11);
+       const oy = currentY - oh;
+       currentPage.shapes.push(`${opps[i].bg} rg\n${ox} ${oy} ${ow} ${oh} re f`);
+       currentPage.shapes.push(`${opps[i].border} RG\n2 w\n${ox} ${oy} ${ow} ${oh} re S`);
+       drawText(opps[i].title, ox + 12, 'F2', 10, 0.06, 0.09, 0.16);
+       
+       let iy = oy + oh - 35;
+       const dLines = wrapText(opps[i].desc, 28);
+       for (const line of dLines) {
+          currentPage.textLines.push({ text: line, x: ox + 12, y: iy, font: 'F1', size: 9, r: 0.28, g: 0.33, b: 0.41 });
+          iy -= 12;
+       }
+    }
+    currentY -= (oh + 30);
+    
+    drawText("Quick Wins", 30, 'F2', 12, 0.06, 0.09, 0.16);
+    currentY -= 20;
+    const wins = [
+      "Enable native provider Prompt Caching for system prompts exceeding 1,024 tokens.",
+      "Adopt Model Tiering: Route simple formatting queries to lighter model weights (e.g. GPT-4o-mini).",
+      "Shrink RAG chunk sizes and add hybrid re-ranking to cut irrelevant context.",
+      "Introduce semantic filters before prompt assembly to avoid context bloat."
+    ];
+    for (const win of wins) {
+       const wLines = wrapText(win, 90);
+       for (let i = 0; i < wLines.length; i++) {
+          drawText(i===0 ? "__BULLET__ " + wLines[i] : wLines[i], i===0 ? 30 : 40, 'F1', 10, 0.28, 0.33, 0.41);
+          currentY -= 15;
+       }
+       currentY -= 5;
+    }
+    currentY -= 20;
+    
+    checkSpace(280);
+    drawText("Current Architecture Analysis", 30, 'F2', 14, 0.06, 0.09, 0.16);
+    currentY -= 15;
+    const archLines = wrapText("Known information from the audit indicates Azure OpenAI as the primary provider, Azure as the cloud layer, and a vector database in the stack. The audit also suggests the current workflow likely sends large system prompts and RAG context without gateway-level optimisation.", 95);
+    for (const line of archLines) {
+      drawText(line, 30, 'F1', 10, 0.28, 0.33, 0.41);
+      currentY -= 12;
+    }
+    currentY -= 20;
+    
+    const cy = currentY - 50;
+    const bh = 45;
+    const nW = 115;
+    const nodeX1 = 30;
+    const nodeX2 = 175;
+    const nodeX3 = 320;
+    
+    const drawLine = (xA: number, yA: number, xB: number, yB: number) => {
+       currentPage.shapes.push(`0.7 0.7 0.7 RG\n1.5 w\n${xA} ${yA} m ${xB} ${yB} l S`);
+    };
+    
+    drawLine(nodeX1+nW, cy+bh/2, nodeX2, cy+bh/2); 
+    drawLine(nodeX2+nW, cy+bh/2, nodeX3, cy+bh/2); 
+    drawLine(nodeX2+nW/2, cy, nodeX2+nW/2, cy-30); 
+    drawLine(nodeX3+nW/2, cy, nodeX3+nW/2, cy-30); 
+    
+    const drawBox = (x: number, y: number, title: string, subtitle: string, bCol: string, bgCol: string) => {
+       currentPage.shapes.push(`${bgCol} rg\n${roundedRectPath(x, y, nW, bh, 6)} f`);
+       currentPage.shapes.push(`${bCol} RG\n1 w\n${roundedRectPath(x, y, nW, bh, 6)} S`);
+       currentPage.textLines.push({ text: title, x: x + 10, y: y + bh - 16, font: 'F2', size: 10, r: 0.06, g: 0.09, b: 0.16 });
+       const stLines = wrapText(subtitle, 24);
+       for (let i = 0; i < stLines.length; i++) {
+         currentPage.textLines.push({ text: stLines[i], x: x + 10, y: y + bh - 28 - (i*9), font: 'F1', size: 8, r: 0.4, g: 0.45, b: 0.5 });
+       }
+    };
+    
+    drawBox(nodeX1, cy, "Users", "Requests, workflows", "0.6 0.7 0.9", "0.94 0.96 1");
+    drawBox(nodeX2, cy, "App Layer", "Chat, API", "0.2 0.8 0.6", "0.94 1 0.96");
+    drawBox(nodeX2, cy-30-bh, "Vector DB", "Chunking, retrieval", "0.2 0.8 0.6", "0.94 1 0.96");
+    drawBox(nodeX3, cy, "Model Gateway", "LiteLLM, routing", "0.5 0.5 0.9", "0.94 0.94 1");
+    drawBox(nodeX3, cy-30-bh, "Azure OpenAI", "Premium calls", "0.9 0.5 0.5", "1 0.94 0.94");
+    
+    currentY = cy - 30 - bh - 40;
+    
+    const tW2 = 535;
+    const rowH2 = 60;
+    const ty = currentY - rowH2;
+    
+    currentPage.shapes.push(`0.97 0.98 0.99 rg\n30 ${currentY - 20} ${tW2} 20 re f`);
+    currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n30 ${currentY} m ${30 + tW2} ${currentY} l S`);
+    currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n30 ${currentY-20} m ${30 + tW2} ${currentY-20} l S`);
+    currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n30 ${ty} m ${30 + tW2} ${ty} l S`);
+    currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n30 ${ty} m 30 ${currentY} l S`);
+    currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n290 ${ty} m 290 ${currentY} l S`);
+    currentPage.shapes.push(`0.88 0.91 0.94 RG\n1 w\n${30+tW2} ${ty} m ${30+tW2} ${currentY} l S`);
+    
+    drawText("Observed Risks", 40, 'F2', 10, 0.2, 0.25, 0.33);
+    drawText("What to fix first", 300, 'F2', 10, 0.2, 0.25, 0.33);
+    
+    const risk1Lines = [
+       "1. Direct provider calls likely increase lock-in.",
+       "2. Repeated system instructions ship in full.",
+       "3. Static chunking bloats prompt windows."
+    ];
+    let ry1 = currentY - 35;
+    for (const line of risk1Lines) {
+       drawText(line, 40, 'F1', 9, 0.28, 0.33, 0.41);
+       ry1 -= 12;
+    }
+    
+    const fix1Lines = [
+       "1. Add a gateway for routing and logging.",
+       "2. Enable native prompt caching.",
+       "3. Reduce retrieval context with filters."
+    ];
+    let ry2 = currentY - 35;
+    for (const line of fix1Lines) {
+       drawText(line, 300, 'F1', 9, 0.28, 0.33, 0.41);
+       ry2 -= 12;
+    }
+    currentY = ty - 40;
+  }
+  
   const pageCount = pagesData.length;
   const kidsStr = pagesData.map((_, i) => `${3 + i} 0 R`).join(" ");
   objects.push({ id: 1, data: `<< /Type /Catalog /Pages 2 0 R >>` });
