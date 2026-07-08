@@ -247,7 +247,7 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         for (const word of words) {
            let indent = 0;
            // approximate character limit per line for width
-           const maxChars = isBold ? 85 : 95;
+           const maxChars = isBold ? 110 : 120;
            if ((currentLine + " " + word).length > maxChars) {
               checkSpace(20);
               drawText(currentLine, 30, isBold ? 'F2' : 'F1', 10, 0.27, 0.33, 0.41);

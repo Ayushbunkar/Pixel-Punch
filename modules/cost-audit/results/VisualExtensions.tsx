@@ -140,7 +140,7 @@ export const OptimizationOpportunities = () => {
             {/* Column 1 */}
             <div className="flex flex-col gap-6 relative z-10">
               {architectureData.col1.map((item, idx) => (
-                <div key={idx} className={`border ${item.borderClass} ${item.bgClass} rounded-xl p-4 w-40 text-center relative z-10`}>
+                <div key={idx} className={`border ${item.borderClass} ${item.bgClass} rounded-xl p-4 w-40 h-24 flex flex-col justify-center items-center text-center relative z-10`}>
                   <div className="font-bold text-slate-900 text-sm mb-1">{item.title}</div>
                   <div className="text-[10px] text-slate-500">{item.desc}</div>
                 </div>
@@ -154,7 +154,7 @@ export const OptimizationOpportunities = () => {
             <div className="flex flex-col gap-6 relative z-10">
               {architectureData.col2.map((item, idx) => (
                 <React.Fragment key={idx}>
-                  <div className={`border ${item.borderClass} ${item.bgClass} rounded-xl p-4 w-48 text-center`}>
+                  <div className={`border ${item.borderClass} ${item.bgClass} rounded-xl p-4 w-48 h-24 flex flex-col justify-center items-center text-center relative z-10`}>
                     <div className="font-bold text-slate-900 text-sm mb-1">{item.title}</div>
                     <div className="text-[10px] text-slate-500">{item.desc}</div>
                   </div>
@@ -174,7 +174,7 @@ export const OptimizationOpportunities = () => {
             <div className="flex flex-col gap-6 relative z-10">
               {architectureData.col3.map((item, idx) => (
                 <React.Fragment key={idx}>
-                  <div className={`border ${item.borderClass} ${item.bgClass} rounded-xl p-4 w-48 text-center`}>
+                  <div className={`border ${item.borderClass} ${item.bgClass} rounded-xl p-4 w-48 h-24 flex flex-col justify-center items-center text-center relative z-10`}>
                     <div className="font-bold text-slate-900 text-sm mb-1">{item.title}</div>
                     <div className="text-[10px] text-slate-500">{item.desc}</div>
                   </div>
