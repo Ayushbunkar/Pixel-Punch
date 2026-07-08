@@ -264,8 +264,8 @@ export default function ResultsPageContent() {
          {isUnlocked && (
            <Fragment>
              <SavingsProjection />
-             <OptimizationOpportunities />
              <NinetyDayRoadmap />
+             <OptimizationOpportunities />
            </Fragment>
          )}
 
