@@ -74,6 +74,10 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
     currentPage = { shapes: [], textLines: [] };
     currentY = 720; // Added more space below header
     
+    // Decorative background circles (very light blue) on the right side
+    currentPage.shapes.push(`0.90 0.94 1.0 rg\n${roundedRectPath(300, 450, 350, 350, 175)} f`); // Large circle
+    currentPage.shapes.push(`0.82 0.89 0.99 rg\n${roundedRectPath(450, 350, 200, 200, 100)} f`); // Small circle
+    
     currentPage.shapes.push(`0.05 0.43 0.99 rg\n0 790 595.28 52 re f`); 
     
     if (logoBuffer) {
@@ -457,9 +461,9 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
     }
     
     const fix1Lines = [
-       "1. Add a gateway for routing and logging.",
-       "2. Enable native prompt caching.",
-       "3. Reduce retrieval context with filters."
+       "1. Spin up a Vector DB and embed docs.",
+       "2. Integrate an Agent Framework.",
+       "3. Build pilot for highest-friction workflow."
     ];
     let ry2 = currentY - 35;
     for (const line of fix1Lines) {
