@@ -156,6 +156,8 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         }
         
         lineText = lineText.replace(/\*\*/g, '').replace(/\*/g, '');
+        // Replace en-dash and em-dash with standard hyphen to fix encoding issues in WinAnsiEncoding
+        lineText = lineText.replace(/[\u2013\u2014]/g, "-");
         
         if (!isList && !isHeading && lineText.match(/^([a-zA-Z0-9\s&_]+):(\s|$)/)) {
            isList = true;
@@ -171,15 +173,11 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         
         for (const word of words) {
            let indent = 0;
-           if (isList) {
-             if (isFirstWrap) indent = 0;
-             else indent = 15;
-           }
            // approximate character limit per line for width
            const maxChars = isBold ? 85 : 95;
-           if ((currentLine + " " + word).length > (maxChars - (indent/2))) {
+           if ((currentLine + " " + word).length > maxChars) {
               checkSpace(20);
-              drawText(currentLine, 30 + (isFirstWrap ? 0 : (isList ? 12 : 0)), isBold ? 'F2' : 'F1', 10, 0.27, 0.33, 0.41);
+              drawText(currentLine, 30, isBold ? 'F2' : 'F1', 10, 0.27, 0.33, 0.41);
               currentY -= 15;
               currentLine = word;
               isFirstWrap = false;
@@ -189,7 +187,7 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
         }
         if (currentLine) {
            checkSpace(20);
-           drawText(currentLine, 30 + (isFirstWrap ? 0 : (isList ? 12 : 0)), isBold ? 'F2' : 'F1', 10, 0.27, 0.33, 0.41);
+           drawText(currentLine, 30, isBold ? 'F2' : 'F1', 10, 0.27, 0.33, 0.41);
            currentY -= 15;
         }
       }
