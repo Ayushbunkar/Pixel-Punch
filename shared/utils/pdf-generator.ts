@@ -3,6 +3,7 @@ import { BrowserFactory } from "./browser-factory";
 import { Logger } from "./logger";
 import fs from "fs";
 import path from "path";
+import scoreDescriptions from "../config/score-descriptions.json";
 
 // ── RAG Color Config ───────────────────────────────────────────────────────────────
 
@@ -30,6 +31,27 @@ export async function loadLogoBase64(): Promise<string> {
     console.warn("[pdf-generator] Could not load logo.jpg, using placeholder");
   }
     return "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+}
+
+function roundedRectPath(x: number, y: number, w: number, h: number, r: number) {
+  const k = r * 0.552284749831;
+  return `${x + r} ${y} m ${x + w - r} ${y} l ${x + w - r + k} ${y} ${x + w} ${y + r - k} ${x + w} ${y + r} c ${x + w} ${y + h - r} l ${x + w} ${y + h - r + k} ${x + w - r + k} ${y + h} ${x + w - r} ${y + h} c ${x + r} ${y + h} l ${x + r - k} ${y + h} ${x} ${y + h - r + k} ${x} ${y + h - r} c ${x} ${y + r} l ${x} ${y + r - k} ${x + r - k} ${y} ${x + r} ${y} c`;
+}
+
+function wrapText(text: string, maxChars: number): string[] {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let currentLine = "";
+  for (const word of words) {
+    if ((currentLine + " " + word).length > maxChars) {
+      if (currentLine) lines.push(currentLine);
+      currentLine = word;
+    } else {
+      currentLine += (currentLine ? " " : "") + word;
+    }
+  }
+  if (currentLine) lines.push(currentLine);
+  return lines;
 }
 
 export function generateBasicTextPdf(data: ReportData): Buffer {
@@ -91,13 +113,24 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
   currentY -= 25;
   
   if (data.scorecard?.dimensions) {
-    checkSpace(120);
+    checkSpace(150);
     drawText("RAG SCORECARD OVERVIEW", 30, 'F2', 10, 0.39, 0.45, 0.54);
     currentY -= 20;
     
     let cardX = 30;
     const cardW = 170;
-    for (const dim of data.scorecard.dimensions) {
+    const cardH = 110;
+    
+    const isCost = data.reportType === "cost";
+    const labelMap: Record<number, string> = isCost
+      ? { 0: "Spend Risk", 1: "Architecture Risk", 2: "Pain Risk" }
+      : { 0: "Readiness Risk", 1: "Value Risk", 2: "Opportunity Risk" };
+    const dimensionKeys = isCost
+      ? ["spend", "architecture", "pain"]
+      : ["readiness", "value", "opportunity"];
+
+    for (let i = 0; i < data.scorecard.dimensions.length; i++) {
+       const dim = data.scorecard.dimensions[i];
        let rBg=0.97, gBg=0.98, bBg=0.99;
        let rBord=0.88, gBord=0.91, bBord=0.94;
        let rT=0.39, gT=0.45, bT=0.54;
@@ -106,20 +139,28 @@ export function generateBasicTextPdf(data: ReportData): Buffer {
        else if (dim.value === 'amber') { rBg=1; gBg=0.95; bBg=0.78; rBord=0.98; gBord=0.82; bBord=0.30; rT=0.85; gT=0.46; bT=0.03; }
        else if (dim.value === 'green') { rBg=0.86; gBg=0.98; bBg=0.90; rBord=0.52; gBord=0.93; bBord=0.67; rT=0.08; gT=0.63; bT=0.29; }
        
-       const cardY = currentY - 80;
-       currentPage.shapes.push(`${rBg} ${gBg} ${bBg} rg\n${cardX} ${cardY} ${cardW} 80 re f`);
-       currentPage.shapes.push(`${rBord} ${gBord} ${bBord} RG\n1 w\n${cardX} ${cardY} ${cardW} 80 re S`);
+       const cardY = currentY - cardH;
+       currentPage.shapes.push(`${rBg} ${gBg} ${bBg} rg\n${roundedRectPath(cardX, cardY, cardW, cardH, 12)} f`);
+       currentPage.shapes.push(`${rBord} ${gBord} ${bBord} RG\n1 w\n${roundedRectPath(cardX, cardY, cardW, cardH, 12)} S`);
        
-       let labelStr = dim.label;
-       if (labelStr.length > 25) labelStr = labelStr.substring(0, 22) + "...";
-       currentPage.textLines.push({ text: labelStr, x: cardX + 10, y: cardY + 60, font: 'F2', size: 9, r: 0.39, g: 0.45, b: 0.54 });
+       const statusIcon = dim.value === "green" ? "(v)" : "[!]";
        const statusText = dim.value === "red" ? "HIGH RISK" : dim.value === "amber" ? "NEEDS ATTENTION" : "LOW RISK";
-       currentPage.textLines.push({ text: statusText, x: cardX + 10, y: cardY + 45, font: 'F2', size: 10, r: rT, g: gT, b: bT });
-       currentPage.textLines.push({ text: dim.value.toUpperCase(), x: cardX + 10, y: cardY + 20, font: 'F2', size: 20, r: rT, g: gT, b: bT });
+       const badgeText = `${statusIcon} ${statusText}`;
+       currentPage.textLines.push({ text: badgeText, x: cardX + 16, y: cardY + cardH - 24, font: 'F2', size: 9, r: rT, g: gT, b: bT });
+       
+       const displayLabel = labelMap[i] ?? dim.label;
+       currentPage.textLines.push({ text: displayLabel, x: cardX + 16, y: cardY + cardH - 42, font: 'F2', size: 14, r: 0.06, g: 0.09, b: 0.16 });
+       
+       const dimKey = dimensionKeys[i] || "spend";
+       const dynamicDesc = (scoreDescriptions as Record<string, Record<string, string>>)[dimKey]?.[dim.value] || "";
+       const descLines = wrapText(dynamicDesc, 28);
+       for (let j = 0; j < descLines.length; j++) {
+         currentPage.textLines.push({ text: descLines[j], x: cardX + 16, y: cardY + cardH - 60 - (j * 12), font: 'F1', size: 9, r: 0.28, g: 0.33, b: 0.41 });
+       }
        
        cardX += cardW + 10;
     }
-    currentY -= 110;
+    currentY -= (cardH + 30);
   }
   
   for (const sec of data.sections || []) {
